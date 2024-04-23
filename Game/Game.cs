@@ -20,7 +20,7 @@ namespace Viper.Game
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        private string _version = "";
+        private string _version = "20240423.1736";
 
         public string Version
         {
@@ -45,47 +45,15 @@ namespace Viper.Game
             };
 
 #if DEBUG
-            DateTime currentDate = DateTime.Now;
-
-            string formattedMonth = currentDate.Month.ToString("00");
-            string formattedDay = currentDate.Day.ToString("00");
-            string formattedHour = currentDate.Hour.ToString("00");
-            string formattedMinute = currentDate.Minute.ToString("00");
-
-            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
             versionMessage.Text = _version + "d - Development Build";
             versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 140, 140)); // Bright Red
 #elif ALPHA
-            DateTime currentDate = DateTime.Now;
-
-            string formattedMonth = currentDate.Month.ToString("00");
-            string formattedDay = currentDate.Day.ToString("00");
-            string formattedHour = currentDate.Hour.ToString("00");
-            string formattedMinute = currentDate.Minute.ToString("00");
-
-            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
             versionMessage.Text = _version + "a - Alpha Build";
             versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 87, 87)); // Bright Yellow
 #elif BETA
-            DateTime currentDate = DateTime.Now;
-
-            string formattedMonth = currentDate.Month.ToString("00");
-            string formattedDay = currentDate.Day.ToString("00");
-            string formattedHour = currentDate.Hour.ToString("00");
-            string formattedMinute = currentDate.Minute.ToString("00");
-
-            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
             versionMessage.Text = _version + "b - Beta Build";
             versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 155, 255, 133)); // Bright Green
 #elif RELEASE
-            DateTime currentDate = DateTime.Now;
-
-            string formattedMonth = currentDate.Month.ToString("00");
-            string formattedDay = currentDate.Day.ToString("00");
-            string formattedHour = currentDate.Hour.ToString("00");
-            string formattedMinute = currentDate.Minute.ToString("00");
-
-            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
             versionMessage.Text = _version + "s";
             versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 133, 208, 255)); // Bright blue
 #endif

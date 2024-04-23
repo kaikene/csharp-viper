@@ -10,7 +10,7 @@ using System.Windows.Threading;
 
 namespace Viper.Game.Gameplay.Handler.Elements
 {
-    public class PlayerManager(Dispatcher dispatcher)
+    public class PlayerManager()
     {
         private List<Rectangle> _players = new();
 
@@ -24,11 +24,10 @@ namespace Viper.Game.Gameplay.Handler.Elements
                 Height = 30,
                 Width = 30,
                 RenderTransform = new TranslateTransform(0, 0),
+                Focusable = true,
         };
 
-            player.PreviewKeyDown += Player_KeyDown; // Event is added
-
-            void Player_KeyDown(object sender, KeyEventArgs e) // But this does nothing for some reason.
+            player.PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
                 {
@@ -55,7 +54,7 @@ namespace Viper.Game.Gameplay.Handler.Elements
                         player.RenderTransform = new TranslateTransform(0, 0);
                     }
                 }
-            }
+            };
 
             _players.Add(player);
 

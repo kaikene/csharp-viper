@@ -18,7 +18,7 @@ namespace Viper.Game.Gameplay.Handler
         {
             FieldManager fm = new();
 
-            PlayerManager pm = new(dispatcher);
+            PlayerManager pm = new();
 
             Viewbox gameplayViewbox = new()
             {
@@ -26,7 +26,6 @@ namespace Viper.Game.Gameplay.Handler
                 Width = 200,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-                Focusable = true,
             };
 
             Grid currentField = fm.Add();
@@ -35,6 +34,11 @@ namespace Viper.Game.Gameplay.Handler
             currentField.Children.Add(currentPlayer);
 
             gameplayViewbox.Child = currentField;
+
+            gameplayViewbox.PreviewMouseDown += (s, e) =>
+            {
+                pm.Player(0).Focus();
+            };
 
             return gameplayViewbox;
         }

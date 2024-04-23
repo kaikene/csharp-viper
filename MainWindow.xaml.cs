@@ -9,6 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Viper.Game;
+using Viper.Game.Gameplay.Handler.Elements;
 
 namespace Viper
 {

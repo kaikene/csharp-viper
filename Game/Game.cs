@@ -26,6 +26,15 @@ namespace Viper.Game
 
             MenuScreen ms = new(viperWindow, dispatcher);
 
+            viperWindow.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.A)
+                {
+                    MessageBox.Show("zzz");
+                    viperWindow.Focus();
+                }
+            };
+
             viperWindow.Children.Add(ms.Show());
 
             return viperWindow;

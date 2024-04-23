@@ -38,7 +38,7 @@ namespace Viper.Game.Menu
             {
                 GameplayScreen gs = new(dispatcher);
 
-                viperWindowInstance.Children.Clear();
+                viperWindowInstance.Children.Remove(menuScreen);
                 viperWindowInstance.Children.Add(gs.Show());
             }
 

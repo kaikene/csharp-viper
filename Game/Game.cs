@@ -13,31 +13,99 @@ namespace Viper.Game
 {
     public class ViperGame
     {
-        private Grid viperWindow = new()
+        private Grid _viperWindow = new()
         {
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
+        private string _version = "";
+
+        public string Version
+        {
+            get
+            {
+                return _version;
+            }
+        }
+
         public Grid Start()
         {
             Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
 
-            MenuScreen ms = new(viperWindow, dispatcher);
+            MenuScreen ms = new(_viperWindow, dispatcher);
 
-            viperWindow.PreviewKeyDown += (s, e) =>
+            TextBlock versionMessage = new()
             {
-                if (e.Key == System.Windows.Input.Key.A)
+                Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+                Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+
+#if DEBUG
+            DateTime currentDate = DateTime.Now;
+
+            string formattedMonth = currentDate.Month.ToString("00");
+            string formattedDay = currentDate.Day.ToString("00");
+            string formattedHour = currentDate.Hour.ToString("00");
+            string formattedMinute = currentDate.Minute.ToString("00");
+
+            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
+            versionMessage.Text = _version + "d - Development Build";
+            versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 140, 140)); // Bright Red
+#elif ALPHA
+            DateTime currentDate = DateTime.Now;
+
+            string formattedMonth = currentDate.Month.ToString("00");
+            string formattedDay = currentDate.Day.ToString("00");
+            string formattedHour = currentDate.Hour.ToString("00");
+            string formattedMinute = currentDate.Minute.ToString("00");
+
+            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
+            versionMessage.Text = _version + "a - Alpha Build";
+            versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 87, 87)); // Bright Yellow
+#elif BETA
+            DateTime currentDate = DateTime.Now;
+
+            string formattedMonth = currentDate.Month.ToString("00");
+            string formattedDay = currentDate.Day.ToString("00");
+            string formattedHour = currentDate.Hour.ToString("00");
+            string formattedMinute = currentDate.Minute.ToString("00");
+
+            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
+            versionMessage.Text = _version + "b - Beta Build";
+            versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 155, 255, 133)); // Bright Green
+#elif RELEASE
+            DateTime currentDate = DateTime.Now;
+
+            string formattedMonth = currentDate.Month.ToString("00");
+            string formattedDay = currentDate.Day.ToString("00");
+            string formattedHour = currentDate.Hour.ToString("00");
+            string formattedMinute = currentDate.Minute.ToString("00");
+
+            _version = $"{currentDate.Year}{formattedMonth}{formattedDay}.{formattedHour}{formattedMinute}";
+            versionMessage.Text = _version + "s";
+            versionMessage.Foreground = new SolidColorBrush(Color.FromArgb(255, 133, 208, 255)); // Bright blue
+#endif
+
+
+            _viperWindow.Children.Add(versionMessage);
+
+            Panel.SetZIndex(versionMessage, 5);
+
+            _viperWindow.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.S)
                 {
-                    MessageBox.Show("zzz");
-                    viperWindow.Focus();
+                    MessageBox.Show("Settings panel stil not added D:", "Oops");
                 }
             };
 
-            viperWindow.Children.Add(ms.Show());
+            _viperWindow.Children.Add(ms.Show());
 
-            return viperWindow;
+            return _viperWindow;
         }
     }
 }

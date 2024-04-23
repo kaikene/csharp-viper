@@ -9,11 +9,11 @@ using Viper.Game.Gameplay.Handler;
 
 namespace Viper.Game.Gameplay
 {
-    public class GameplayScreen
+    public class GameplayScreen(Dispatcher dispatcher)
     {
-        public Grid Show(Dispatcher dispatcher)
+        public Grid Show()
         {
-            GameplayHandler gh = new();
+            GameplayHandler gh = new(dispatcher);
 
             Grid gameplayScreen = new()
             {
@@ -21,7 +21,7 @@ namespace Viper.Game.Gameplay
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             };
 
-            gameplayScreen.Children.Add(gh.ShowGameplay(dispatcher));
+            gameplayScreen.Children.Add(gh.ShowGameplay());
 
             return gameplayScreen;
         }

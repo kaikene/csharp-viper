@@ -14,16 +14,11 @@ namespace Viper
 {
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ViperGame vg = new();
+            ViperGame viperGame = new();
 
-            MainGrid.Children.Add(vg.Start());
+            MainGrid.Children.Add(viperGame.Start());
         }
     }
 }

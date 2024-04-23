@@ -24,9 +24,9 @@ namespace Viper.Game
         {
             Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
 
-            MenuScreen ms = new();
+            MenuScreen ms = new(viperWindow, dispatcher);
 
-            viperWindow.Children.Add(ms.Show(viperWindow, dispatcher));
+            viperWindow.Children.Add(ms.Show());
 
             return viperWindow;
         }

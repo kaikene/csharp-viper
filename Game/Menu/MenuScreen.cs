@@ -10,36 +10,36 @@ using Viper.Game.Gameplay;
 
 namespace Viper.Game.Menu
 {
-    public class MenuScreen
+    public class MenuScreen(Grid viperWindowInstance, Dispatcher dispatcher)
     {
-        public Grid Show(Grid windowGridInstance, Dispatcher dispatcher)
+        public Grid Show()
         {
             Grid menuScreen = new()
             {
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                Focusable = true,
             };
 
-            TextBlock description = new()
+            Button startButton = new()
             {
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Colors.White),
-                Text = "Haz click o algo"
+                Height = 40,
+                Width = 60,
+                Content = "Jugar"
             };
 
-            menuScreen.Children.Add(description);
+            menuScreen.Children.Add(startButton);
 
-            menuScreen.PreviewMouseDown += MenuScreen_PreviewMouseDown;
+            startButton.PreviewMouseDown += StartButton_PreviewMouseDown;
 
-            void MenuScreen_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            void StartButton_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
             {
-                menuScreen.IsHitTestVisible = false;
-                menuScreen.Opacity = 0;
+                GameplayScreen gs = new(dispatcher);
 
-                GameplayScreen gs = new();
-
-                windowGridInstance.Children.Add(gs.Show(dispatcher));
+                viperWindowInstance.Children.Clear();
+                viperWindowInstance.Children.Add(gs.Show());
             }
 
             return menuScreen;

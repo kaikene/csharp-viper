@@ -10,11 +10,11 @@ using System.Windows.Threading;
 
 namespace Viper.Game.Gameplay.Handler.Elements
 {
-    public class PlayerManager
+    public class PlayerManager(Dispatcher dispatcher)
     {
         private List<Rectangle> _players = new();
 
-        public Rectangle Add(Dispatcher dispatcher)
+        public Rectangle Add()
         {
             Rectangle player = new()
             {
@@ -23,13 +23,38 @@ namespace Viper.Game.Gameplay.Handler.Elements
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Height = 30,
                 Width = 30,
-            };
+                RenderTransform = new TranslateTransform(0, 0),
+        };
 
-            player.PreviewKeyDown += Player_KeyDown;
+            player.PreviewKeyDown += Player_KeyDown; // Event is added
 
-            void Player_KeyDown(object sender, KeyEventArgs e)
+            void Player_KeyDown(object sender, KeyEventArgs e) // But this does nothing for some reason.
             {
-                Debug.WriteLine("Key pressed");
+                if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
+                {
+                    TranslateTransform currentPos = player.RenderTransform as TranslateTransform;
+
+                    if (e.Key == Key.Up)
+                    {
+                        player.RenderTransform = new TranslateTransform(currentPos.X, currentPos.Y - 30);
+                    }
+                    else if (e.Key == Key.Down)
+                    {
+                        player.RenderTransform = new TranslateTransform(currentPos.X, currentPos.Y + 30);
+                    }
+                    else if (e.Key == Key.Left)
+                    {
+                        player.RenderTransform = new TranslateTransform(currentPos.X - 30, currentPos.Y);
+                    }
+                    else if (e.Key == Key.Right)
+                    {
+                        player.RenderTransform = new TranslateTransform(currentPos.X + 30, currentPos.Y);
+                    }
+                    else
+                    {
+                        player.RenderTransform = new TranslateTransform(0, 0);
+                    }
+                }
             }
 
             _players.Add(player);
@@ -37,7 +62,7 @@ namespace Viper.Game.Gameplay.Handler.Elements
             return player;
         }
 
-        public Rectangle SelectPlayer(int playerIndex)
+        public Rectangle Player(int playerIndex)
         {
             return _players[playerIndex];
         }

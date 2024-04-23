@@ -12,24 +12,25 @@ using Rectangle = System.Windows.Shapes.Rectangle;
 
 namespace Viper.Game.Gameplay.Handler
 {
-    public class GameplayHandler
+    public class GameplayHandler(Dispatcher dispatcher)
     {
-        public Viewbox ShowGameplay(Dispatcher dispatcher)
+        public Viewbox ShowGameplay()
         {
             FieldManager fm = new();
 
-            PlayerManager pm = new();
+            PlayerManager pm = new(dispatcher);
 
             Viewbox gameplayViewbox = new()
             {
                 Height = 200,
                 Width = 200,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Focusable = true,
             };
 
             Grid currentField = fm.Add();
-            Rectangle currentPlayer = pm.Add(dispatcher);
+            Rectangle currentPlayer = pm.Add();
 
             currentField.Children.Add(currentPlayer);
 

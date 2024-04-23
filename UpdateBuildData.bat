@@ -14,13 +14,13 @@ set "formatted_datetime=%year%%month%%day%.%hour%%minute%"
 REM Create a C# file named CompileTime.cs
 (
     echo using System;
-    echo namespace Viper.CompileTime
+    echo namespace Viper.PreCompileData
     echo {
-    echo     public static class CompileDateTime
+    echo     public static class BuildData
     echo     {
     echo         public const string DateTime = "%formatted_datetime%";
     echo     }
     echo }
-) > CompileTime.cs
+) > BuildData.cs
 
-echo CompileTime.cs generated successfully.
+echo BuildData.cs updated!

@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using Viper.CompileTime;
+using Viper.PreCompileData;
 using Viper.Game.Menu;
 
 namespace Viper.Game
@@ -21,7 +21,7 @@ namespace Viper.Game
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        private string _version = CompileDateTime.DateTime;
+        private string _version = BuildData.DateTime;
 
         public string Version
         {

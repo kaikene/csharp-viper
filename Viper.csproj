@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(ProjectDir)UpdateCompileDate.bat&quot;&#xA;" />
+    <Exec Command="&quot;$(ProjectDir)UpdateBuildData.bat&quot;&#xA;" />
   </Target>
 
 </Project>

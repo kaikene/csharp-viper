@@ -1,46 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using Viper.Game.Gameplay.Handler.Elements;
+using Viper.Game.Gameplay.Handler.Managers.Player;
+using Viper.Game.Gameplay.Handler.Managers.Space;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
 namespace Viper.Game.Gameplay.Handler
 {
-    public class GameplayHandler(Dispatcher dispatcher)
+    public class GameplayHandler(Window window, Dispatcher dispatcher)
     {
-        public Viewbox ShowGameplay()
-        {
-            FieldManager fm = new();
+        private const int DEFAULT_GAMEPLAY_SIZE = 400;
 
-            PlayerManager pm = new();
+        // The overall size of the player and the food.
+        private const int OVERALL_SIZE = 30;
+
+        SpaceManager sm = new();
+
+        public Viewbox ShowGameplay(int gridSize)
+        {
+            FoodManager fm = new(OVERALL_SIZE);
+
+            PlayerManager pm = new(window, dispatcher, fm, OVERALL_SIZE);
 
             Viewbox gameplayViewbox = new()
             {
-                Height = 200,
-                Width = 200,
+                Height = DEFAULT_GAMEPLAY_SIZE,
+                Width = DEFAULT_GAMEPLAY_SIZE,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
             };
 
-            Grid currentField = fm.Add();
-            Rectangle currentPlayer = pm.Add();
+            Grid currentSpace = sm.Add(OVERALL_SIZE * gridSize);
 
-            currentField.Children.Add(currentPlayer);
+            currentSpace.Children.Add(pm.Add());
 
-            gameplayViewbox.Child = currentField;
+            currentSpace.Children.Add(fm.Add());
+
+            gameplayViewbox.Child = currentSpace;
 
             gameplayViewbox.PreviewMouseDown += (s, e) =>
             {
-                pm.Player(0).Focus();
+                pm.Players[0].Focus();
             };
 
             return gameplayViewbox;
+        }
+
+        public void ChangeGridSize(int selectedField, int newSize)
+        {
+            sm.SelectSpace(selectedField).Height = OVERALL_SIZE * newSize;
+            sm.SelectSpace(selectedField).Width = OVERALL_SIZE * newSize;
         }
     }
 }

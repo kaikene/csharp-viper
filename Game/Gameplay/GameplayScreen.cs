@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Viper.Game.Gameplay.Handler;
+using Viper.Game.Gameplay.Handler; 
 
 namespace Viper.Game.Gameplay
 {
-    public class GameplayScreen(Dispatcher dispatcher)
+    public class GameplayScreen(Window window, Dispatcher dispatcher)
     {
-        public Grid Show()
+        public Grid Show(int gridSize = 30)
         {
-            GameplayHandler gh = new(dispatcher);
+            GameplayHandler gh = new(window, dispatcher);
 
             Grid gameplayScreen = new()
             {
@@ -21,7 +17,7 @@ namespace Viper.Game.Gameplay
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             };
 
-            gameplayScreen.Children.Add(gh.ShowGameplay());
+            gameplayScreen.Children.Add(gh.ShowGameplay(gridSize));
 
             return gameplayScreen;
         }

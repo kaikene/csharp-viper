@@ -3,6 +3,6 @@ namespace Viper.PreCompileData
 {
     public static class BuildData
     {
-        public const string DateTime = "20240423.1852";
+        public const string DateTime = "20240425.1617";
     }
 }

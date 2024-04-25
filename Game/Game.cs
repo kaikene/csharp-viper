@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -12,15 +7,18 @@ using Viper.Game.Menu;
 
 namespace Viper.Game
 {
-    public class ViperGame
+    // The Game, needs the instance of the window so it can properly handle things like threads or any other resources after being closed.
+    public class ViperGame(Window window)
     {
-        private Grid _viperWindow = new()
+        // The main grid that holds the entire program.
+        private Grid _viperContainer = new()
         {
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
+        // Compile date.
         private string _version = BuildData.DateTime;
 
         public string Version
@@ -31,12 +29,16 @@ namespace Viper.Game
             }
         }
 
+        // Dispatcher that will be passed as a parameter so threads can make changes to the UI thread.
+        Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+
+        // Main method to start the program somewhere.
         public Grid Start()
         {
-            Dispatcher dispatcher = System.Windows.Application.Current.Dispatcher;
+            // New instance of the menu screen
+            MenuScreen ms = new(window, dispatcher);
 
-            MenuScreen ms = new(_viperWindow, dispatcher);
-
+            // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
             TextBlock versionMessage = new()
             {
                 Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
@@ -60,11 +62,11 @@ namespace Viper.Game
 #endif
 
 
-            _viperWindow.Children.Add(versionMessage);
-
+            _viperContainer.Children.Add(versionMessage);
             Panel.SetZIndex(versionMessage, 5);
 
-            _viperWindow.PreviewKeyDown += (s, e) =>
+            // Settings panel, not done yet.
+            _viperContainer.PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == System.Windows.Input.Key.S)
                 {
@@ -72,9 +74,10 @@ namespace Viper.Game
                 }
             };
 
-            _viperWindow.Children.Add(ms.Show());
+            // Show the menu screen as the first thing you see when the game is opened.
+            _viperContainer.Children.Add(ms.Show());
 
-            return _viperWindow;
+            return _viperContainer;
         }
     }
 }

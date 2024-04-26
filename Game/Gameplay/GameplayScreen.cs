@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Viper.Game.Gameplay.Handler; 
+using Viper.Game.Gameplay.Managers;
 
 namespace Viper.Game.Gameplay
 {

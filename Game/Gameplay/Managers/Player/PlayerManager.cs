@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace Viper.Game.Gameplay.Handler.Managers.Player
+namespace Viper.Game.Gameplay.Managers.Player
 {
     public class PlayerManager(Window window, Dispatcher dispatcher, FoodManager fm, int playerSize)
     {

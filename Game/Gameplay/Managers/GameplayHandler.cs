@@ -1,11 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Viper.Game.Gameplay.Handler.Managers.Player;
-using Viper.Game.Gameplay.Handler.Managers.Space;
+using Viper.Game.Gameplay.Managers.Player;
+using Viper.Game.Gameplay.Managers.Space;
 using Rectangle = System.Windows.Shapes.Rectangle;
 
-namespace Viper.Game.Gameplay.Handler
+namespace Viper.Game.Gameplay.Managers
 {
     public class GameplayHandler(Window window, Dispatcher dispatcher)
     {
@@ -14,7 +14,7 @@ namespace Viper.Game.Gameplay.Handler
         // The overall size of the player and the food.
         private const int OVERALL_SIZE = 30;
 
-        SpaceManager sm = new();
+        PlayfieldManager pfm = new();
 
         public Viewbox ShowGameplay(int gridSize)
         {
@@ -26,11 +26,11 @@ namespace Viper.Game.Gameplay.Handler
             {
                 Height = DEFAULT_GAMEPLAY_SIZE,
                 Width = DEFAULT_GAMEPLAY_SIZE,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
             };
 
-            Grid currentSpace = sm.Add(OVERALL_SIZE * gridSize);
+            Grid currentSpace = pfm.Add(OVERALL_SIZE * gridSize);
 
             currentSpace.Children.Add(pm.Add());
 
@@ -48,8 +48,8 @@ namespace Viper.Game.Gameplay.Handler
 
         public void ChangeGridSize(int selectedField, int newSize)
         {
-            sm.SelectSpace(selectedField).Height = OVERALL_SIZE * newSize;
-            sm.SelectSpace(selectedField).Width = OVERALL_SIZE * newSize;
+            pfm.SelectSpace(selectedField).Height = OVERALL_SIZE * newSize;
+            pfm.SelectSpace(selectedField).Width = OVERALL_SIZE * newSize;
         }
     }
 }

@@ -2,15 +2,15 @@
 using System.Windows.Media;
 using System.Windows;
 
-namespace Viper.Game.Gameplay.Handler.Managers.Space
+namespace Viper.Game.Gameplay.Managers.Space
 {
-    public class SpaceManager
+    public class PlayfieldManager
     {
-        private List<Grid> _spaces = new();
+        private List<Grid> _playfields = new();
 
         public Grid Add(double size)
         {
-            Grid space = new()
+            Grid playfield = new()
             {
                 Background = new SolidColorBrush(Color.FromArgb(255, 30, 30, 30)),
                 Height = size,
@@ -19,7 +19,7 @@ namespace Viper.Game.Gameplay.Handler.Managers.Space
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
-            TextBlock spaceIndexTB = new()
+            TextBlock playfieldIndexTB = new()
             {
                 FontSize = 23,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -27,18 +27,18 @@ namespace Viper.Game.Gameplay.Handler.Managers.Space
                 Foreground = new SolidColorBrush(Color.FromArgb(120, 255, 255, 255))
             };
 
-            _spaces.Add(space);
+            _playfields.Add(playfield);
 
-            spaceIndexTB.Text = (_spaces.Count() - 1).ToString();
+            playfieldIndexTB.Text = (_playfields.Count() - 1).ToString();
 
-            space.Children.Add(spaceIndexTB);
+            playfield.Children.Add(playfieldIndexTB);
 
-            return space;
+            return playfield;
         }
 
         public Grid SelectSpace(int spaceIndex)
         {
-            return _spaces[spaceIndex];
+            return _playfields[spaceIndex];
         }
     }
 }

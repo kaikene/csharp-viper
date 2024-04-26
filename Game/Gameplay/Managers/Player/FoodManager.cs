@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace Viper.Game.Gameplay.Handler.Managers.Player
+namespace Viper.Game.Gameplay.Managers.Player
 {
     public class FoodManager(int foodSize)
     {
@@ -13,7 +13,7 @@ namespace Viper.Game.Gameplay.Handler.Managers.Player
 
         private List<Rectangle> _foods = new();
 
-        private List<TranslateTransform> _positions = new();    
+        private List<TranslateTransform> _positions = new();
 
         public Rectangle Add()
         {
@@ -48,8 +48,8 @@ namespace Viper.Game.Gameplay.Handler.Managers.Player
             int spaceH = Convert.ToInt32((_foods[index].Parent as Panel).Height);
             int spaceW = Convert.ToInt32((_foods[index].Parent as Panel).Width);
 
-            int newX = foodSize * random.Next(0, (spaceH / foodSize));
-            int newY = foodSize * random.Next(0, (spaceW / foodSize));
+            int newX = foodSize * random.Next(0, spaceH / foodSize);
+            int newY = foodSize * random.Next(0, spaceW / foodSize);
 
             _foods[index].RenderTransform = new TranslateTransform(newX, newY);
             _positions[index] = _foods[index].RenderTransform as TranslateTransform;

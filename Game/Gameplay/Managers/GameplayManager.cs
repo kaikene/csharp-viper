@@ -45,20 +45,22 @@ namespace Viper.Game.Gameplay.Managers
                 PlayerBody.Add(playerBodyPart);
             }
 
+            double currentPosX = startPosition.X, currentPosY = startPosition.Y;
+            double playfieldLimitY = 0, playfieldLimitX = 0;
+            bool isSizeSaved = false;
+            double newPosX = 0, newPosY = 0;
+
             Thread playerMovement = new(() =>
             {
-                double currentPosX, currentPosY;
-                double playfieldLimitY, playfieldLimitX;
-                double newPosX = 0, newPosY = 0;
-
                 while (IsPlayerMoving)
                 {
                     dispatcher.Invoke(() =>
                     {
-                        currentPosX = (PlayerBody[0].RenderTransform as TranslateTransform).X;
-                        currentPosY = (PlayerBody[0].RenderTransform as TranslateTransform).Y;
-                        playfieldLimitY = (PlayerBody[0].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
-                        playfieldLimitX = (PlayerBody[0].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
+                        if (!isSizeSaved)
+                        {
+                            playfieldLimitY = (PlayerBody[0].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
+                            playfieldLimitX = (PlayerBody[0].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
+                        }
 
                         if (PlayerDirection == "up")
                         {

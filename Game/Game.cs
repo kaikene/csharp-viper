@@ -39,7 +39,7 @@ namespace Viper.Game
         {
             PlayfieldManager pm = new();
 
-            GameManager gm = new(window, dispatcher);
+            GameplayManager gm = new(window, dispatcher);
 
             GameplayScreen gs = new(window, dispatcher, pm, gm);
 
@@ -78,7 +78,7 @@ namespace Viper.Game
             {
                 if (e.Key == System.Windows.Input.Key.S)
                 {
-                    MessageBox.Show("Playfield size: " + pm.Size.ToString() + Environment.NewLine + "Points: " + gm.PlayerPoints[0] + Environment.NewLine, "Settings test");
+                    MessageBox.Show("Playfield size: " + pm.Size.ToString() + Environment.NewLine + "Points: " + gm.Points + Environment.NewLine, "Settings test");
                 }
             };
 

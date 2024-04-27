@@ -1,11 +1,12 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Viper.Game.Gameplay.Managers;
 
 namespace Viper.Game.Gameplay
 {
-    public class GameplayScreen(Window window, Dispatcher dispatcher, PlayfieldManager pm, GameManager gm)
+    public class GameplayScreen(Window window, Dispatcher dispatcher, PlayfieldManager pm, GameplayManager gm)
     {
         private const int DEFAULT_GAMEPLAY_SIZE = 400;
 
@@ -19,9 +20,9 @@ namespace Viper.Game.Gameplay
 
         public Grid Show(int playfieldGridSize)
         {
-            Grid currentSpace = pm.Add(GameManager.ELEMENTS_SIZE * playfieldGridSize);
+            Grid currentSpace = pm.Add(GameplayManager.ELEMENTS_SIZE * playfieldGridSize);
 
-            currentSpace.Children.Add(gm.AddPlayer());
+            currentSpace.Children.Add(gm.ShowPlayer(new TranslateTransform(0, 0)));
 
             currentSpace.Children.Add(gm.AddFood());
 
@@ -29,7 +30,7 @@ namespace Viper.Game.Gameplay
 
             gameplayViewbox.PreviewMouseDown += (s, e) =>
             {
-                gm.Players[0].Focus();
+                gm.PlayerBody[0].Focus();
             };
 
             Grid gameplayScreen = new()
@@ -45,8 +46,8 @@ namespace Viper.Game.Gameplay
 
         public void ChangePlayfieldGridSize(int selectedField, int newSize)
         {
-            pm.SelectSpace(selectedField).Height = GameManager.ELEMENTS_SIZE * newSize;
-            pm.SelectSpace(selectedField).Width = GameManager.ELEMENTS_SIZE * newSize;
+            pm.SelectSpace(selectedField).Height = GameplayManager.ELEMENTS_SIZE * newSize;
+            pm.SelectSpace(selectedField).Width = GameplayManager.ELEMENTS_SIZE * newSize;
         }
 
         public void ChangeGameplayZoom(int newZoom)

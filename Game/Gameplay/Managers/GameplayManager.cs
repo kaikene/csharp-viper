@@ -10,6 +10,8 @@ namespace Viper.Game.Gameplay.Managers
 {
     public class GameplayManager(Window window, Dispatcher dispatcher)
     {
+        #region Player logic
+
         public const int ELEMENTS_SIZE = 30;
 
         public bool IsPlayerMoving;
@@ -170,12 +172,15 @@ namespace Viper.Game.Gameplay.Managers
 
             return PlayerBody[0];
         }
+        #endregion
+
+        #region Food logic
 
         private List<TranslateTransform> _foodPositions = new();
 
         private int _foodCounter = -1;
 
-        public List<Rectangle> foods = new();
+        public List<Rectangle> Foods = new();
 
         public Rectangle AddFood()
         {
@@ -197,24 +202,24 @@ namespace Viper.Game.Gameplay.Managers
                 RePositionFood(currentIndex);
             };
 
-            foods.Add(food);
+            Foods.Add(food);
             _foodPositions.Add(new TranslateTransform());
 
-            return foods[currentIndex];
+            return Foods[currentIndex];
         }
 
         public void RePositionFood(int foodIndex)
         {
             Random random = new Random();
 
-            int spaceH = Convert.ToInt32((foods[foodIndex].Parent as Panel).Height);
-            int spaceW = Convert.ToInt32((foods[foodIndex].Parent as Panel).Width);
+            int spaceH = Convert.ToInt32((Foods[foodIndex].Parent as Panel).Height);
+            int spaceW = Convert.ToInt32((Foods[foodIndex].Parent as Panel).Width);
 
             int newX = ELEMENTS_SIZE * random.Next(0, spaceH / ELEMENTS_SIZE);
             int newY = ELEMENTS_SIZE * random.Next(0, spaceW / ELEMENTS_SIZE);
 
-            foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
-            _foodPositions[foodIndex] = foods[foodIndex].RenderTransform as TranslateTransform;
+            Foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
+            _foodPositions[foodIndex] = Foods[foodIndex].RenderTransform as TranslateTransform;
         }
 
         public TranslateTransform GetFoodPosition(int foodIndex)
@@ -222,4 +227,5 @@ namespace Viper.Game.Gameplay.Managers
             return _foodPositions[foodIndex];
         }
     }
+    #endregion
 }

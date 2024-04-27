@@ -6,11 +6,15 @@ using Viper.Game.Gameplay.Managers;
 
 namespace Viper.Game.Gameplay
 {
-    public class GameplayScreen(Window window, Dispatcher dispatcher, PlayfieldManager pm, GameplayManager gm)
+    public class GameplayScreen(Window window, Dispatcher dispatcher)
     {
         private const int DEFAULT_GAMEPLAY_SIZE = 400;
 
-        private Viewbox gameplayViewbox = new()
+        public PlayfieldManager PlayfieldManager = new();
+
+        public GameplayManager GameplayManager = new(window, dispatcher);
+
+        private Viewbox _gameplayViewbox = new()
         {
             Height = DEFAULT_GAMEPLAY_SIZE,
             Width = DEFAULT_GAMEPLAY_SIZE,
@@ -20,17 +24,17 @@ namespace Viper.Game.Gameplay
 
         public Grid Show(int playfieldGridSize)
         {
-            Grid currentSpace = pm.Add(GameplayManager.ELEMENTS_SIZE * playfieldGridSize);
+            Grid currentPlayfield = PlayfieldManager.Add(GameplayManager.ELEMENTS_SIZE * playfieldGridSize);
 
-            currentSpace.Children.Add(gm.ShowPlayer(new TranslateTransform(0, 0)));
+            currentPlayfield.Children.Add(GameplayManager.ShowPlayer(new TranslateTransform(0, 0)));
 
-            currentSpace.Children.Add(gm.AddFood());
+            currentPlayfield.Children.Add(GameplayManager.AddFood());
 
-            gameplayViewbox.Child = currentSpace;
+            _gameplayViewbox.Child = currentPlayfield;
 
-            gameplayViewbox.PreviewMouseDown += (s, e) =>
+            _gameplayViewbox.PreviewMouseDown += (s, e) =>
             {
-                gm.PlayerBody[0].Focus();
+                GameplayManager.PlayerBody[0].Focus();
             };
 
             Grid gameplayScreen = new()
@@ -39,21 +43,21 @@ namespace Viper.Game.Gameplay
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             };
 
-            gameplayScreen.Children.Add(gameplayViewbox);
+            gameplayScreen.Children.Add(_gameplayViewbox);
 
             return gameplayScreen;
         }
 
         public void ChangePlayfieldGridSize(int selectedField, int newSize)
         {
-            pm.SelectSpace(selectedField).Height = GameplayManager.ELEMENTS_SIZE * newSize;
-            pm.SelectSpace(selectedField).Width = GameplayManager.ELEMENTS_SIZE * newSize;
+            PlayfieldManager.SelectSpace(selectedField).Height = GameplayManager.ELEMENTS_SIZE * newSize;
+            PlayfieldManager.SelectSpace(selectedField).Width = GameplayManager.ELEMENTS_SIZE * newSize;
         }
 
         public void ChangeGameplayZoom(int newZoom)
         {
-            gameplayViewbox.Height = newZoom;
-            gameplayViewbox.Width = newZoom;
+            _gameplayViewbox.Height = newZoom;
+            _gameplayViewbox.Width = newZoom;
         }
     }
 }

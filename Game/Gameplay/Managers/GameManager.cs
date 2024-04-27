@@ -1,14 +1,22 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows;
 using System.Windows.Shapes;
+using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace Viper.Game.Gameplay.Managers.Player
+namespace Viper.Game.Gameplay.Managers
 {
-    public class PlayerManager(Window window, Dispatcher dispatcher, FoodManager fm, int playerSize)
+    public class GameManager(Window window, Dispatcher dispatcher)
     {
         private int _playerCounter = -1;
+
+        private int _foodCounter = -1;
 
         public int PlayerAmount
         {
@@ -18,7 +26,17 @@ namespace Viper.Game.Gameplay.Managers.Player
             }
         }
 
+        public int FoodAmount
+        {
+            get
+            {
+                return _foodCounter;
+            }
+        }
+
         public List<Rectangle> Players = new();
+
+        public List<Rectangle> Foods = new();
 
         public List<bool> IsPlayerMoving = new();
 
@@ -26,9 +44,11 @@ namespace Viper.Game.Gameplay.Managers.Player
 
         public List<int> PlayerPoints = new();
 
-        public int PlayerSize { get; } = playerSize;
+        public const int ELEMENTS_SIZE = 30;
 
-        public Rectangle Add(bool spawnMoving = false)
+        private List<TranslateTransform> _positions = new();
+
+        public Rectangle AddPlayer(bool spawnMoving = false)
         {
             _playerCounter += 1;
 
@@ -45,8 +65,8 @@ namespace Viper.Game.Gameplay.Managers.Player
                 Fill = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)),
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Left,
-                Height = playerSize,
-                Width = playerSize,
+                Height = ELEMENTS_SIZE,
+                Width = ELEMENTS_SIZE,
                 RenderTransform = new TranslateTransform(0, 0),
                 Focusable = true,
             };
@@ -61,55 +81,56 @@ namespace Viper.Game.Gameplay.Managers.Player
 
                         if (PlayerDirections[currentIndex] == "up")
                         {
-                            if (currentPosition.Y - playerSize < 0)
+                            if (currentPosition.Y - ELEMENTS_SIZE < 0)
                             {
-                                player.RenderTransform = new TranslateTransform(currentPosition.X, (player.Parent as FrameworkElement).Height - PlayerSize);
+                                player.RenderTransform = new TranslateTransform(currentPosition.X, (player.Parent as FrameworkElement).Height - ELEMENTS_SIZE);
                             }
                             else
                             {
-                                player.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y - playerSize);
+                                player.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y - ELEMENTS_SIZE);
                             }
                         }
                         else if (PlayerDirections[currentIndex] == "down")
                         {
-                            if (currentPosition.Y + playerSize > (player.Parent as FrameworkElement).Height - PlayerSize)
+                            if (currentPosition.Y + ELEMENTS_SIZE > (player.Parent as FrameworkElement).Height - ELEMENTS_SIZE)
                             {
                                 player.RenderTransform = new TranslateTransform(currentPosition.X, 0);
                             }
                             else
                             {
-                                player.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y + playerSize);
+                                player.RenderTransform = new TranslateTransform(currentPosition.X, currentPosition.Y + ELEMENTS_SIZE);
                             }
                         }
                         else if (PlayerDirections[currentIndex] == "left")
                         {
-                            if (currentPosition.X - playerSize < 0)
+                            if (currentPosition.X - ELEMENTS_SIZE < 0)
                             {
-                                player.RenderTransform = new TranslateTransform((player.Parent as FrameworkElement).Width - PlayerSize, currentPosition.Y);
+                                player.RenderTransform = new TranslateTransform((player.Parent as FrameworkElement).Width - ELEMENTS_SIZE, currentPosition.Y);
                             }
                             else
                             {
-                                player.RenderTransform = new TranslateTransform(currentPosition.X - playerSize, currentPosition.Y);
+                                player.RenderTransform = new TranslateTransform(currentPosition.X - ELEMENTS_SIZE, currentPosition.Y);
                             }
                         }
                         else if (PlayerDirections[currentIndex] == "right")
                         {
-                            if (currentPosition.X + playerSize > (player.Parent as FrameworkElement).Width - PlayerSize)
+                            if (currentPosition.X + ELEMENTS_SIZE > (player.Parent as FrameworkElement).Width - ELEMENTS_SIZE)
                             {
                                 player.RenderTransform = new TranslateTransform(0, currentPosition.Y);
                             }
                             else
                             {
-                                player.RenderTransform = new TranslateTransform(currentPosition.X + playerSize, currentPosition.Y);
+                                player.RenderTransform = new TranslateTransform(currentPosition.X + ELEMENTS_SIZE, currentPosition.Y);
                             }
                         }
 
                         double playerXpos = (player.RenderTransform as TranslateTransform).X, playerYpos = (player.RenderTransform as TranslateTransform).Y;
-                        double foodXpos = fm.GetFoodPosition(currentIndex).X, foodYpos = fm.GetFoodPosition(currentIndex).Y;
+                        double foodXpos = GetFoodPosition(currentIndex).X, foodYpos = GetFoodPosition(currentIndex).Y;
 
                         if (playerXpos == foodXpos && playerYpos == foodYpos)
                         {
-                            fm.RePosition(currentIndex);
+                            RePositionFood(currentIndex);
+                            PlayerPoints[currentIndex] += 1;
                         }
                     });
                     Thread.Sleep(50);
@@ -156,6 +177,56 @@ namespace Viper.Game.Gameplay.Managers.Player
             };
 
             return player;
+        }
+
+        public Rectangle AddFood()
+        {
+            _positions.Add(new TranslateTransform());
+
+            _foodCounter += 1;
+            int currentIndex = _foodCounter;
+
+            Rectangle food = new()
+            {
+                Fill = new SolidColorBrush(Color.FromArgb(255, 108, 245, 66)),
+                Height = ELEMENTS_SIZE,
+                Width = ELEMENTS_SIZE,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left,
+            };
+
+            food.Loaded += (s, e) =>
+            {
+                RePositionFood(currentIndex);
+            };
+
+            Foods.Add(food);
+
+            return food;
+        }
+
+        public void RePositionFood(int index)
+        {
+            Random random = new Random();
+
+            int spaceH = Convert.ToInt32((Foods[index].Parent as Panel).Height);
+            int spaceW = Convert.ToInt32((Foods[index].Parent as Panel).Width);
+
+            int newX = ELEMENTS_SIZE * random.Next(0, spaceH / ELEMENTS_SIZE);
+            int newY = ELEMENTS_SIZE * random.Next(0, spaceW / ELEMENTS_SIZE);
+
+            Foods[index].RenderTransform = new TranslateTransform(newX, newY);
+            _positions[index] = Foods[index].RenderTransform as TranslateTransform;
+        }
+
+        public Rectangle SelectFood(int foodIndex)
+        {
+            return Foods[foodIndex];
+        }
+
+        public TranslateTransform GetFoodPosition(int foodIndex)
+        {
+            return _positions[foodIndex];
         }
     }
 }

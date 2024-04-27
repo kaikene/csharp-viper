@@ -5,11 +5,32 @@ using Viper.Game.Gameplay.Managers;
 
 namespace Viper.Game.Gameplay
 {
-    public class GameplayScreen(Window window, Dispatcher dispatcher)
+    public class GameplayScreen(Window window, Dispatcher dispatcher, PlayfieldManager pm, GameManager gm)
     {
-        public Grid Show(int gridSize = 30)
+        private const int DEFAULT_GAMEPLAY_SIZE = 400;
+
+        private Viewbox gameplayViewbox = new()
         {
-            GameplayHandler gh = new(window, dispatcher);
+            Height = DEFAULT_GAMEPLAY_SIZE,
+            Width = DEFAULT_GAMEPLAY_SIZE,
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        public Grid Show(int playfieldGridSize)
+        {
+            Grid currentSpace = pm.Add(GameManager.ELEMENTS_SIZE * playfieldGridSize);
+
+            currentSpace.Children.Add(gm.AddPlayer());
+
+            currentSpace.Children.Add(gm.AddFood());
+
+            gameplayViewbox.Child = currentSpace;
+
+            gameplayViewbox.PreviewMouseDown += (s, e) =>
+            {
+                gm.Players[0].Focus();
+            };
 
             Grid gameplayScreen = new()
             {
@@ -17,9 +38,21 @@ namespace Viper.Game.Gameplay
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             };
 
-            gameplayScreen.Children.Add(gh.ShowGameplay(gridSize));
+            gameplayScreen.Children.Add(gameplayViewbox);
 
             return gameplayScreen;
+        }
+
+        public void ChangePlayfieldGridSize(int selectedField, int newSize)
+        {
+            pm.SelectSpace(selectedField).Height = GameManager.ELEMENTS_SIZE * newSize;
+            pm.SelectSpace(selectedField).Width = GameManager.ELEMENTS_SIZE * newSize;
+        }
+
+        public void ChangeGameplayZoom(int newZoom)
+        {
+            gameplayViewbox.Height = newZoom;
+            gameplayViewbox.Width = newZoom;
         }
     }
 }

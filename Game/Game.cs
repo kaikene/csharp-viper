@@ -4,6 +4,8 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Viper.PreCompileData;
 using Viper.Game.Menu;
+using Viper.Game.Gameplay;
+using Viper.Game.Gameplay.Managers;
 
 namespace Viper.Game
 {
@@ -35,8 +37,14 @@ namespace Viper.Game
         // Main method to start the program somewhere.
         public Grid Start()
         {
+            PlayfieldManager pm = new();
+
+            GameManager gm = new(window, dispatcher);
+
+            GameplayScreen gs = new(window, dispatcher, pm, gm);
+
             // New instance of the menu screen
-            MenuScreen ms = new(window, dispatcher);
+            MenuScreen ms = new(window, dispatcher, gs);
 
             // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
             TextBlock versionMessage = new()
@@ -70,7 +78,7 @@ namespace Viper.Game
             {
                 if (e.Key == System.Windows.Input.Key.S)
                 {
-                    MessageBox.Show("Settings panel stil not added D:", "Oops");
+                    MessageBox.Show("Playfield size: " + pm.Size.ToString() + Environment.NewLine + "Points: " + gm.PlayerPoints[0] + Environment.NewLine, "Settings test");
                 }
             };
 

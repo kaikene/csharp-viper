@@ -6,9 +6,9 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace Viper.Game.Gameplay.Managers
+namespace Viper.Viper.Game.Managers
 {
-    public class GameplayManager(Window window, Dispatcher dispatcher)
+    public class GameplayManager()
     {
         #region Player logic
 
@@ -23,6 +23,18 @@ namespace Viper.Game.Gameplay.Managers
         private List<TranslateTransform> _playerPositions = new();
 
         public List<Rectangle> PlayerBody = new();
+
+        public void CleanUp()
+        {
+            IsPlayerMoving = false;
+            PlayerDirection = "";
+            Points = 0;
+            _playerPositions.Clear();
+            PlayerBody.Clear();
+            _foodPositions.Clear();
+            _foodCounter = -1;
+            Foods.Clear();
+        }
 
         public Rectangle ShowPlayer(TranslateTransform startPosition, bool spawnMoving = false)
         {
@@ -56,7 +68,7 @@ namespace Viper.Game.Gameplay.Managers
             {
                 while (IsPlayerMoving)
                 {
-                    dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         if (!isSizeSaved)
                         {
@@ -165,9 +177,9 @@ namespace Viper.Game.Gameplay.Managers
                 }
             };
 
-            window.Closed += (s, e) =>
+            Application.Current.Exit += (s, e) =>
             {
-                IsPlayerMoving = false;
+                CleanUp();
             };
 
             return PlayerBody[0];

@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows;
 
-namespace Viper.Game.Gameplay.Managers
+namespace Viper.Viper.Game.Managers
 {
     public class PlayfieldManager
     {
@@ -16,7 +16,7 @@ namespace Viper.Game.Gameplay.Managers
             }
         }
 
-        private List<Grid> _playfields = new();
+        private Grid CurrentPlayfield;
 
         public Grid Add(double size)
         {
@@ -31,26 +31,15 @@ namespace Viper.Game.Gameplay.Managers
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
-            TextBlock playfieldIndexTB = new()
-            {
-                FontSize = 23,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromArgb(120, 255, 255, 255))
-            };
-
-            _playfields.Add(playfield);
-
-            playfieldIndexTB.Text = (_playfields.Count() - 1).ToString();
-
-            playfield.Children.Add(playfieldIndexTB);
+            CurrentPlayfield = playfield;
 
             return playfield;
         }
 
-        public Grid SelectSpace(int spaceIndex)
+        public void ChangeSize(int newSize)
         {
-            return _playfields[spaceIndex];
+            CurrentPlayfield.Height = newSize;
+            CurrentPlayfield.Width = newSize;
         }
     }
 }

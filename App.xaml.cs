@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace Viper
+namespace ViperWindow
 {
     /// <summary>
     /// Interaction logic for App.xaml

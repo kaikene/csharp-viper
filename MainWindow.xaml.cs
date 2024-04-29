@@ -1,13 +1,13 @@
 ﻿using System.Windows;
 using Viper.Game;
 
-namespace Viper
+namespace ViperWindow
 {
     public partial class MainWindow : Window
     {
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void window_Loaded(object sender, RoutedEventArgs e)
         {
-            ViperGame viperGame = new(window);
+            ViperGame viperGame = new();
 
             MainGrid.Children.Add(viperGame.Start());
         }

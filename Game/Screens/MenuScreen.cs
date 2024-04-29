@@ -1,0 +1,105 @@
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+
+namespace Viper.Game.Screens
+{
+    // The menu screen of the game, grants access to basically all things of the game, needs instance of the
+    public class MenuScreen
+    {
+        public event EventHandler PlayClicked;
+
+        public event EventHandler ExitGame;
+
+        public Grid Show()
+        {
+            const int BUTTON_STACKPANEL_WIDTH = 250;
+
+            const int BUTTON_SEPARATION = 10;
+
+            Grid menu = new()
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Tag = "Viper.Game.Screens.MenuScreen",
+                Focusable = true,
+            };
+
+            TextBlock screenIdetifier = new()
+            {
+                Text = menu.Tag.ToString(),
+                FontSize = 15,
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Foreground = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255)),
+                Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+            };
+
+            Panel.SetZIndex(screenIdetifier, 5);
+
+            StackPanel buttonStackPanel = new()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Thickness(0,200,0,0),
+                Width = BUTTON_STACKPANEL_WIDTH,
+            };
+
+            Button startButton = new()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0,0,0,BUTTON_SEPARATION),
+                Content = "Jugar",
+            };
+
+            Button exitButton = new()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
+                Content = "Salir",
+            };
+
+            buttonStackPanel.Children.Add(startButton);
+
+            buttonStackPanel.Children.Add(exitButton);
+
+            menu.Children.Add(buttonStackPanel);
+
+            menu.Children.Add(screenIdetifier);
+
+            menu.PreviewKeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Escape)
+                {
+                    ExitGame.Invoke(this, e);
+                }
+            };
+
+            startButton.PreviewMouseUp += (s, e) =>
+            {
+                PlayClicked.Invoke(this, e);
+            };
+
+            exitButton.PreviewMouseUp += (s, e) =>
+            {
+                MessageBoxResult result = MessageBox.Show("Estas seguro de que quierers salir?", "Salir", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    Application.Current.Shutdown();
+                }
+            };
+
+            menu.Loaded += (s, e) =>
+            {
+                startButton.Focus();
+            };
+
+            return menu;
+        }
+    }
+}

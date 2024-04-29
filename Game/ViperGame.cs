@@ -1,19 +1,17 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
 using Viper.PreCompileData;
-using Viper.Game.Menu;
-using Viper.Game.Gameplay;
-using Viper.Game.Gameplay.Managers;
+using Viper.Game.Screens;
+using Viper.Game.Managers;
+using System.Windows.Threading;
 
 namespace Viper.Game
 {
-    // The Game, needs the instance of the window so it can properly handle things like threads or any other resources after being closed.
-    public class ViperGame(Window window)
+    public class ViperGame()
     {
         // The main grid that holds the entire program.
-        private Grid _viperContainer = new()
+        public Grid RootScreen = new()
         {
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
             VerticalAlignment = VerticalAlignment.Stretch,
@@ -31,16 +29,14 @@ namespace Viper.Game
             }
         }
 
-        // Dispatcher that will be passed as a parameter so threads can make changes to the UI thread.
-        private Dispatcher _dispatcher = System.Windows.Application.Current.Dispatcher;
+        public GameplayScreen GameplayScreen = new();
+
+        public MenuScreen MenuScreen = new();
 
         // Main method to start the program somewhere.
         public Grid Start()
         {
-            GameplayScreen gameplayScreen = new(window, _dispatcher);
-
-            // New instance of the menu screen
-            MenuScreen menuScreen = new(gameplayScreen);
+            ScreenManager ScreenManager = new(GameplayScreen, MenuScreen);
 
             // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
             TextBlock versionFooter = new()
@@ -66,22 +62,23 @@ namespace Viper.Game
 #endif
 
 
-            _viperContainer.Children.Add(versionFooter);
+            RootScreen.Children.Add(versionFooter);
             Panel.SetZIndex(versionFooter, 5);
 
             // Settings panel, not done yet.
-            _viperContainer.PreviewKeyDown += (s, e) =>
+            RootScreen.PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == System.Windows.Input.Key.S)
                 {
-                    MessageBox.Show("Playfield size: " + gameplayScreen.PlayfieldManager.Size.ToString() + Environment.NewLine + "Points: " + gameplayScreen.GameplayManager.Points + Environment.NewLine, "Settings test");
+
                 }
             };
 
-            // Show the menu screen as the first thing you see when the game is opened.
-            _viperContainer.Children.Add(menuScreen.Show());
+            RootScreen.Children.Add(ScreenManager.Start());
 
-            return _viperContainer;
+            ScreenManager.ShowMainMenu();
+
+            return RootScreen;
         }
     }
 }

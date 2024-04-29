@@ -1,5 +1,5 @@
 ﻿<Window x:Name="window"
-        x:Class="Viper.MainWindow"
+        x:Class="ViperWindow.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,7 +9,7 @@
         Title="MainWindow"
         Height="450"
         Width="800"
-        Loaded="Window_Loaded">
+        Loaded="window_Loaded">
     <Grid x:Name="MainGrid"
           Background="Black" />
 </Window>

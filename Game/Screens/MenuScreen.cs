@@ -17,7 +17,9 @@ namespace Viper.Game.Screens
         {
             const int BUTTON_STACKPANEL_WIDTH = 250;
 
-            const int BUTTON_SEPARATION = 10;
+            const int BUTTON_SEPARATION = 12;
+
+            const int BUTTON_HEIGHT = 25;
 
             Grid menu = new()
             {
@@ -41,9 +43,9 @@ namespace Viper.Game.Screens
 
             StackPanel buttonStackPanel = new()
             {
-                VerticalAlignment = VerticalAlignment.Top,
+                VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0,200,0,0),
+                Margin = new Thickness(0,0,0,-100),
                 Width = BUTTON_STACKPANEL_WIDTH,
             };
 
@@ -53,6 +55,16 @@ namespace Viper.Game.Screens
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 Margin = new Thickness(0,0,0,BUTTON_SEPARATION),
                 Content = "Jugar",
+                Height = BUTTON_HEIGHT,
+            };
+
+            Button settingsButton = new()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
+                Content = "Ajustes",
+                Height = BUTTON_HEIGHT,
             };
 
             Button exitButton = new()
@@ -61,9 +73,12 @@ namespace Viper.Game.Screens
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
                 Content = "Salir",
+                Height = BUTTON_HEIGHT,
             };
 
             buttonStackPanel.Children.Add(startButton);
+
+            buttonStackPanel.Children.Add(settingsButton);
 
             buttonStackPanel.Children.Add(exitButton);
 

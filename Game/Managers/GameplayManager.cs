@@ -14,33 +14,115 @@ namespace Viper.Viper.Game.Managers
 
         public const int ELEMENTS_SIZE = 30;
 
-        public bool IsPlayerMoving;
+        private bool _isPlayerMoving;
 
-        private string PlayerDirection = "";
+        public bool IsPlayerMoving
+        {
+            get
+            {
+                return _isPlayerMoving;
+            }
+        }
 
-        public int Points = 0;
+        private string _playerDirection = "";
 
-        private List<TranslateTransform> _playerPositions = new();
+        public string PlayerDirection
+        {
+            get
+            {
+                return _playerDirection;
+            }
+        }
 
-        public List<Rectangle> PlayerBody = new();
+        private int _points = 0;
+
+        public int Points
+        {
+            get
+            {
+                return _points;
+            }
+        }
+
+        private List<Rectangle> _playerBody = new();
+
+        public int PlayerBodyCount
+        {
+            get
+            {
+                return _playerBody.Count();
+            }
+        }
+
+        private double _playerXpos, _playerYpos;
+
+        public double PlayerXPosition
+        {
+            get
+            {
+                return _playerXpos;
+            }
+        }
+
+        public double PlayerYPosition
+        {
+            get
+            {
+                return _playerYpos;
+            }
+        }
+
+        public bool ValueChangeEvents = false;
+
+        public event EventHandler PlayerMovingChanged, PlayerDirectionChanged, PointsChanged, PlayerBodyCountChanged, FoodAmountChanged, PlayerXPositionChanged, PlayerYPositionChanged;
 
         public void CleanUp()
         {
-            IsPlayerMoving = false;
-            PlayerDirection = "";
-            Points = 0;
-            _playerPositions.Clear();
-            PlayerBody.Clear();
+            _playerBody.Clear();
+            _foods.Clear();
             _foodPositions.Clear();
-            _foodCounter = -1;
-            Foods.Clear();
+            _isPlayerMoving = false;
+            _playerDirection = "";
+            _points = 0;
+            _foodCounter = 0;
+
+            
+            PlayerBodyCountChanged?.Invoke(this, new EventArgs());
+            FoodAmountChanged?.Invoke(this, new EventArgs());
+            PlayerDirectionChanged?.Invoke(this, new EventArgs());
+            PointsChanged?.Invoke(this, new EventArgs());
+        }
+
+        public void UpdateAllEvents()
+        {
+            if (ValueChangeEvents)
+            {
+                PlayerBodyCountChanged?.Invoke(this, new EventArgs());
+                FoodAmountChanged?.Invoke(this, new EventArgs());
+                PlayerDirectionChanged?.Invoke(this, new EventArgs());
+                PointsChanged?.Invoke(this, new EventArgs());
+                PlayerMovingChanged?.Invoke(this, new EventArgs());
+            }
         }
 
         public Rectangle ShowPlayer(TranslateTransform startPosition, bool spawnMoving = false)
         {
-            IsPlayerMoving = spawnMoving;
+            double currentPosX = startPosition.X, currentPosY = startPosition.Y;
 
-            for (int i = 0; i < 2; i++)
+            double playfieldLimitY = 0, playfieldLimitX = 0;
+
+            bool isSizeSaved = false;
+
+            double newPosX = 0, newPosY = 0;
+
+            _isPlayerMoving = spawnMoving;
+
+            if (ValueChangeEvents)
+            {
+                PlayerMovingChanged?.Invoke(this, new EventArgs());
+            }
+
+            void CreateNewPlayerBodySquare(bool isPlayerAlreadyShowing = false)
             {
                 Rectangle playerBodyPart = new()
                 {
@@ -49,29 +131,51 @@ namespace Viper.Viper.Game.Managers
                     HorizontalAlignment = HorizontalAlignment.Left,
                     Height = ELEMENTS_SIZE,
                     Width = ELEMENTS_SIZE,
-                    Tag = i,
                     RenderTransform = startPosition,
                     Focusable = true,
+                    ClipToBounds = true,
                 };
 
-                Panel.SetZIndex(playerBodyPart, 2);
+                Panel.SetZIndex(playerBodyPart, 3);
 
-                PlayerBody.Add(playerBodyPart);
+                _playerBody.Add(playerBodyPart);
+
+                if (isPlayerAlreadyShowing)
+                {
+                    playerBodyPart.Focusable = false;
+                    (_playerBody[0].Parent as Panel).Children.Add(playerBodyPart);
+                }
+                else
+                {
+                    playerBodyPart.Loaded += (s, e) =>
+                    {
+                        playerBodyPart.Focus();
+                    };
+                }
+
+                if (ValueChangeEvents)
+                {
+                    PlayerBodyCountChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
 
-            double currentPosX = startPosition.X, currentPosY = startPosition.Y;
-            double playfieldLimitY = 0, playfieldLimitX = 0;
-            bool isSizeSaved = false;
-            double newPosX = 0, newPosY = 0;
+            CreateNewPlayerBodySquare();
 
             async void PlayerMovementLoop()
             {
+                int indexCounter = 0;
+
+                if (ValueChangeEvents)
+                {
+                    PlayerMovingChanged?.Invoke(this, new EventArgs());
+                }
+
                 while (IsPlayerMoving)
                 {
                     if (!isSizeSaved)
                     {
-                        playfieldLimitY = (PlayerBody[0].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
-                        playfieldLimitX = (PlayerBody[0].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
+                        playfieldLimitY = (_playerBody[indexCounter].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
+                        playfieldLimitX = (_playerBody[indexCounter].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
                     }
 
                     if (PlayerDirection == "up")
@@ -128,44 +232,79 @@ namespace Viper.Viper.Game.Managers
                             if (currentPosX == foodXpos && currentPosY == foodYpos)
                             {
                                 RePositionFood(i);
-                                Points += 1;
+                                CreateNewPlayerBodySquare(true);
+                                _points += 1;
+
+                                if (ValueChangeEvents)
+                                {
+                                    PointsChanged?.Invoke(this, new EventArgs());
+                                } 
                             }
                         }
                     }
 
-                    PlayerBody[0].RenderTransform = new TranslateTransform(newPosX, newPosY);
+                    _playerXpos = newPosX;
+                    _playerYpos = newPosY;
+
+                    if (ValueChangeEvents)
+                    {
+                        PlayerXPositionChanged?.Invoke(this, new EventArgs());
+                        PlayerYPositionChanged?.Invoke(this, new EventArgs());
+                    }
+
+                    _playerBody[indexCounter].RenderTransform = new TranslateTransform(newPosX, newPosY);
 
                     currentPosY = newPosY;
                     currentPosX = newPosX;
+
+                    if (indexCounter + 1 < Points)
+                    {
+                        indexCounter+=1;
+                    }
+                    else
+                    {
+                        indexCounter = 0;
+                    }
+
                     await Task.Delay(50);
+                }
+
+                if (ValueChangeEvents)
+                {
+                    PlayerMovingChanged?.Invoke(this, new EventArgs());
                 }
             }
 
-            PlayerBody[0].PreviewKeyDown += (s, e) =>
+            _playerBody[0].PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
                 {
                     if (e.Key == Key.Up)
                     {
-                        PlayerDirection = "up";
+                        _playerDirection = "up";
                     }
                     else if (e.Key == Key.Down)
                     {
-                        PlayerDirection = "down";
+                        _playerDirection = "down";
                     }
                     else if (e.Key == Key.Left)
                     {
-                        PlayerDirection = "left";
+                        _playerDirection = "left";
                     }
                     else if (e.Key == Key.Right)
                     {
-                        PlayerDirection = "right";
+                        _playerDirection = "right";
                     }
 
                     if (!IsPlayerMoving)
                     {
-                        IsPlayerMoving = true;
+                        _isPlayerMoving = true;
                         PlayerMovementLoop();
+                    }
+
+                    if (ValueChangeEvents)
+                    {
+                        PlayerDirectionChanged?.Invoke(this, new EventArgs());
                     }
                 }
             };
@@ -175,7 +314,7 @@ namespace Viper.Viper.Game.Managers
                 CleanUp();
             };
 
-            return PlayerBody[0];
+            return _playerBody[0];
         }
         #endregion
 
@@ -183,14 +322,20 @@ namespace Viper.Viper.Game.Managers
 
         private List<TranslateTransform> _foodPositions = new();
 
-        private int _foodCounter = -1;
+        private int _foodCounter = 0;
 
-        public List<Rectangle> Foods = new();
+        private List<Rectangle> _foods = new();
+
+        public int FoodAmount
+        {
+            get
+            {
+                return _foods.Count();
+            }
+        }
 
         public Rectangle AddFood()
         {
-            _foodCounter += 1;
-
             int currentIndex = _foodCounter;
 
             Rectangle food = new()
@@ -207,24 +352,31 @@ namespace Viper.Viper.Game.Managers
                 RePositionFood(currentIndex);
             };
 
-            Foods.Add(food);
+            _foods.Add(food);
             _foodPositions.Add(new TranslateTransform());
 
-            return Foods[currentIndex];
+            _foodCounter += 1;
+
+            if (ValueChangeEvents)
+            {
+                FoodAmountChanged?.Invoke(this, new EventArgs());
+            }
+
+            return _foods[currentIndex];
         }
 
         public void RePositionFood(int foodIndex)
         {
             Random random = new Random();
 
-            int spaceH = Convert.ToInt32((Foods[foodIndex].Parent as Panel).Height);
-            int spaceW = Convert.ToInt32((Foods[foodIndex].Parent as Panel).Width);
+            int spaceH = Convert.ToInt32((_foods[foodIndex].Parent as Panel).Height);
+            int spaceW = Convert.ToInt32((_foods[foodIndex].Parent as Panel).Width);
 
             int newX = ELEMENTS_SIZE * random.Next(0, spaceH / ELEMENTS_SIZE);
             int newY = ELEMENTS_SIZE * random.Next(0, spaceW / ELEMENTS_SIZE);
 
-            Foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
-            _foodPositions[foodIndex] = Foods[foodIndex].RenderTransform as TranslateTransform;
+            _foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
+            _foodPositions[foodIndex] = _foods[foodIndex].RenderTransform as TranslateTransform;
         }
 
         public TranslateTransform GetFoodPosition(int foodIndex)

@@ -64,85 +64,82 @@ namespace Viper.Viper.Game.Managers
             bool isSizeSaved = false;
             double newPosX = 0, newPosY = 0;
 
-            Thread playerMovement = new(() =>
+            async void PlayerMovementLoop()
             {
                 while (IsPlayerMoving)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    if (!isSizeSaved)
                     {
-                        if (!isSizeSaved)
-                        {
-                            playfieldLimitY = (PlayerBody[0].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
-                            playfieldLimitX = (PlayerBody[0].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
-                        }
+                        playfieldLimitY = (PlayerBody[0].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
+                        playfieldLimitX = (PlayerBody[0].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
+                    }
 
-                        if (PlayerDirection == "up")
+                    if (PlayerDirection == "up")
+                    {
+                        if (currentPosY - ELEMENTS_SIZE < 0)
                         {
-                            if (currentPosY - ELEMENTS_SIZE < 0)
-                            {
-                                newPosY = playfieldLimitY;
-                            }
-                            else
-                            {
-                                newPosY = currentPosY - ELEMENTS_SIZE;
-                            }
+                            newPosY = playfieldLimitY;
                         }
-                        else if (PlayerDirection == "down")
+                        else
                         {
-                            if (currentPosY + ELEMENTS_SIZE > playfieldLimitY)
-                            {
-                                newPosY = 0;
-                            }
-                            else
-                            {
-                                newPosY = currentPosY + ELEMENTS_SIZE;
-                            }
+                            newPosY = currentPosY - ELEMENTS_SIZE;
                         }
-                        else if (PlayerDirection == "left")
+                    }
+                    else if (PlayerDirection == "down")
+                    {
+                        if (currentPosY + ELEMENTS_SIZE > playfieldLimitY)
                         {
-                            if (currentPosX - ELEMENTS_SIZE < 0)
-                            {
-                                newPosX = playfieldLimitX;
-                            }
-                            else
-                            {
-                                newPosX = currentPosX - ELEMENTS_SIZE;
-                            }
+                            newPosY = 0;
                         }
-                        else if (PlayerDirection == "right")
+                        else
                         {
-                            if (currentPosX + ELEMENTS_SIZE > playfieldLimitX)
-                            {
-                                newPosX = 0;
-                            }
-                            else
-                            {
-                                newPosX = currentPosX + ELEMENTS_SIZE;
-                            }
+                            newPosY = currentPosY + ELEMENTS_SIZE;
                         }
+                    }
+                    else if (PlayerDirection == "left")
+                    {
+                        if (currentPosX - ELEMENTS_SIZE < 0)
+                        {
+                            newPosX = playfieldLimitX;
+                        }
+                        else
+                        {
+                            newPosX = currentPosX - ELEMENTS_SIZE;
+                        }
+                    }
+                    else if (PlayerDirection == "right")
+                    {
+                        if (currentPosX + ELEMENTS_SIZE > playfieldLimitX)
+                        {
+                            newPosX = 0;
+                        }
+                        else
+                        {
+                            newPosX = currentPosX + ELEMENTS_SIZE;
+                        }
+                    }
 
-                        if (_foodPositions.Count > 0)
+                    if (_foodPositions.Count > 0)
+                    {
+                        for (int i = 0; i < _foodPositions.Count; i++)
                         {
-                            for (int i = 0; i < _foodPositions.Count; i++)
-                            {
-                                double foodXpos = GetFoodPosition(i).X, foodYpos = GetFoodPosition(i).Y;
+                            double foodXpos = GetFoodPosition(i).X, foodYpos = GetFoodPosition(i).Y;
 
-                                if (currentPosX == foodXpos && currentPosY == foodYpos)
-                                {
-                                    RePositionFood(i);
-                                    Points += 1;
-                                }
+                            if (currentPosX == foodXpos && currentPosY == foodYpos)
+                            {
+                                RePositionFood(i);
+                                Points += 1;
                             }
                         }
+                    }
 
-                        PlayerBody[0].RenderTransform = new TranslateTransform(newPosX, newPosY);
+                    PlayerBody[0].RenderTransform = new TranslateTransform(newPosX, newPosY);
 
-                        currentPosY = newPosY;
-                        currentPosX = newPosX;
-                    });
-                    Thread.Sleep(50);
+                    currentPosY = newPosY;
+                    currentPosX = newPosX;
+                    await Task.Delay(50);
                 }
-            });
+            }
 
             PlayerBody[0].PreviewKeyDown += (s, e) =>
             {
@@ -165,14 +162,10 @@ namespace Viper.Viper.Game.Managers
                         PlayerDirection = "right";
                     }
 
-                    try
+                    if (!IsPlayerMoving)
                     {
                         IsPlayerMoving = true;
-                        playerMovement.Start();
-                    }
-                    catch
-                    {
-                        // Thread is already running (player is moving).
+                        PlayerMovementLoop();
                     }
                 }
             };

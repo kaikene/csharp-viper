@@ -28,7 +28,8 @@ namespace Viper.Game.Managers
                 Height = size,
                 Width = size,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                ClipToBounds = true,
             };
 
             CurrentPlayfield = playfield;

@@ -142,9 +142,8 @@ namespace Viper.Game.Managers
                     HorizontalAlignment = HorizontalAlignment.Left,
                     Height = ELEMENTS_SIZE,
                     Width = ELEMENTS_SIZE,
-                    RenderTransform = startPosition,
+                    RenderTransform = new TranslateTransform(-30, -30), // Spawn out off bounds.
                     Focusable = true,
-                    ClipToBounds = true,
                 };
 
                 Panel.SetZIndex(playerBodyPart, 3);
@@ -161,6 +160,7 @@ namespace Viper.Game.Managers
                     playerBodyPart.Loaded += (s, e) =>
                     {
                         playerBodyPart.Focus();
+                        playerBodyPart.RenderTransform = startPosition; // If the player just spawned, move it to a position in which is visible.
                     };
                 }
 
@@ -256,7 +256,7 @@ namespace Viper.Game.Managers
                     currentPosY = newPosY;
                     currentPosX = newPosX;
 
-                    if (index + 1 < Points)
+                    if (index + 1 <= Points)
                     {
                         index+=1;
                     }

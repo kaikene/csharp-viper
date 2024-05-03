@@ -158,19 +158,22 @@ namespace Viper.Game.Screens
                 {
                     GoBack.Invoke(this, e);
                 }
-                else if (e.Key == Key.D)
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
-                    _canRaiseEvents = !_canRaiseEvents;
-                    GameplayManager.AreValueEventsEnabled = _canRaiseEvents;
-                    GameplayManager.UpdateAllEvents();
+                    if (e.Key == Key.D)
+                    {
+                        _canRaiseEvents = !_canRaiseEvents;
+                        GameplayManager.AreValueEventsEnabled = _canRaiseEvents;
+                        GameplayManager.UpdateAllEvents();
 
-                    if (_canRaiseEvents)
-                    {
-                        debugDataStackPanel.Opacity = 1;
-                    }
-                    else
-                    {
-                        debugDataStackPanel.Opacity = 0;
+                        if (_canRaiseEvents)
+                        {
+                            debugDataStackPanel.Opacity = 1;
+                        }
+                        else
+                        {
+                            debugDataStackPanel.Opacity = 0;
+                        }
                     }
                 }
             };

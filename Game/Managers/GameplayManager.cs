@@ -195,6 +195,22 @@ namespace Viper.Game.Managers
 
                 while (IsPlayerMoving)
                 {
+                    // Direction buffer updater, moves directions "forward" so the List gets cleaned until just 1 direction is saved
+                    if (_directionBuffer.Count > 1)
+                    {
+                        for (int i = 0; i < _directionBuffer.Count; i++)
+                        {
+                            try
+                            {
+                                _directionBuffer[i] = _directionBuffer[i + 1]; // db1 = db2, db2 = db3, db3 = db4, etc...
+                            }
+                            catch
+                            {
+                                _directionBuffer.RemoveAt(i); // If theres an exception, then you reached the last dir, which can be removed
+                            }
+                        }
+                    }
+
                     Direction currentDirection = _directionBuffer[0];
 
                     if (!isSizeSaved)
@@ -248,6 +264,17 @@ namespace Viper.Game.Managers
                         }
                     }
 
+                    _playerXpos = newPosX;
+                    _playerYpos = newPosY;
+
+                    RaiseEvent(Event.PositionXChanged);
+                    RaiseEvent(Event.PositionYChanged);
+
+                    _playerBody[index].RenderTransform = new TranslateTransform(newPosX, newPosY);
+
+                    currentPosY = newPosY;
+                    currentPosX = newPosX;
+
                     if (_foodPositions.Count > 0)
                     {
                         for (int i = 0; i < _foodPositions.Count; i++)
@@ -265,17 +292,6 @@ namespace Viper.Game.Managers
                         }
                     }
 
-                    _playerXpos = newPosX;
-                    _playerYpos = newPosY;
-
-                    RaiseEvent(Event.PositionXChanged);
-                    RaiseEvent(Event.PositionYChanged);
-
-                    _playerBody[index].RenderTransform = new TranslateTransform(newPosX, newPosY);
-
-                    currentPosY = newPosY;
-                    currentPosX = newPosX;
-
                     if (index + 1 <= Points)
                     {
                         index+=1;
@@ -283,21 +299,6 @@ namespace Viper.Game.Managers
                     else
                     {
                         index = 0;
-                    }
-
-                    if (_directionBuffer.Count > 1)
-                    {
-                        for (int i = 0; i < _directionBuffer.Count; i++)
-                        {
-                            try
-                            {
-                                _directionBuffer[i] = _directionBuffer[i + 1];
-                            }
-                            catch
-                            {
-                                _directionBuffer.RemoveAt(i);
-                            }
-                        }
                     }
 
                     if (_playerDirection == Direction.None)
@@ -394,6 +395,20 @@ namespace Viper.Game.Managers
             RaiseEvent(Event.FoodAmountChanged);
 
             return _foods[currentIndex];
+        }
+
+        public void RemoveFood()
+        {
+            int currentIndex = _foodCounter - 1;
+
+            (_foods[currentIndex].Parent as Panel).Children.Remove(_foods[currentIndex]);
+
+            _foods.RemoveAt(currentIndex);
+            _foodPositions.RemoveAt(currentIndex);
+
+            _foodCounter -= 1;
+
+            RaiseEvent(Event.FoodAmountChanged);
         }
 
         public void RePositionFood(int foodIndex)

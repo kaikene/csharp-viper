@@ -2,7 +2,7 @@
 using System.Windows.Media;
 using System.Windows;
 
-namespace Viper.Viper.Game.Managers
+namespace Viper.Game.Managers
 {
     public class PlayfieldManager
     {

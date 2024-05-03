@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Viper.Game.Managers;
-using Viper.Viper.Game.Managers;
 
 namespace Viper.Game.Screens
 {
@@ -30,7 +29,7 @@ namespace Viper.Game.Screens
 
         public Grid Show(int playfieldGridSize = DEFAULT_PLAYFIELD_SIZE)
         {
-            bool _switch = false;
+            bool _canRaiseEvents = false;
 
             Grid gameplayElementsHandler = new()
             {
@@ -161,11 +160,11 @@ namespace Viper.Game.Screens
                 }
                 else if (e.Key == Key.D)
                 {
-                    _switch = !_switch;
-                    GameplayManager.ValueChangeEvents = _switch;
+                    _canRaiseEvents = !_canRaiseEvents;
+                    GameplayManager.AreValueEventsEnabled = _canRaiseEvents;
                     GameplayManager.UpdateAllEvents();
 
-                    if (_switch)
+                    if (_canRaiseEvents)
                     {
                         debugDataStackPanel.Opacity = 1;
                     }
@@ -183,32 +182,32 @@ namespace Viper.Game.Screens
 
             GameplayManager.FoodAmountChanged += (s, e) =>
             {
-                debugFoodTB.Text = "Food Amount: " + GameplayManager.FoodAmount;
+                debugFoodTB.Text = "FoodAmount: " + GameplayManager.FoodAmount;
             };
 
             GameplayManager.PlayerMovingChanged += (s, e) =>
             {
-                debugMovTB.Text = "Moving: " + GameplayManager.IsPlayerMoving;
+                debugMovTB.Text = "IsPlayerMoving: " + GameplayManager.IsPlayerMoving;
             };
 
             GameplayManager.PlayerDirectionChanged += (s, e) =>
             {
-                debugDirTB.Text = "Direction: " + GameplayManager.PlayerDirection;
+                debugDirTB.Text = "PlayerDirection: " + GameplayManager.PlayerDirection;
             };
 
-            GameplayManager.PlayerBodyCountChanged += (s, e) =>
+            GameplayManager.BodyElementsCountChanged += (s, e) =>
             {
-                debugBodyTB.Text = "PlayerBody Elements: " + GameplayManager.PlayerBodyCount;
+                debugBodyTB.Text = "PlayerBodyElements: " + GameplayManager.PlayerBodyCount;
             };
 
             GameplayManager.PlayerXPositionChanged += (s, e) =>
             {
-                debugXposTB.Text = "X Axis:" + GameplayManager.PlayerXPosition;
+                debugXposTB.Text = "currentPosX:" + GameplayManager.PlayerXPosition;
             };
 
             GameplayManager.PlayerYPositionChanged += (s, e) =>
             {
-                debugYposTB.Text = "Y Axis:" + GameplayManager.PlayerYPosition;
+                debugYposTB.Text = "currentPosY:" + GameplayManager.PlayerYPosition;
             };
 
             currentPlayfield.Children.Add(GameplayManager.ShowPlayer(new TranslateTransform(0, 0)));

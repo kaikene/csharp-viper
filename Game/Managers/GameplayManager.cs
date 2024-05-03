@@ -6,11 +6,24 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
-namespace Viper.Viper.Game.Managers
+namespace Viper.Game.Managers
 {
     public class GameplayManager()
     {
         #region Player logic
+
+        public event EventHandler PlayerMovingChanged, PlayerDirectionChanged, PointsChanged, BodyElementsCountChanged, FoodAmountChanged, PlayerXPositionChanged, PlayerYPositionChanged;
+
+        private enum Event
+        {
+            MovingChanged,
+            DirectionChanged,
+            PointsChanged,
+            BodyElementsChanged,
+            FoodAmountChanged,
+            PositionXChanged,
+            PositionYChanged,
+        }
 
         public const int ELEMENTS_SIZE = 30;
 
@@ -72,9 +85,7 @@ namespace Viper.Viper.Game.Managers
             }
         }
 
-        public bool ValueChangeEvents = false;
-
-        public event EventHandler PlayerMovingChanged, PlayerDirectionChanged, PointsChanged, PlayerBodyCountChanged, FoodAmountChanged, PlayerXPositionChanged, PlayerYPositionChanged;
+        public bool AreValueEventsEnabled = false;
 
         public void CleanUp()
         {
@@ -86,8 +97,8 @@ namespace Viper.Viper.Game.Managers
             _points = 0;
             _foodCounter = 0;
 
-            
-            PlayerBodyCountChanged?.Invoke(this, new EventArgs());
+
+            BodyElementsCountChanged?.Invoke(this, new EventArgs());
             FoodAmountChanged?.Invoke(this, new EventArgs());
             PlayerDirectionChanged?.Invoke(this, new EventArgs());
             PointsChanged?.Invoke(this, new EventArgs());
@@ -95,9 +106,9 @@ namespace Viper.Viper.Game.Managers
 
         public void UpdateAllEvents()
         {
-            if (ValueChangeEvents)
+            if (AreValueEventsEnabled)
             {
-                PlayerBodyCountChanged?.Invoke(this, new EventArgs());
+                BodyElementsCountChanged?.Invoke(this, new EventArgs());
                 FoodAmountChanged?.Invoke(this, new EventArgs());
                 PlayerDirectionChanged?.Invoke(this, new EventArgs());
                 PointsChanged?.Invoke(this, new EventArgs());
@@ -117,12 +128,12 @@ namespace Viper.Viper.Game.Managers
 
             _isPlayerMoving = spawnMoving;
 
-            if (ValueChangeEvents)
+            if (AreValueEventsEnabled)
             {
-                PlayerMovingChanged?.Invoke(this, new EventArgs());
+                RaiseEvent(Event.MovingChanged);
             }
 
-            void CreateNewPlayerBodySquare(bool isPlayerAlreadyShowing = false)
+            void CreateNewPlayerBodyElement(bool isPlayerAlreadyShowing = false)
             {
                 Rectangle playerBodyPart = new()
                 {
@@ -153,29 +164,23 @@ namespace Viper.Viper.Game.Managers
                     };
                 }
 
-                if (ValueChangeEvents)
-                {
-                    PlayerBodyCountChanged?.Invoke(this, EventArgs.Empty);
-                }
+                RaiseEvent(Event.BodyElementsChanged);
             }
 
-            CreateNewPlayerBodySquare();
+            CreateNewPlayerBodyElement();
 
             async void PlayerMovementLoop()
             {
-                int indexCounter = 0;
+                int index = 0;
 
-                if (ValueChangeEvents)
-                {
-                    PlayerMovingChanged?.Invoke(this, new EventArgs());
-                }
+                RaiseEvent(Event.MovingChanged);
 
                 while (IsPlayerMoving)
                 {
                     if (!isSizeSaved)
                     {
-                        playfieldLimitY = (_playerBody[indexCounter].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
-                        playfieldLimitX = (_playerBody[indexCounter].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
+                        playfieldLimitY = (_playerBody[index].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
+                        playfieldLimitX = (_playerBody[index].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
                     }
 
                     if (PlayerDirection == "up")
@@ -232,13 +237,10 @@ namespace Viper.Viper.Game.Managers
                             if (currentPosX == foodXpos && currentPosY == foodYpos)
                             {
                                 RePositionFood(i);
-                                CreateNewPlayerBodySquare(true);
+                                CreateNewPlayerBodyElement(true);
                                 _points += 1;
 
-                                if (ValueChangeEvents)
-                                {
-                                    PointsChanged?.Invoke(this, new EventArgs());
-                                } 
+                                RaiseEvent(Event.PointsChanged);
                             }
                         }
                     }
@@ -246,66 +248,56 @@ namespace Viper.Viper.Game.Managers
                     _playerXpos = newPosX;
                     _playerYpos = newPosY;
 
-                    if (ValueChangeEvents)
-                    {
-                        PlayerXPositionChanged?.Invoke(this, new EventArgs());
-                        PlayerYPositionChanged?.Invoke(this, new EventArgs());
-                    }
+                    RaiseEvent(Event.PositionXChanged);
+                    RaiseEvent(Event.PositionYChanged);
 
-                    _playerBody[indexCounter].RenderTransform = new TranslateTransform(newPosX, newPosY);
+                    _playerBody[index].RenderTransform = new TranslateTransform(newPosX, newPosY);
 
                     currentPosY = newPosY;
                     currentPosX = newPosX;
 
-                    if (indexCounter + 1 < Points)
+                    if (index + 1 < Points)
                     {
-                        indexCounter+=1;
+                        index+=1;
                     }
                     else
                     {
-                        indexCounter = 0;
+                        index = 0;
                     }
 
                     await Task.Delay(50);
                 }
-
-                if (ValueChangeEvents)
-                {
-                    PlayerMovingChanged?.Invoke(this, new EventArgs());
-                }
+                RaiseEvent(Event.MovingChanged);
             }
 
             _playerBody[0].PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
                 {
-                    if (e.Key == Key.Up)
+                    if (e.Key == Key.Up && _playerDirection != "down")
                     {
                         _playerDirection = "up";
                     }
-                    else if (e.Key == Key.Down)
+                    else if (e.Key == Key.Down && _playerDirection != "up")
                     {
                         _playerDirection = "down";
                     }
-                    else if (e.Key == Key.Left)
+                    else if (e.Key == Key.Left && _playerDirection != "right")
                     {
                         _playerDirection = "left";
                     }
-                    else if (e.Key == Key.Right)
+                    else if (e.Key == Key.Right && _playerDirection != "left")
                     {
                         _playerDirection = "right";
                     }
 
-                    if (!IsPlayerMoving)
+                    if (!_isPlayerMoving)
                     {
                         _isPlayerMoving = true;
                         PlayerMovementLoop();
                     }
 
-                    if (ValueChangeEvents)
-                    {
-                        PlayerDirectionChanged?.Invoke(this, new EventArgs());
-                    }
+                    RaiseEvent(Event.DirectionChanged);
                 }
             };
 
@@ -357,10 +349,7 @@ namespace Viper.Viper.Game.Managers
 
             _foodCounter += 1;
 
-            if (ValueChangeEvents)
-            {
-                FoodAmountChanged?.Invoke(this, new EventArgs());
-            }
+            RaiseEvent(Event.FoodAmountChanged);
 
             return _foods[currentIndex];
         }
@@ -383,6 +372,41 @@ namespace Viper.Viper.Game.Managers
         {
             return _foodPositions[foodIndex];
         }
+        #endregion
+
+        private void RaiseEvent(Event selectedEvent)
+        {
+            if (AreValueEventsEnabled)
+            {
+                if (selectedEvent == Event.DirectionChanged)
+                {
+                    PlayerDirectionChanged?.Invoke(this, new EventArgs());
+                }
+                else if (selectedEvent == Event.MovingChanged)
+                {
+                    PlayerMovingChanged?.Invoke(this, new EventArgs());
+                }
+                else if (selectedEvent == Event.BodyElementsChanged)
+                {
+                    BodyElementsCountChanged?.Invoke(this, EventArgs.Empty);
+                }
+                else if (selectedEvent == Event.PointsChanged)
+                {
+                    PointsChanged?.Invoke(this, new EventArgs());
+                }
+                else if (selectedEvent == Event.PositionXChanged)
+                {
+                    PlayerXPositionChanged?.Invoke(this, new EventArgs());
+                }
+                else if (selectedEvent == Event.PositionYChanged)
+                {
+                    PlayerYPositionChanged?.Invoke(this, new EventArgs());
+                }
+                else if (selectedEvent == Event.FoodAmountChanged)
+                {
+                    FoodAmountChanged?.Invoke(this, new EventArgs());
+                }
+            }
+        }
     }
-    #endregion
 }

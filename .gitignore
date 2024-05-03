@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # User files
 BuildData.cs
 /BuildData.cs
+/UpdateBuildData.bat
+/BuildData.cs

@@ -195,7 +195,7 @@ namespace Viper.Game.Screens
 
             GameplayManager.PlayerDirectionChanged += (s, e) =>
             {
-                debugDirTB.Text = "PlayerDirection: " + GameplayManager.PlayerDirection;
+                debugDirTB.Text = "PlayerDirection: " + GameplayManager.PlayerDirection.ToString();
             };
 
             GameplayManager.BodyElementsCountChanged += (s, e) =>

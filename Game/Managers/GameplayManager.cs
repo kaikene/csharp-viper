@@ -22,7 +22,16 @@ namespace Viper.Game.Managers
             BodyElementsChanged,
             FoodAmountChanged,
             PositionXChanged,
-            PositionYChanged,
+            PositionYChanged
+        }
+
+        public enum Direction
+        {
+            Up,
+            Down,
+            Left,
+            Right,
+            None,
         }
 
         public const int ELEMENTS_SIZE = 30;
@@ -37,13 +46,23 @@ namespace Viper.Game.Managers
             }
         }
 
-        private string _playerDirection = "";
+        private Direction _playerDirection = Direction.None;
 
-        public string PlayerDirection
+        public Direction PlayerDirection
         {
             get
             {
                 return _playerDirection;
+            }
+        }
+
+        private List<Direction> _directionBuffer = new();
+
+        public int DirectionsBuffered
+        {
+            get
+            {
+                return _directionBuffer.Count();
             }
         }
 
@@ -92,8 +111,7 @@ namespace Viper.Game.Managers
             _playerBody.Clear();
             _foods.Clear();
             _foodPositions.Clear();
-            _isPlayerMoving = false;
-            _playerDirection = "";
+            _playerDirection = Direction.None;
             _points = 0;
             _foodCounter = 0;
 
@@ -177,13 +195,15 @@ namespace Viper.Game.Managers
 
                 while (IsPlayerMoving)
                 {
+                    Direction currentDirection = _directionBuffer[0];
+
                     if (!isSizeSaved)
                     {
                         playfieldLimitY = (_playerBody[index].Parent as FrameworkElement).Height - ELEMENTS_SIZE;
                         playfieldLimitX = (_playerBody[index].Parent as FrameworkElement).Width - ELEMENTS_SIZE;
                     }
 
-                    if (PlayerDirection == "up")
+                    if (currentDirection == Direction.Up)
                     {
                         if (currentPosY - ELEMENTS_SIZE < 0)
                         {
@@ -194,7 +214,7 @@ namespace Viper.Game.Managers
                             newPosY = currentPosY - ELEMENTS_SIZE;
                         }
                     }
-                    else if (PlayerDirection == "down")
+                    else if (currentDirection == Direction.Down)
                     {
                         if (currentPosY + ELEMENTS_SIZE > playfieldLimitY)
                         {
@@ -205,7 +225,7 @@ namespace Viper.Game.Managers
                             newPosY = currentPosY + ELEMENTS_SIZE;
                         }
                     }
-                    else if (PlayerDirection == "left")
+                    else if (currentDirection == Direction.Left)
                     {
                         if (currentPosX - ELEMENTS_SIZE < 0)
                         {
@@ -216,7 +236,7 @@ namespace Viper.Game.Managers
                             newPosX = currentPosX - ELEMENTS_SIZE;
                         }
                     }
-                    else if (PlayerDirection == "right")
+                    else if (currentDirection == Direction.Right)
                     {
                         if (currentPosX + ELEMENTS_SIZE > playfieldLimitX)
                         {
@@ -265,6 +285,26 @@ namespace Viper.Game.Managers
                         index = 0;
                     }
 
+                    if (_directionBuffer.Count > 1)
+                    {
+                        for (int i = 0; i < _directionBuffer.Count; i++)
+                        {
+                            try
+                            {
+                                _directionBuffer[i] = _directionBuffer[i + 1];
+                            }
+                            catch
+                            {
+                                _directionBuffer.RemoveAt(i);
+                            }
+                        }
+                    }
+
+                    if (_playerDirection == Direction.None)
+                    {
+                        _isPlayerMoving = false;
+                    }
+
                     await Task.Delay(50);
                 }
                 RaiseEvent(Event.MovingChanged);
@@ -274,22 +314,24 @@ namespace Viper.Game.Managers
             {
                 if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
                 {
-                    if (e.Key == Key.Up && _playerDirection != "down")
+                    if (e.Key == Key.Up && _playerDirection != Direction.Down)
                     {
-                        _playerDirection = "up";
+                        _playerDirection = Direction.Up;
                     }
-                    else if (e.Key == Key.Down && _playerDirection != "up")
+                    else if (e.Key == Key.Down && _playerDirection != Direction.Up)
                     {
-                        _playerDirection = "down";
+                        _playerDirection = Direction.Down;
                     }
-                    else if (e.Key == Key.Left && _playerDirection != "right")
+                    else if (e.Key == Key.Left && _playerDirection != Direction.Right)
                     {
-                        _playerDirection = "left";
+                        _playerDirection = Direction.Left;
                     }
-                    else if (e.Key == Key.Right && _playerDirection != "left")
+                    else if (e.Key == Key.Right && _playerDirection != Direction.Left)
                     {
-                        _playerDirection = "right";
+                        _playerDirection = Direction.Right;
                     }
+
+                    _directionBuffer.Add(_playerDirection);
 
                     if (!_isPlayerMoving)
                     {

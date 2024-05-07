@@ -12,7 +12,7 @@ namespace Viper.Game.Managers
     {
         #region Player logic
 
-        public event EventHandler PlayerMovingChanged, PlayerDirectionChanged, PointsChanged, BodyElementsCountChanged, FoodAmountChanged, PlayerXPositionChanged, PlayerYPositionChanged;
+        public event EventHandler? PlayerMovingChanged, PlayerDirectionChanged, PointsChanged, BodyElementsCountChanged, FoodAmountChanged, PlayerXPositionChanged, PlayerYPositionChanged, PlayerDied;
 
         private enum Event
         {
@@ -22,7 +22,8 @@ namespace Viper.Game.Managers
             BodyElementsChanged,
             FoodAmountChanged,
             PositionXChanged,
-            PositionYChanged
+            PositionYChanged,
+            PlayerDies
         }
 
         public enum Direction
@@ -106,35 +107,55 @@ namespace Viper.Game.Managers
 
         public bool AreValueEventsEnabled = false;
 
+        // Removes, resets and ends everything
         public void CleanUp()
         {
+            try
+            {
+                Panel parent = _playerBody[0].Parent as Panel;
+                parent.Children.Clear();
+            }
+            catch
+            {
+                // Player is not loaded, nothing to remove.
+            }
+
             _playerBody.Clear();
             _foods.Clear();
             _foodPositions.Clear();
             _playerDirection = Direction.None;
             _points = 0;
+            _isPlayerMoving = false;
             _foodCounter = 0;
 
 
-            BodyElementsCountChanged?.Invoke(this, new EventArgs());
-            FoodAmountChanged?.Invoke(this, new EventArgs());
-            PlayerDirectionChanged?.Invoke(this, new EventArgs());
-            PointsChanged?.Invoke(this, new EventArgs());
+            RaiseAllEvents();
         }
 
-        public void UpdateAllEvents()
+        // Removes and resets everything, but reloads everything after it.
+        private void ResetGameplay()
+        {
+            Panel parent = _playerBody[0].Parent as Panel;
+
+            CleanUp();
+
+            parent.Children.Add(ShowPlayer(new TranslateTransform(0, 0)));
+            parent.Children.Add(AddFood());
+        }
+
+        public void RaiseAllEvents()
         {
             if (AreValueEventsEnabled)
             {
-                BodyElementsCountChanged?.Invoke(this, new EventArgs());
-                FoodAmountChanged?.Invoke(this, new EventArgs());
-                PlayerDirectionChanged?.Invoke(this, new EventArgs());
-                PointsChanged?.Invoke(this, new EventArgs());
-                PlayerMovingChanged?.Invoke(this, new EventArgs());
+                RaiseEvent(Event.BodyElementsChanged);
+                RaiseEvent(Event.FoodAmountChanged);
+                RaiseEvent(Event.DirectionChanged);
+                RaiseEvent(Event.PointsChanged);
+                RaiseEvent(Event.MovingChanged);
             }
         }
 
-        public Rectangle ShowPlayer(TranslateTransform startPosition, bool spawnMoving = false)
+        public Rectangle ShowPlayer(TranslateTransform startPosition)
         {
             double currentPosX = startPosition.X, currentPosY = startPosition.Y;
 
@@ -143,13 +164,6 @@ namespace Viper.Game.Managers
             bool isSizeSaved = false;
 
             double newPosX = 0, newPosY = 0;
-
-            _isPlayerMoving = spawnMoving;
-
-            if (AreValueEventsEnabled)
-            {
-                RaiseEvent(Event.MovingChanged);
-            }
 
             void CreateNewPlayerBodyElement(bool isPlayerAlreadyShowing = false)
             {
@@ -191,22 +205,24 @@ namespace Viper.Game.Managers
             {
                 int index = 0;
 
+                bool isPlayerDead = false;
+
                 RaiseEvent(Event.MovingChanged);
 
-                while (IsPlayerMoving)
+                while (_isPlayerMoving)
                 {
                     // Direction buffer updater, moves directions "forward" so the List gets cleaned until just 1 direction is saved
                     if (_directionBuffer.Count > 1)
                     {
                         for (int i = 0; i < _directionBuffer.Count; i++)
                         {
-                            try
+                            if (i + 1 != _directionBuffer.Count)
                             {
                                 _directionBuffer[i] = _directionBuffer[i + 1]; // db1 = db2, db2 = db3, db3 = db4, etc...
                             }
-                            catch
+                            else
                             {
-                                _directionBuffer.RemoveAt(i); // If theres an exception, then you reached the last dir, which can be removed
+                                _directionBuffer.RemoveAt(i); // If we reach the last element of the list, remove it.
                             }
                         }
                     }
@@ -274,6 +290,25 @@ namespace Viper.Game.Managers
 
                     currentPosY = newPosY;
                     currentPosX = newPosX;
+
+                    foreach (var bodyElement in _playerBody)
+                    {
+                        if (currentPosX == (bodyElement.RenderTransform as TranslateTransform).X && currentPosY == (bodyElement.RenderTransform as TranslateTransform).Y)
+                        {
+                            if (bodyElement != _playerBody[index])
+                            {
+                                PlayerDied.Invoke(this, new EventArgs());
+                                isPlayerDead = true;
+                                ResetGameplay();
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isPlayerDead)
+                    {
+                        break;
+                    }
 
                     if (_foodPositions.Count > 0)
                     {
@@ -380,15 +415,16 @@ namespace Viper.Game.Managers
                 Width = ELEMENTS_SIZE,
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Left,
+                RenderTransform = new TranslateTransform(-30, -30),
             };
+
+            _foods.Add(food);
+            _foodPositions.Add(new TranslateTransform());
 
             food.Loaded += (s, e) =>
             {
                 RePositionFood(currentIndex);
             };
-
-            _foods.Add(food);
-            _foodPositions.Add(new TranslateTransform());
 
             _foodCounter += 1;
 
@@ -418,8 +454,23 @@ namespace Viper.Game.Managers
             int spaceH = Convert.ToInt32((_foods[foodIndex].Parent as Panel).Height);
             int spaceW = Convert.ToInt32((_foods[foodIndex].Parent as Panel).Width);
 
-            int newX = ELEMENTS_SIZE * random.Next(0, spaceH / ELEMENTS_SIZE);
-            int newY = ELEMENTS_SIZE * random.Next(0, spaceW / ELEMENTS_SIZE);
+            int newX, newY;
+
+            CheckReposition();
+
+            void CheckReposition()
+            {
+                newX = ELEMENTS_SIZE * random.Next(0, spaceH / ELEMENTS_SIZE);
+                newY = ELEMENTS_SIZE * random.Next(0, spaceW / ELEMENTS_SIZE);
+
+                foreach (var bodyElement in _playerBody)
+                {
+                    if (newX == (bodyElement.RenderTransform as TranslateTransform).X && newY == (bodyElement.RenderTransform as TranslateTransform).Y)
+                    {
+                        CheckReposition();
+                    }
+                }
+            }
 
             _foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
             _foodPositions[foodIndex] = _foods[foodIndex].RenderTransform as TranslateTransform;
@@ -437,31 +488,31 @@ namespace Viper.Game.Managers
             {
                 if (selectedEvent == Event.DirectionChanged)
                 {
-                    PlayerDirectionChanged?.Invoke(this, new EventArgs());
+                    PlayerDirectionChanged.Invoke(this, new EventArgs());
                 }
                 else if (selectedEvent == Event.MovingChanged)
                 {
-                    PlayerMovingChanged?.Invoke(this, new EventArgs());
+                    PlayerMovingChanged.Invoke(this, new EventArgs());
                 }
                 else if (selectedEvent == Event.BodyElementsChanged)
                 {
-                    BodyElementsCountChanged?.Invoke(this, EventArgs.Empty);
+                    BodyElementsCountChanged.Invoke(this, EventArgs.Empty);
                 }
                 else if (selectedEvent == Event.PointsChanged)
                 {
-                    PointsChanged?.Invoke(this, new EventArgs());
+                    PointsChanged.Invoke(this, new EventArgs());
                 }
                 else if (selectedEvent == Event.PositionXChanged)
                 {
-                    PlayerXPositionChanged?.Invoke(this, new EventArgs());
+                    PlayerXPositionChanged.Invoke(this, new EventArgs());
                 }
                 else if (selectedEvent == Event.PositionYChanged)
                 {
-                    PlayerYPositionChanged?.Invoke(this, new EventArgs());
+                    PlayerYPositionChanged.Invoke(this, new EventArgs());
                 }
                 else if (selectedEvent == Event.FoodAmountChanged)
                 {
-                    FoodAmountChanged?.Invoke(this, new EventArgs());
+                    FoodAmountChanged.Invoke(this, new EventArgs());
                 }
             }
         }

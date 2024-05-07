@@ -16,7 +16,7 @@ namespace Viper.Game.Managers
             }
         }
 
-        private Grid CurrentPlayfield;
+        public Grid CurrentPlayfield;
 
         public Grid Add(double size)
         {

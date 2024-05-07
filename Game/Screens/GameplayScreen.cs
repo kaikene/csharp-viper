@@ -13,7 +13,7 @@ namespace Viper.Game.Screens
 
         public const int DEFAULT_VIEWBOX_SIZE = 400;
 
-        public const int DEFAULT_PLAYFIELD_SIZE = 20;
+        public const int DEFAULT_PLAYFIELD_SIZE = 30;
 
         public const int DEBUG_FONT_SIZE = 10;
 
@@ -35,14 +35,31 @@ namespace Viper.Game.Screens
             {
                 Height = DEFAULT_VIEWBOX_SIZE,
                 Width = DEFAULT_VIEWBOX_SIZE,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+            };
+
+            Grid overlay = new()
+            {
+                Background = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)),
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
             };
 
             Viewbox gameplayViewbox = new()
             {
                 Height = DEFAULT_VIEWBOX_SIZE,
                 Width = DEFAULT_VIEWBOX_SIZE,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+
+            TextBlock description = new()
+            {
+                Foreground = new SolidColorBrush(Colors.White),
+                FontSize = 17,
+                Text = "Presiona una tecla",
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
             };
@@ -128,11 +145,18 @@ namespace Viper.Game.Screens
 
             Grid currentPlayfield = PlayfieldManager.Add(GameplayManager.ELEMENTS_SIZE * playfieldGridSize);
 
+            PlayfieldManager.CurrentPlayfield.Opacity = 0;
+
             Panel.SetZIndex(screenIdetifier, 5);
+            Panel.SetZIndex(gameplayElementsHandler, 10);
 
             gameplayElementsHandler.Children.Add(gameplayViewbox);
 
             gameplayElementsHandler.Children.Add(debugDataStackPanel);
+
+            gameplayElementsHandler.Children.Add(overlay);
+
+            overlay.Children.Add(description);
 
             gameplay.Children.Add(_gameplayElementsHandler);
 
@@ -164,7 +188,7 @@ namespace Viper.Game.Screens
                     {
                         _canRaiseEvents = !_canRaiseEvents;
                         GameplayManager.AreValueEventsEnabled = _canRaiseEvents;
-                        GameplayManager.UpdateAllEvents();
+                        GameplayManager.RaiseAllEvents();
 
                         if (_canRaiseEvents)
                         {
@@ -173,8 +197,16 @@ namespace Viper.Game.Screens
                         else
                         {
                             debugDataStackPanel.Opacity = 0;
+                            overlay.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
                         }
                     }
+                }
+
+                if (GameplayManager.IsPlayerMoving == false)
+                {
+                    description.Opacity = 0;
+                    PlayfieldManager.CurrentPlayfield.Opacity = 1;
+                    overlay.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
                 }
             };
 
@@ -191,6 +223,11 @@ namespace Viper.Game.Screens
             GameplayManager.PlayerMovingChanged += (s, e) =>
             {
                 debugMovTB.Text = "IsPlayerMoving: " + GameplayManager.IsPlayerMoving;
+
+                if (GameplayManager.IsPlayerMoving == false)
+                {
+                    description.Opacity = 1;
+                }
             };
 
             GameplayManager.PlayerDirectionChanged += (s, e) =>
@@ -213,8 +250,15 @@ namespace Viper.Game.Screens
                 debugYposTB.Text = "currentPosY:" + GameplayManager.PlayerYPosition;
             };
 
-            currentPlayfield.Children.Add(GameplayManager.ShowPlayer(new TranslateTransform(0, 0)));
+            GameplayManager.PlayerDied += (s, e) =>
+            {
+                description.Opacity = 1;
+                PlayfieldManager.CurrentPlayfield.Opacity = 0;
+                description.Text = "Perdiste, presiona una tecla para volver a jugar";
+                overlay.Background = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0));
+            };
 
+            currentPlayfield.Children.Add(GameplayManager.ShowPlayer(new TranslateTransform(0, 0)));
             currentPlayfield.Children.Add(GameplayManager.AddFood());
 
             gameplayViewbox.Child = currentPlayfield;

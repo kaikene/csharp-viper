@@ -13,7 +13,28 @@ namespace Viper.Game.Screens
 
         public event EventHandler ExitGame;
 
-        public Grid Show()
+        private Grid _menu = new()
+        {
+            VerticalAlignment = VerticalAlignment.Stretch,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Tag = "Viper.Game.Screens.MenuScreen",
+            Focusable = true,
+        };
+
+        public Grid MenuContainer
+        {
+            get
+            {
+                return _menu;
+            }
+        }
+
+        public void CleanUp()
+        {
+            _menu.Children.Clear();
+        }
+
+        public void Show()
         {
             const int BUTTON_STACKPANEL_WIDTH = 250;
 
@@ -21,17 +42,9 @@ namespace Viper.Game.Screens
 
             const int BUTTON_HEIGHT = 25;
 
-            Grid menu = new()
-            {
-                VerticalAlignment = VerticalAlignment.Stretch,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Tag = "Viper.Game.Screens.MenuScreen",
-                Focusable = true,
-            };
-
             TextBlock screenIdetifier = new()
             {
-                Text = menu.Tag.ToString(),
+                Text = _menu.Tag.ToString(),
                 FontSize = 15,
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -82,17 +95,9 @@ namespace Viper.Game.Screens
 
             buttonStackPanel.Children.Add(exitButton);
 
-            menu.Children.Add(buttonStackPanel);
+            _menu.Children.Add(buttonStackPanel);
 
-            menu.Children.Add(screenIdetifier);
-
-            menu.PreviewKeyDown += (s, e) =>
-            {
-                if (e.Key == Key.Escape)
-                {
-                    ExitGame.Invoke(this, e);
-                }
-            };
+            _menu.Children.Add(screenIdetifier);
 
             startButton.PreviewMouseUp += (s, e) =>
             {
@@ -101,20 +106,13 @@ namespace Viper.Game.Screens
 
             exitButton.PreviewMouseUp += (s, e) =>
             {
-                MessageBoxResult result = MessageBox.Show("Estas seguro de que quierers salir?", "Salir", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    Application.Current.Shutdown();
-                }
+                ExitGame.Invoke(this, e);
             };
 
-            menu.Loaded += (s, e) =>
+            _menu.Loaded += (s, e) =>
             {
                 startButton.Focus();
             };
-
-            return menu;
         }
     }
 }

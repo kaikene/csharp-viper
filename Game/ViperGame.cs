@@ -29,14 +29,10 @@ namespace Viper.Game
             }
         }
 
-        public GameplayScreen GameplayScreen = new();
-
-        public MenuScreen MenuScreen = new();
-
         // Main method to start the program somewhere.
         public Grid Start()
         {
-            ScreenManager ScreenManager = new(GameplayScreen, MenuScreen);
+            ScreenManager ScreenManager = new();
 
             // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
             TextBlock versionFooter = new()

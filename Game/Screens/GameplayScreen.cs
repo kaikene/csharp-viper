@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Viper.Game.Elements;
 using Viper.Game.Managers;
 
 namespace Viper.Game.Screens
@@ -19,15 +20,13 @@ namespace Viper.Game.Screens
 
         public Color DebugFontColor = Color.FromArgb(255, 255, 248, 38);
 
-        public PlayfieldManager PlayfieldManager = new();
-
         public GameplayManager GameplayManager = new();
 
         private Viewbox _currentViewbox;
 
         private Grid _gameplayElementsHandler;
 
-        public Grid Show(int playfieldGridSize = DEFAULT_PLAYFIELD_SIZE)
+        public Grid Show()
         {
             bool _canRaiseEvents = false;
 
@@ -143,10 +142,6 @@ namespace Viper.Game.Screens
             _currentViewbox = gameplayViewbox;
             _gameplayElementsHandler = gameplayElementsHandler;
 
-            Grid currentPlayfield = PlayfieldManager.Add(GameplayManager.ELEMENTS_SIZE * playfieldGridSize);
-
-            PlayfieldManager.CurrentPlayfield.Opacity = 0;
-
             Panel.SetZIndex(screenIdetifier, 5);
             Panel.SetZIndex(gameplayElementsHandler, 10);
 
@@ -187,8 +182,7 @@ namespace Viper.Game.Screens
                     if (e.Key == Key.D)
                     {
                         _canRaiseEvents = !_canRaiseEvents;
-                        GameplayManager.AreValueEventsEnabled = _canRaiseEvents;
-                        GameplayManager.RaiseAllEvents();
+
 
                         if (_canRaiseEvents)
                         {
@@ -201,74 +195,9 @@ namespace Viper.Game.Screens
                         }
                     }
                 }
-
-                if (GameplayManager.IsPlayerMoving == false)
-                {
-                    description.Opacity = 0;
-                    PlayfieldManager.CurrentPlayfield.Opacity = 1;
-                    overlay.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-                }
             };
-
-            GameplayManager.PointsChanged += (s, e) =>
-            {
-                debugPointsTB.Text = "Points: " + GameplayManager.Points;
-            };
-
-            GameplayManager.FoodAmountChanged += (s, e) =>
-            {
-                debugFoodTB.Text = "FoodAmount: " + GameplayManager.FoodAmount;
-            };
-
-            GameplayManager.PlayerMovingChanged += (s, e) =>
-            {
-                debugMovTB.Text = "IsPlayerMoving: " + GameplayManager.IsPlayerMoving;
-
-                if (GameplayManager.IsPlayerMoving == false)
-                {
-                    description.Opacity = 1;
-                }
-            };
-
-            GameplayManager.PlayerDirectionChanged += (s, e) =>
-            {
-                debugDirTB.Text = "PlayerDirection: " + GameplayManager.PlayerDirection.ToString();
-            };
-
-            GameplayManager.BodyElementsCountChanged += (s, e) =>
-            {
-                debugBodyTB.Text = "PlayerBodyElements: " + GameplayManager.PlayerBodyCount;
-            };
-
-            GameplayManager.PlayerXPositionChanged += (s, e) =>
-            {
-                debugXposTB.Text = "currentPosX:" + GameplayManager.PlayerXPosition;
-            };
-
-            GameplayManager.PlayerYPositionChanged += (s, e) =>
-            {
-                debugYposTB.Text = "currentPosY:" + GameplayManager.PlayerYPosition;
-            };
-
-            GameplayManager.PlayerDied += (s, e) =>
-            {
-                description.Opacity = 1;
-                PlayfieldManager.CurrentPlayfield.Opacity = 0;
-                description.Text = "Perdiste, presiona una tecla para volver a jugar";
-                overlay.Background = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0));
-            };
-
-            currentPlayfield.Children.Add(GameplayManager.ShowPlayer(new TranslateTransform(0, 0)));
-            currentPlayfield.Children.Add(GameplayManager.AddFood());
-
-            gameplayViewbox.Child = currentPlayfield;
 
             return gameplay;
-        }
-
-        public void ChangePlayfieldGridSize(int newSize)
-        {
-            PlayfieldManager.ChangeSize(GameplayManager.ELEMENTS_SIZE * newSize);
         }
 
         public void ChangeGameplayZoom(int newZoom)

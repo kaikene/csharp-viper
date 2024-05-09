@@ -10,8 +10,12 @@ using Viper.Game.Screens;
 
 namespace Viper.Game.Managers
 {
-    public class ScreenManager(GameplayScreen gs, MenuScreen ms)
+    public class ScreenManager()
     {
+        public GameplayScreen GameplayScreen = new();
+
+        public MenuScreen MenuScreen = new();
+
         private Grid _screen = new()
         {
             VerticalAlignment = VerticalAlignment.Stretch,
@@ -20,17 +24,17 @@ namespace Viper.Game.Managers
 
         public Grid Start()
         {
-            ms.PlayClicked += (s, e) =>
+            MenuScreen.PlayClicked += (s, e) =>
             {
                 ShowGameplay();
             };
 
-            ms.ExitGame += (s, e) =>
+            MenuScreen.ExitGame += (s, e) =>
             {
                 ExitGameDialog();
             };
 
-            gs.GoBack += (s, e) =>
+            GameplayScreen.GoBack += (s, e) =>
             {
                 ShowMainMenu();
             };
@@ -41,14 +45,13 @@ namespace Viper.Game.Managers
         public void ShowMainMenu()
         {
             _screen.Children.Clear();
-            _screen.Children.Add(ms.Show());
+            _screen.Children.Add(MenuScreen.Show());
         }
 
         public void ShowGameplay()
         {
-            gs.GameplayManager.CleanUp();
             _screen.Children.Clear();
-            _screen.Children.Add(gs.Show());
+            _screen.Children.Add(GameplayScreen.Show());
         }
 
         private void ExitGameDialog()

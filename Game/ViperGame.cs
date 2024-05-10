@@ -19,7 +19,7 @@ namespace Viper.Game
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        public Grid ViperGameContainer
+        public Grid GameContainer
         {
             get
             {
@@ -93,8 +93,9 @@ namespace Viper.Game
                 }
             }
 
-            _viperContainer.Children.Add(_screenManager.Start());
+            _viperContainer.Children.Add(_screenManager.ScreenContainer);
 
+            _screenManager.Start();
             _screenManager.ShowMainMenu();
         }
 

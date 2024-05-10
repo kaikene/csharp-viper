@@ -26,6 +26,14 @@ namespace Viper.Game.Managers
             HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
+        public Grid ScreenContainer
+        {
+            get
+            {
+                return _screen;
+            }
+        }
+
         private enum Screens
         {
             Gameplay,
@@ -35,7 +43,7 @@ namespace Viper.Game.Managers
 
         private List<Screens> _screenHistory = new();
 
-        public Grid Start()
+        public void Start()
         {
             MenuScreen.PlayClicked += (s, e) =>
             {
@@ -48,8 +56,6 @@ namespace Viper.Game.Managers
             };
 
             Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
-
-            return _screen;
         }
 
         private void OnEscapeKeyPress(object sender, KeyEventArgs e)

@@ -17,7 +17,6 @@ namespace Viper.Game.Screens
         {
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Tag = "Viper.Game.Screens.MenuScreen",
             Focusable = true,
         };
 
@@ -44,7 +43,7 @@ namespace Viper.Game.Screens
 
             TextBlock screenIdetifier = new()
             {
-                Text = _menu.Tag.ToString(),
+                Text = "Viper.Game.Screens.MenuScreen",
                 FontSize = 15,
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Center,

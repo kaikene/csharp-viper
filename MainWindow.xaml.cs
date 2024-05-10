@@ -9,7 +9,8 @@ namespace ViperWindow
         {
             ViperGame viperGame = new();
 
-            MainGrid.Children.Add(viperGame.Start());
+            MainGrid.Children.Add(viperGame.GameContainer);
+            viperGame.Start();
         }
     }
 }

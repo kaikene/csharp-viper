@@ -341,7 +341,7 @@ namespace Viper.Game.Elements
         }
 
         // Removes, resets and ends everything
-        public void CleanUp(bool softClean = false)
+        public void CleanUp()
         {
             Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
             Application.Current.Exit -= Current_Exit;

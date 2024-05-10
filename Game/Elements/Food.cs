@@ -3,6 +3,7 @@ using System.Windows.Media;
 using System.Windows;
 using Rectangle = System.Windows.Shapes.Rectangle;
 using Color = System.Windows.Media.Color;
+using System.Diagnostics;
 
 namespace Viper.Game.Elements
 {
@@ -37,6 +38,12 @@ namespace Viper.Game.Elements
             }
         }
 
+        public enum Axis
+        {
+            X,
+            Y,
+        }
+
         public Rectangle AddFood()
         {
             int currentIndex = _foodCounter;
@@ -52,7 +59,7 @@ namespace Viper.Game.Elements
             };
 
             _foods.Add(food);
-            _foodPositions.Add(new TranslateTransform());
+            _foodPositions.Add(food.RenderTransform as TranslateTransform);
 
             food.Loaded += (s, e) =>
             {
@@ -87,18 +94,31 @@ namespace Viper.Game.Elements
         {
             if (_foodPositions.Count > 0)
             {
-                Random random = new Random();
+                int spaceH = Convert.ToInt32((_foods[0].Parent as Panel).Height), spaceW = Convert.ToInt32((_foods[0].Parent as Panel).Width);
 
-                int spaceH = Convert.ToInt32((_foods[0].Parent as Panel).Height);
-                int spaceW = Convert.ToInt32((_foods[0].Parent as Panel).Width);
+                TranslateTransform newPos = new();
 
-                int newX, newY;
+                if ((spaceH / SIZE) * (spaceH / SIZE) != _foods.Count)
+                {
+                    VerifyPositioning();
 
-                newX = SIZE * random.Next(0, spaceH / SIZE);
-                newY = SIZE * random.Next(0, spaceW / SIZE);
+                    void VerifyPositioning()
+                    {
+                        Random random = new Random();
 
-                _foods[foodIndex].RenderTransform = new TranslateTransform(newX, newY);
-                _foodPositions[foodIndex] = _foods[foodIndex].RenderTransform as TranslateTransform;
+                        newPos = new(SIZE * random.Next(0, spaceH / SIZE), SIZE * random.Next(0, spaceW / SIZE));
+
+                        for (int i = 0; i < _foodPositions.Count; i++)
+                        {
+                            if (newPos.X == _foodPositions[i].X && newPos.Y == _foodPositions[i].Y)
+                            {
+                                VerifyPositioning();
+                            }
+                        }
+                    }
+                    _foods[foodIndex].RenderTransform = new TranslateTransform(newPos.X, newPos.Y);
+                    _foodPositions[foodIndex] = newPos;
+                }
             }
         }   
 

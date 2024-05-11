@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using Viper.Game.Elements;
+using Viper.Game.Events;
 
 namespace Viper.Screens
 {
@@ -79,10 +82,6 @@ namespace Viper.Screens
             Content = "Food"
         };
 
-        private Player _player = new();
-
-        private Food _food = new();
-
         public void Show()
         {
             TextBlock screenIdetifier = new()
@@ -95,8 +94,12 @@ namespace Viper.Screens
                 Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
             };
 
-            _playerTest.Click += (s, e) =>
+            _playerTest.Click += OnPlayerButtonClick;
+
+            void OnPlayerButtonClick(Object Sender, RoutedEventArgs e)
             {
+                Player player = new();
+
                 _testingSpace.Children.Clear();
                 _testingAdditionalSelector.Children.Clear();
 
@@ -159,10 +162,10 @@ namespace Viper.Screens
                 TextBlock testDebugMov = new() { Text = "Player Moving:" };
                 TextBlock testDebugDir = new() { Text = "Player Direction:" };
                 TextBlock testDebugBE = new() { Text = "Player Elements:" };
-                TextBlock testDebugPos = new() { Text = "Position: X: " + _player.PlayerXPosition + " | Y: " + _player.PlayerYPosition };
+                TextBlock testDebugPos = new() { Text = "Position: X: " + player.PlayerXPosition + " | Y: " + player.PlayerYPosition };
                 TextBlock testDebugPD = new() { Text = "Player Died: 0 times" };
-                TextBlock testDebugTR = new() { Text = "Current Tickrate: " + _player.CurrentTickRate };
-                TextBlock testDebugPC = new() { Text = "Player Color: " + _player.CurrentColor };
+                TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate };
+                TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})" };
 
                 StackPanel debugStats = new()
                 {
@@ -181,74 +184,78 @@ namespace Viper.Screens
 
                 addTickRate.Click += (s, e) =>
                 {
-                    _player.ChangeTickRate(_player.CurrentTickRate + 10);
+                    player.ChangeTickRate(player.CurrentTickRate + 10);
                 };
 
                 decreaseTickRate.Click += (s, e) =>
                 {
-                    _player.ChangeTickRate(_player.CurrentTickRate - 10);
+                    player.ChangeTickRate(player.CurrentTickRate - 10);
                 };
 
                 changeColor.Click += (s, e) =>
                 {
                     Random rnd = new();
 
-                    _player.ChangePlayerColor(Color.FromArgb(255, Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256))));
+                    player.ChangePlayerColor(Color.FromArgb(255, Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256))));
                 };
 
                 increaseSize.Click += (s, e) =>
                 {
-                    _player.IncreasePlayerSize();
+                    player.IncreasePlayerSize();
                 };
 
                 decreaseSize.Click += (s, e) =>
                 {
-                    _player.DecreasePlayerSize();
+                    player.DecreasePlayerSize();
                 };
 
                 reset.Click += (s, e) =>
                 {
-                    _player.ResetGameplay();
+                    player.ResetGameplay();
                 };
 
-                _player.PlayerDirectionChanged += (s, e) =>
+                player.DirectionChanged += (s, e) =>
                 {
-                    testDebugDir.Text = "Direction: " + _player.PlayerDirection.ToString();
+                    testDebugDir.Text = "Direction: " + e.Direction.ToString();
                 };
 
-                _player.BodyElementsCountChanged += (s, e) =>
+                player.BodyElementsCountChanged += (s, e) =>
                 {
-                    testDebugBE.Text = "Player Elements: " + _player.PlayerBodyCount;
+                    testDebugBE.Text = "Player Elements: " + e.BodyElements;
                 };
 
-                _player.PlayerMovingChanged += (s, e) =>
+                player.IsMovingChanged += (s, e) =>
                 {
-                    testDebugMov.Text = "Player Moving: " + _player.IsPlayerMoving;
+                    testDebugMov.Text = "Player Moving: " + e.IsPlayerMoving;
                 };
 
-                _player.PlayerPositionChanged += (s, e) =>
+                player.PositionChanged += (s, e) =>
                 {
-                    testDebugPos.Text = "Position: X: " + _player.PlayerXPosition + " | Y: " + _player.PlayerYPosition;
+                    testDebugPos.Text = "Position: X: " + e.X + " | Y: " + e.Y;
                 };
 
-                _player.PlayerDied += (s, e) =>
+                player.PlayerDied += (s, e) =>
                 {
                     playerDeaths += 1;
                     testDebugPD.Text = "Player Died: " + playerDeaths + " times";
                 };
 
-                _player.TickrateChanged += (s, e) =>
+                player.TickrateChanged += (s, e) =>
                 {
-                    testDebugTR.Text = "Current Tickrate: " + _player.CurrentTickRate;
+                    testDebugTR.Text = "Current Tickrate: " + e.TickRate;
                 };
 
-                _player.ColorChanged += (s, e) =>
+                player.ColorChanged += (s, e) =>
                 {
-                    testDebugPC.Text = "Player Color: " + _player.CurrentColor;
+                    testDebugPC.Text = $"Player Color: Color.FromArgb({e.Color.A}, {e.Color.R}, {e.Color.G}, {e.Color.B})";
                 };
 
-                _player.CleanUp();
-                tempPlayfield.Children.Add(_player.AddPlayer());
+
+                player.CleanUp();
+
+                // For now, you can play as one.
+                tempPlayfield.Children.Add(player.AddPlayer());
+
                 debugStats.Children.Add(testDebugMov);
                 debugStats.Children.Add(testDebugDir);
                 debugStats.Children.Add(testDebugPos);
@@ -256,27 +263,65 @@ namespace Viper.Screens
                 debugStats.Children.Add(testDebugPD);
                 debugStats.Children.Add(testDebugTR);
                 debugStats.Children.Add(testDebugPC);
+
                 tempPlayfield.Children.Add(debugStats);
+
                 _testingAdditionalSelector.Children.Add(addTickRate);
                 _testingAdditionalSelector.Children.Add(decreaseTickRate);
                 _testingAdditionalSelector.Children.Add(changeColor);
                 _testingAdditionalSelector.Children.Add(increaseSize);
                 _testingAdditionalSelector.Children.Add(decreaseSize);
-                _testingSpace.Children.Add(tempPlayfield);
-            };
 
-            _foodTest.Click += (s, e) =>
+                _testingSpace.Children.Add(tempPlayfield);
+            }
+
+            _foodTest.Click += OnFoodtestClick;
+
+            void OnFoodtestClick(Object sender, RoutedEventArgs e)
             {
+                Food food = new();
+
                 _testingSpace.Children.Clear();
                 _testingAdditionalSelector.Children.Clear();
 
                 Grid tempPlayfield = new()
                 {
                     Height = 450,
-                    Width = 450,
+                    Width = 510,
                     Background = new SolidColorBrush(Colors.DarkGray),
                     ClipToBounds = true,
                 };
+
+                TextBlock testDebugFA = new() { Text = $"Food Amount: {food.FoodAmount}" };
+                TextBlock testDebugFC = new() { Text = $"Food Color: Color.FromArgb({food.CurrentColor.A}, {food.CurrentColor.R}, {food.CurrentColor.G}, {food.CurrentColor.B})" };
+
+                StackPanel debugStats = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Width = 300,
+                };
+
+                Panel.SetZIndex(debugStats, 10);
+
+                ScrollViewer debugPosStatsSW = new()
+                {
+                    Background = new SolidColorBrush(Color.FromArgb(20, 0, 0, 0)),
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Height = 300,
+                    Width = 100,
+                };
+
+                StackPanel debugPosStats = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Width = 300,
+                };
+
+                List<TextBlock> foodPositionsTB = new();
 
                 Button addFood = new()
                 {
@@ -284,7 +329,7 @@ namespace Viper.Screens
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
                     Margin = new System.Windows.Thickness(2, 2, 2, 2),
                     Height = 25,
-                    Content = "+1 Food"
+                    Content = "Add Food"
                 };
 
                 Button removeFood = new()
@@ -293,7 +338,7 @@ namespace Viper.Screens
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
                     Margin = new System.Windows.Thickness(2, 2, 2, 2),
                     Height = 25,
-                    Content = "-1 Food"
+                    Content = "Remove Food"
                 };
 
                 Button changeColor = new()
@@ -316,22 +361,80 @@ namespace Viper.Screens
 
                 addFood.Click += (s, e) =>
                 {
-                    tempPlayfield.Children.Add(_food.AddFood());
+                    tempPlayfield.Children.Add(food.AddFood());
                 };
 
                 removeFood.Click += (s, e) =>
                 {
-                    _food.RemoveFood();
+                    food.RemoveFood();
                 };
 
-                _food.CleanUp();
+                changeColor.Click += (s, e) =>
+                {
+                    Random rnd = new();
+
+                    food.ChangeFoodColor(Color.FromArgb(255, Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256)), Convert.ToByte(rnd.Next(0, 256))));
+                };
+
+                reposition.Click += (s, e) =>
+                {
+                    Random random = new();
+
+                    food.RePosition(random.Next(0, food.FoodAmount));
+                };
+
+                food.FoodAmountChanged += (s, e) =>
+                {
+                    testDebugFA.Text = "Food Amount: " + e.FoodElements;
+
+                    TextBlock tempTB = new();
+
+                    if (e.Action == Food.FoodAction.Add)
+                    {
+                        foodPositionsTB.Add(tempTB);
+                        debugPosStats.Children.Add(tempTB);
+                    }
+                    else if (e.Action == Food.FoodAction.Remove)
+                    {
+                        debugPosStats.Children.RemoveAt(foodPositionsTB.Count - 1);
+                        foodPositionsTB.RemoveAt(foodPositionsTB.Count - 1);
+                    }
+                    else
+                    {
+                        // Value is just being checked.
+                    }
+                };
+
+                food.FoodPositionsChanged += (s, e) =>
+                {
+                    foodPositionsTB[e.FoodIndex].Text = $"X: {e.X}, Y: {e.Y}";
+                };
+
+                food.ColorChanged += (s, e) =>
+                {
+                    testDebugFC.Text = $"Food Color: Color.FromArgb({e.Color.A}, {e.Color.R}, {e.Color.G}, {e.Color.B})";
+                };
+
+
+                food.CleanUp();
+
                 _testingSpace.Children.Add(tempPlayfield);
-                tempPlayfield.Children.Add(_food.AddFood());
+
+                debugStats.Children.Add(testDebugFA);
+                debugStats.Children.Add(testDebugFC);
+                debugStats.Children.Add(debugPosStatsSW);
+
+                debugPosStatsSW.Content = debugPosStats;
+
+                tempPlayfield.Children.Add(debugStats);
+                tempPlayfield.Children.Add(food.AddFood());
+
                 _testingAdditionalSelector.Children.Add(addFood);
                 _testingAdditionalSelector.Children.Add(removeFood);
                 _testingAdditionalSelector.Children.Add(changeColor);
                 _testingAdditionalSelector.Children.Add(reposition);
-            };
+            }
+
             _testingSelector.Children.Add(_playerTest);
             _testingSelector.Children.Add(_foodTest);
 
@@ -346,8 +449,6 @@ namespace Viper.Screens
 
         public void CleanUp()
         {
-            _player.CleanUp();
-            _food.CleanUp();
             _testingSelector.Children.Clear();
             _testingSelectorSV.Content = null;
             _testingAdditionalSelectorSV.Content = null;

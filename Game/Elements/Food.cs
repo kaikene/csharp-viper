@@ -4,12 +4,34 @@ using System.Windows;
 using Rectangle = System.Windows.Shapes.Rectangle;
 using Color = System.Windows.Media.Color;
 using System.Diagnostics;
+using Viper.Game.Events;
 
 namespace Viper.Game.Elements
 {
     public class Food
     {
-        public event EventHandler? FoodAmountChanged;
+        public event EventHandler<FoodColorChangedEventArgs> ColorChanged;
+
+        public event EventHandler<FoodAmountChangedEventArgs> FoodAmountChanged;
+
+        public event EventHandler<FoodPositionChangedEventArgs> FoodPositionsChanged;
+
+        public enum FoodAction
+        {
+            Remove,
+            Add,
+            Check,
+        }
+
+        private Color _color = Color.FromArgb(255, 109, 255, 56);
+
+        public Color CurrentColor
+        {
+            get
+            {
+                return _color;
+            }
+        }
 
         private enum Event
         {
@@ -17,8 +39,6 @@ namespace Viper.Game.Elements
         }
 
         public int FoodSize;
-
-        public int CurrentPlayerXPosition, CurrentPlayerYPosition;
 
         public bool AreValueEventsEnabled = false;
 
@@ -38,19 +58,13 @@ namespace Viper.Game.Elements
             }
         }
 
-        public enum Axis
-        {
-            X,
-            Y,
-        }
-
         public Rectangle AddFood()
         {
             int currentIndex = _foodCounter;
 
             Rectangle food = new()
             {
-                Fill = new SolidColorBrush(Color.FromArgb(255, 108, 245, 66)),
+                Fill = new SolidColorBrush(_color),
                 Height = SIZE,
                 Width = SIZE,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -63,12 +77,22 @@ namespace Viper.Game.Elements
 
             food.Loaded += (s, e) =>
             {
-                RePosition(currentIndex);
+                int spaceW = Convert.ToInt32((_foods[0].Parent as Panel).Height), spaceH = Convert.ToInt32((_foods[0].Parent as Panel).Width);
+
+                if ((spaceW / SIZE) * (spaceH / SIZE) != _foods.Count)
+                {
+                    _foodCounter += 1;
+
+                    FoodAmountChanged?.Invoke(this, new FoodAmountChangedEventArgs(_foodCounter, FoodAction.Add));
+
+                    RePosition(currentIndex);
+                }
+                else
+                {
+                    _foods.Remove(food);
+                    _foodPositions.Remove(food.RenderTransform as TranslateTransform);
+                }
             };
-
-            _foodCounter += 1;
-
-            RaiseEvent(Event.FoodAmountChanged);
 
             return _foods[currentIndex];
         }
@@ -86,7 +110,7 @@ namespace Viper.Game.Elements
 
                 _foodCounter -= 1;
 
-                RaiseEvent(Event.FoodAmountChanged);
+                FoodAmountChanged?.Invoke(this, new FoodAmountChangedEventArgs(_foodCounter, FoodAction.Remove));
             }
         }
 
@@ -98,33 +122,43 @@ namespace Viper.Game.Elements
 
                 TranslateTransform newPos = new();
 
-                if ((spaceH / SIZE) * (spaceH / SIZE) != _foods.Count)
+                VerifyPositioning();
+
+                void VerifyPositioning()
                 {
-                    VerifyPositioning();
+                    Random random = new Random();
 
-                    void VerifyPositioning()
+                    newPos = new(SIZE * random.Next(0, spaceW / SIZE), SIZE * random.Next(0, spaceH / SIZE));
+
+                    for (int i = 0; i < _foodPositions.Count; i++)
                     {
-                        Random random = new Random();
-
-                        newPos = new(SIZE * random.Next(0, spaceH / SIZE), SIZE * random.Next(0, spaceW / SIZE));
-
-                        for (int i = 0; i < _foodPositions.Count; i++)
+                        if (newPos.X == _foodPositions[i].X && newPos.Y == _foodPositions[i].Y)
                         {
-                            if (newPos.X == _foodPositions[i].X && newPos.Y == _foodPositions[i].Y)
-                            {
-                                VerifyPositioning();
-                            }
+                            VerifyPositioning();
                         }
                     }
-                    _foods[foodIndex].RenderTransform = new TranslateTransform(newPos.X, newPos.Y);
-                    _foodPositions[foodIndex] = newPos;
                 }
+                _foods[foodIndex].RenderTransform = new TranslateTransform(newPos.X, newPos.Y);
+                _foodPositions[foodIndex] = newPos;
+
+                FoodPositionsChanged?.Invoke(this, new FoodPositionChangedEventArgs(foodIndex, newPos.X, newPos.Y));
             }
         }   
 
         public TranslateTransform GetFoodPosition(int foodIndex)
         {
             return _foodPositions[foodIndex];
+        }
+
+        public void ChangeFoodColor(Color newColor)
+        {
+            _color = newColor;
+
+            foreach (var food in _foods)
+            {
+                food.Fill = new SolidColorBrush(_color);
+            }
+            ColorChanged?.Invoke(this, new FoodColorChangedEventArgs(_color));
         }
 
         public void CleanUp()
@@ -147,18 +181,16 @@ namespace Viper.Game.Elements
             _foodPositions.Clear();
             _foodCounter = 0;
 
-
-            RaiseEvent(Event.FoodAmountChanged);
+            FoodAmountChanged?.Invoke(this, new FoodAmountChangedEventArgs(_foodCounter, FoodAction.Check));
         }
 
-        private void RaiseEvent(Event selectedEvent)
+        private void RaiseAllEvents(Event selectedEvent)
         {
             if (AreValueEventsEnabled)
             {
-                if (selectedEvent == Event.FoodAmountChanged)
-                {
-                    FoodAmountChanged.Invoke(this, new EventArgs());
-                }
+                FoodAmountChanged?.Invoke(this, new FoodAmountChangedEventArgs(_foodCounter, FoodAction.Check));
+                ColorChanged?.Invoke(this, new FoodColorChangedEventArgs(_color));
+                FoodPositionsChanged?.Invoke(this, new FoodPositionChangedEventArgs(0, 0, 0));
             }
         }
     }

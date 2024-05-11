@@ -11,12 +11,25 @@ using System.Windows.Input;
 using System.Reflection;
 using System.Numerics;
 using System.Diagnostics;
+using Viper.Game.Events;
 
 namespace Viper.Game.Elements
 {
     public class Player
     {
-        public event EventHandler? PlayerMovingChanged, PlayerDirectionChanged, BodyElementsCountChanged, PlayerPositionChanged, PlayerDied, TickrateChanged, ColorChanged;
+        public event EventHandler? PlayerDied;
+
+        public event EventHandler<PlayerPositionChangedEventArgs> PositionChanged;
+
+        public event EventHandler<PlayerMovingChangedEventArgs> IsMovingChanged;
+
+        public event EventHandler<PlayerBodyElementsCountChangedEventArgs> BodyElementsCountChanged;
+
+        public event EventHandler<PlayerTickRateChangedEventArgs> TickrateChanged;
+
+        public event EventHandler<PlayerDirectionChangedEventArgs> DirectionChanged;
+
+        public event EventHandler<PlayerColorChangedEventArgs> ColorChanged;
 
         public enum Direction
         {
@@ -36,9 +49,9 @@ namespace Viper.Game.Elements
             }
         }
 
-        private Direction? _playerDirection;
+        private Direction _playerDirection;
 
-        public Direction? PlayerDirection
+        public Direction PlayerDirection
         {
             get
             {
@@ -46,7 +59,7 @@ namespace Viper.Game.Elements
             }
         }
 
-        private List<Direction?> _directionBuffer = new();
+        private List<Direction> _directionBuffer = new();
 
         public int DirectionsBuffered
         {
@@ -98,13 +111,13 @@ namespace Viper.Game.Elements
 
         private bool _isPlayerAlreadyShowing = false;
 
-        private Color Color = Color.FromArgb(255, 255, 255, 255);
+        private Color _color = Color.FromArgb(255, 255, 255, 255);
 
-        public string CurrentColor
+        public Color CurrentColor
         {
             get
             {
-                return $"Color.FromArgb({Color.A}, {Color.R}, {Color.G}, {Color.B})";
+                return _color;
             }
         }
 
@@ -149,11 +162,11 @@ namespace Viper.Game.Elements
                 if (!_isPlayerMoving)
                 {
                     _isPlayerMoving = true;
-                    PlayerMovingChanged.Invoke(this, new EventArgs());
+                    IsMovingChanged.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
                     PlayerMovementLoop();
                 }
 
-                PlayerDirectionChanged.Invoke(this, new EventArgs());
+                DirectionChanged.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
             }
         }
 
@@ -185,7 +198,7 @@ namespace Viper.Game.Elements
                         }
                     }
 
-                    Direction? currentDirection = _directionBuffer[0];
+                    Direction currentDirection = _directionBuffer[0];
 
                     double playfieldLimitY = (_playerBody[0].Parent as FrameworkElement).Height - SIZE;
                     double playfieldLimitX = (_playerBody[0].Parent as FrameworkElement).Width - SIZE;
@@ -238,7 +251,7 @@ namespace Viper.Game.Elements
                     _playerXpos = newPosX;
                     _playerYpos = newPosY;
 
-                    PlayerPositionChanged.Invoke(this, new EventArgs());
+                    PositionChanged.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
 
                     Debug.WriteLine(i);
                     _playerBody[i].RenderTransform = new TranslateTransform(newPosX, newPosY);
@@ -281,7 +294,7 @@ namespace Viper.Game.Elements
             if (newTickRate > 0)
             {
                 _tickRate = newTickRate;
-                TickrateChanged.Invoke(this, new EventArgs());
+                TickrateChanged.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
             }
         }
 
@@ -289,7 +302,7 @@ namespace Viper.Game.Elements
         {
             Rectangle playerBodyPart = new()
             {
-                Fill = new SolidColorBrush(Color),
+                Fill = new SolidColorBrush(_color),
                 VerticalAlignment = VerticalAlignment.Top,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Height = SIZE,
@@ -316,7 +329,7 @@ namespace Viper.Game.Elements
                 (_playerBody[0].Parent as Panel).Children.Add(playerBodyPart);
             }
 
-            BodyElementsCountChanged.Invoke(this, EventArgs.Empty);
+            BodyElementsCountChanged.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
         }
 
         public void DecreasePlayerSize()
@@ -326,18 +339,18 @@ namespace Viper.Game.Elements
                 (_playerBody[0].Parent as Panel).Children.Remove(_playerBody[_playerBody.Count - 1]);
                 _playerBody.RemoveAt(_playerBody.Count - 1);
 
-                BodyElementsCountChanged.Invoke(this, EventArgs.Empty);
+                BodyElementsCountChanged.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
             }
         }
 
         public void ChangePlayerColor(Color newColor)
         {
-            Color = newColor;
+            _color = newColor;
             foreach (var player in _playerBody)
             {
-                player.Fill = new SolidColorBrush(Color);
+                player.Fill = new SolidColorBrush(_color);
             }
-            ColorChanged.Invoke(this, new EventArgs());
+            ColorChanged.Invoke(this, new PlayerColorChangedEventArgs(_color));
         }
 
         // Removes, resets and ends everything
@@ -364,7 +377,6 @@ namespace Viper.Game.Elements
             _isPlayerAlreadyShowing = false;
             _playerBody.Clear();
             _directionBuffer.Clear();
-            _playerDirection = null;
             _playerXpos = 0;
             _playerYpos = 0;
 
@@ -384,12 +396,12 @@ namespace Viper.Game.Elements
         {
             if (AreValueEventsEnabled)
             {
-                BodyElementsCountChanged.Invoke(this, EventArgs.Empty);
-                PlayerDirectionChanged.Invoke(this, new EventArgs());
-                PlayerPositionChanged.Invoke(this, new EventArgs());
-                PlayerMovingChanged.Invoke(this, new EventArgs());
-                TickrateChanged.Invoke(this, new EventArgs());
-                ColorChanged.Invoke(this, new EventArgs());
+                BodyElementsCountChanged.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
+                DirectionChanged.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
+                PositionChanged.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
+                IsMovingChanged.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+                TickrateChanged.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+                ColorChanged.Invoke(this, new PlayerColorChangedEventArgs(_color));
             }
         }
     }

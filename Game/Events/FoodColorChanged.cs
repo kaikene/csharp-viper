@@ -7,8 +7,14 @@ using System.Windows.Media;
 
 namespace Viper.Game.Events
 {
+    /// <summary>
+    /// Provides data for when Viper.Game.Elements.Food triggers the FoodColorChanged event.
+    /// </summary>
     public class FoodColorChangedEventArgs : EventArgs
     {
+        /// <summary>
+        /// Returns the new color selected.
+        /// </summary>
         public Color Color { get; }
 
         public FoodColorChangedEventArgs(Color color)

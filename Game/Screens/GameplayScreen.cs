@@ -8,6 +8,9 @@ using Viper.Game.Managers;
 
 namespace Viper.Game.Screens
 {
+    /// <summary>
+    /// The gameplay screen.
+    /// </summary>
     public class GameplayScreen()
     {
         private bool isCurrentlyShowing = false;
@@ -19,6 +22,9 @@ namespace Viper.Game.Screens
             HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
+        /// <summary>
+        /// The main container handling all gameplay elements.
+        /// </summary>
         public Grid Gameplay
         {
             get
@@ -27,6 +33,9 @@ namespace Viper.Game.Screens
             }
         }
 
+        /// <summary>
+        /// Loads and shows the gameplay screen.
+        /// </summary>
         public void Show()
         {
             if (!isCurrentlyShowing)

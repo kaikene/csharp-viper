@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Viper.Game.Events
 {
+    /// <summary>
+    /// Provides data for when Viper.Game.Elements.Food triggers the FoodPositionChanged event.
+    /// </summary>
     public class FoodPositionChangedEventArgs : EventArgs
     {
         /// <summary>

@@ -10,34 +10,54 @@ using Viper.Game.Elements;
 
 namespace Viper.Game.Managers
 {
+    /// <summary>
+    /// Manages players and food elements in a nicer way, with a custom amount of playfields.
+    /// </summary>
     public class GameplayManager()
     {
+        /// <summary>
+        /// This is the limit of playfields per row.
+        /// </summary>
         public const int PLAYFIELD_LIMIT_PER_ROW = 7;
 
+        // Amount of playfields, and a counter for the playfield row limit.
         private int _playfieldAmount = 0, _playfieldLimitPerRow = PLAYFIELD_LIMIT_PER_ROW;
 
         private bool isShowing = false;
 
+        /// <summary>
+        /// Gets the current amount of playfields.
+        /// </summary>
         public int PlayfieldAmount { get { return _playfieldAmount; } }
 
+        // A StackPanel that handles the rows of playfields.
         private StackPanel _playfieldManagerSP = new()
         {
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Stretch,
         };
 
+        // A ViewBox that works as a "zoom".
         private Viewbox _playfieldManagerVB = new()
         {
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch,
         };
 
+        // List of horizontal rows.
         private List<StackPanel> _playfieldRows = new();
 
+        // List of playfields.
         private List<Grid> _playfields = new();
 
+        /// <summary>
+        /// Returns the main component handling all elements of the gameplay manager, empty until "Show()" is used
+        /// </summary>
         public Viewbox PlayfieldManager { get { return _playfieldManagerVB; } }
 
+        /// <summary>
+        /// Shows the elements on the PlayfieldManager viewbox
+        /// </summary>
         public void Show()
         {
             if (!isShowing)
@@ -48,12 +68,18 @@ namespace Viper.Game.Managers
             isShowing = true;
         }
 
+        /// <summary>
+        /// Hide the PlayfieldManager.
+        /// </summary>
         public void Hide()
         {
             _playfieldManagerVB.Child = null;
             isShowing = false;
         }
 
+        /// <summary>
+        /// Add a playfield with a player included.
+        /// </summary>
         public void AddPlayfield()
         {
             _playfieldAmount += 1;
@@ -62,6 +88,7 @@ namespace Viper.Game.Managers
 
             Food food = new();
 
+            // If theres no playfields or the amount of playfields is higher than the limit availible per row, put the newly created playfield in a new row.
             if (_playfieldAmount == 1 || _playfieldAmount > _playfieldLimitPerRow)
             {
                 StackPanel playfieldRow = new()
@@ -76,7 +103,7 @@ namespace Viper.Game.Managers
 
                 if (_playfieldAmount != 1)
                 {
-                    _playfieldLimitPerRow += PLAYFIELD_LIMIT_PER_ROW;
+                    _playfieldLimitPerRow += PLAYFIELD_LIMIT_PER_ROW; // Increment the limit temporarly, so when the new limit is reached it puts the new playfields in a new row again.
                 }
             }
 
@@ -90,6 +117,7 @@ namespace Viper.Game.Managers
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
+            // Add player and food to the playfield.
             playfield.Children.Add(player.AddPlayer());
             playfield.Children.Add(food.AddFood());
 
@@ -98,9 +126,12 @@ namespace Viper.Game.Managers
             _playfieldRows[_playfieldRows.Count - 1].Children.Add(playfield);
         }
 
+        /// <summary>
+        /// Remove the last playfield.
+        /// </summary>
         public void RemovePlayfield()
         {
-            if (_playfieldAmount - 1 != -1) // If theres no more playfields left, thgen theres nothing to remove.
+            if (_playfieldAmount - 1 != -1) // If theres no more playfields left, then theres nothing to remove.
             {
                 _playfieldAmount -= 1;
 
@@ -109,7 +140,8 @@ namespace Viper.Game.Managers
 
                 void RemoveLastPlayfield()
                 {
-                    _playfieldRows[_playfieldRows.Count - 1].Children.RemoveAt(lastPlayfield);
+                    _playfieldRows[_playfieldRows.Count - 1].Children.RemoveAt(lastPlayfield); // Remove playfield from panel.
+                    _playfields.RemoveAt(_playfields.Count - 1); // Remove playfield from list.
                 }
 
                 void RemoveLastRow()
@@ -119,8 +151,8 @@ namespace Viper.Game.Managers
                         _playfieldLimitPerRow -= PLAYFIELD_LIMIT_PER_ROW;
                     }
 
-                    _playfieldManagerSP.Children.RemoveAt(lastPlayfieldRow);
-                    _playfieldRows.RemoveAt(lastPlayfieldRow);
+                    _playfieldManagerSP.Children.RemoveAt(lastPlayfieldRow); // Remove row from panel.
+                    _playfieldRows.RemoveAt(lastPlayfieldRow); // Remove row from list.
                 }
 
                 if (lastPlayfield - 1 == -1) // If removing the last playfield leaves you with no playfields left on the the row, then remove the entire row.

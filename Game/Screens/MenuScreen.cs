@@ -6,13 +6,22 @@ using System.Windows.Media;
 
 namespace Viper.Game.Screens
 {
-    // The menu screen of the game, grants access to basically all things of the game, needs instance of the
+    /// <summary>
+    /// The menu screen of the game.
+    /// </summary>
     public class MenuScreen
     {
+        /// <summary>
+        /// Triggers when the user clicks "Play"
+        /// </summary>
         public event EventHandler PlayClicked;
 
+        /// <summary>
+        /// Triggers when the user clicks Exit
+        /// </summary>
         public event EventHandler ExitGame;
 
+        // Container that handles all menu elements.
         private Grid _menu = new()
         {
             VerticalAlignment = VerticalAlignment.Stretch,
@@ -20,6 +29,9 @@ namespace Viper.Game.Screens
             Focusable = true,
         };
 
+        /// <summary>
+        /// Container that handles all menu elements.
+        /// </summary>
         public Grid Menu { get { return _menu; } }
 
         public void CleanUp()
@@ -27,6 +39,9 @@ namespace Viper.Game.Screens
             _menu.Children.Clear();
         }
 
+        /// <summary>
+        /// Loads and shows the menu elements.
+        /// </summary>
         public void Show()
         {
             const int BUTTON_STACKPANEL_WIDTH = 250;

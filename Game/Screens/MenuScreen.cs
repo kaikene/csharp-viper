@@ -20,13 +20,7 @@ namespace Viper.Game.Screens
             Focusable = true,
         };
 
-        public Grid Menu
-        {
-            get
-            {
-                return _menu;
-            }
-        }
+        public Grid Menu { get { return _menu; } }
 
         public void CleanUp()
         {

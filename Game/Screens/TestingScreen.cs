@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Viper.Game.Elements;
 using Viper.Game.Events;
+using Viper.Game.Managers;
 
 namespace Viper.Screens
 {
@@ -80,6 +81,15 @@ namespace Viper.Screens
             Margin = new System.Windows.Thickness(3, 3, 3, 3),
             Height = 30,
             Content = "Food"
+        };
+
+        private Button _gameplayManagerTest = new()
+        {
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            Margin = new System.Windows.Thickness(3, 3, 3, 3),
+            Height = 30,
+            Content = "GameplayManager"
         };
 
         public void Show()
@@ -159,13 +169,13 @@ namespace Viper.Screens
                     Content = "Reset"
                 };
 
-                TextBlock testDebugMov = new() { Text = "Player Moving:" };
-                TextBlock testDebugDir = new() { Text = "Player Direction:" };
-                TextBlock testDebugBE = new() { Text = "Player Elements:" };
-                TextBlock testDebugPos = new() { Text = "Position: X: " + player.PlayerXPosition + " | Y: " + player.PlayerYPosition };
-                TextBlock testDebugPD = new() { Text = "Player Died: 0 times" };
-                TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate };
-                TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})" };
+                TextBlock testDebugMov = new() { Text = "Player Moving:", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugDir = new() { Text = "Player Direction:", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugBE = new() { Text = "Player Elements:", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPos = new() { Text = "Position: X: " + player.PlayerXPosition + " | Y: " + player.PlayerYPosition, Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPD = new() { Text = "Player Died: 0 times", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate, Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
 
                 StackPanel debugStats = new()
                 {
@@ -253,7 +263,6 @@ namespace Viper.Screens
 
                 player.CleanUp();
 
-                // For now, you can play only as one.
                 tempPlayfield.Children.Add(player.AddPlayer());
 
                 debugStats.Children.Add(testDebugMov);
@@ -264,8 +273,6 @@ namespace Viper.Screens
                 debugStats.Children.Add(testDebugTR);
                 debugStats.Children.Add(testDebugPC);
 
-                tempPlayfield.Children.Add(debugStats);
-
                 _testingAdditionalSelector.Children.Add(addTickRate);
                 _testingAdditionalSelector.Children.Add(decreaseTickRate);
                 _testingAdditionalSelector.Children.Add(changeColor);
@@ -273,6 +280,7 @@ namespace Viper.Screens
                 _testingAdditionalSelector.Children.Add(decreaseSize);
 
                 _testingSpace.Children.Add(tempPlayfield);
+                _testingSpace.Children.Add(debugStats);
             }
 
             _foodTest.Click += OnFoodtestClick;
@@ -292,8 +300,8 @@ namespace Viper.Screens
                     ClipToBounds = true,
                 };
 
-                TextBlock testDebugFA = new() { Text = $"Food Amount: {food.FoodAmount}" };
-                TextBlock testDebugFC = new() { Text = $"Food Color: Color.FromArgb({food.CurrentColor.A}, {food.CurrentColor.R}, {food.CurrentColor.G}, {food.CurrentColor.B})" };
+                TextBlock testDebugFA = new() { Text = $"Food Amount: {food.FoodAmount}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugFC = new() { Text = $"Food Color: Color.FromArgb({food.CurrentColor.A}, {food.CurrentColor.R}, {food.CurrentColor.G}, {food.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
 
                 StackPanel debugStats = new()
                 {
@@ -304,13 +312,11 @@ namespace Viper.Screens
 
                 Panel.SetZIndex(debugStats, 10);
 
-                ScrollViewer debugPosStatsSW = new()
+                ScrollViewer debugPosSW = new()
                 {
-                    Background = new SolidColorBrush(Color.FromArgb(20, 0, 0, 0)),
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    Height = 300,
                     Width = 100,
                 };
 
@@ -387,7 +393,10 @@ namespace Viper.Screens
                 {
                     testDebugFA.Text = "Food Amount: " + e.FoodElements;
 
-                    TextBlock tempTB = new();
+                    TextBlock tempTB = new()
+                    {
+                        Foreground = new SolidColorBrush(Colors.White),
+                    };
 
                     if (e.Action == Food.FoodAction.Add)
                     {
@@ -418,15 +427,15 @@ namespace Viper.Screens
 
                 food.CleanUp();
 
-                _testingSpace.Children.Add(tempPlayfield);
-
                 debugStats.Children.Add(testDebugFA);
                 debugStats.Children.Add(testDebugFC);
-                debugStats.Children.Add(debugPosStatsSW);
 
-                debugPosStatsSW.Content = debugPosStats;
+                debugPosSW.Content = debugPosStats;
 
-                tempPlayfield.Children.Add(debugStats);
+                _testingSpace.Children.Add(tempPlayfield);
+                _testingSpace.Children.Add(debugStats);
+                _testingSpace.Children.Add(debugPosSW);
+
                 tempPlayfield.Children.Add(food.AddFood());
 
                 _testingAdditionalSelector.Children.Add(addFood);
@@ -435,8 +444,86 @@ namespace Viper.Screens
                 _testingAdditionalSelector.Children.Add(reposition);
             }
 
+            _gameplayManagerTest.Click += OnGameplayManagerClick;
+
+            void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
+            {
+                _testingSpace.Children.Clear();
+                _testingAdditionalSelector.Children.Clear();
+
+                GameplayManager gameplayManager = new();
+
+                _testingSpace.Children.Add(gameplayManager.PlayfieldManager);
+
+                gameplayManager.AddPlayfield();
+
+                gameplayManager.Show();
+
+                Button show = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "Show"
+                };
+
+                Button hide = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "Hide"
+                };
+
+                Button addPlayfield = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "Add Playfield"
+                };
+
+                Button removePlayfield = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "Remove Playfield"
+                };
+
+                show.Click += (s, e) =>
+                {
+                    gameplayManager.Show();
+                };
+
+                hide.Click += (s, e) =>
+                {
+                    gameplayManager.Hide();
+                };
+
+                addPlayfield.Click += (s, e) =>
+                {
+                    gameplayManager.AddPlayfield();
+                };
+
+                removePlayfield.Click += (s, e) =>
+                {
+                    gameplayManager.RemovePlayfield();
+                };
+
+                _testingAdditionalSelector.Children.Add(show);
+                _testingAdditionalSelector.Children.Add(hide);
+                _testingAdditionalSelector.Children.Add(addPlayfield);
+                _testingAdditionalSelector.Children.Add(removePlayfield);
+            }
+
             _testingSelector.Children.Add(_playerTest);
             _testingSelector.Children.Add(_foodTest);
+            _testingSelector.Children.Add(_gameplayManagerTest);
 
             _testingSelectorSV.Content = _testingSelector;
             _testingAdditionalSelectorSV.Content = _testingAdditionalSelector;

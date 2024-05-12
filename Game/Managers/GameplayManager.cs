@@ -11,5 +11,10 @@ namespace Viper.Game.Managers
     public class GameplayManager()
     {
 
+        private Grid _gameplayContainer = new()
+        {
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
     }
 }

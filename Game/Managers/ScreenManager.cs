@@ -26,7 +26,7 @@ namespace Viper.Game.Managers
             HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
-        public Grid ScreenContainer
+        public Grid Screen
         {
             get
             {
@@ -107,7 +107,7 @@ namespace Viper.Game.Managers
                 AddToScreenHistory(!isReturningHere, Screens.Menu);
 
                 _screen.Children.Clear();
-                _screen.Children.Add(MenuScreen.MenuContainer);
+                _screen.Children.Add(MenuScreen.Menu);
 
                 if (!isReturningHere)
                 {
@@ -123,7 +123,7 @@ namespace Viper.Game.Managers
                 AddToScreenHistory(!isReturningHere, Screens.Gameplay);
 
                 _screen.Children.Clear();
-                _screen.Children.Add(GameplayScreen.GameplayContainer);
+                _screen.Children.Add(GameplayScreen.Gameplay);
 
                 if (!isReturningHere)
                 {
@@ -140,7 +140,7 @@ namespace Viper.Game.Managers
 
                 _screen.Children.Clear();
                 TestingScreen.CleanUp();
-                _screen.Children.Add(TestingScreen.TestingContainer);
+                _screen.Children.Add(TestingScreen.Testing);
 
                 if (!isReturningHere)
                 {

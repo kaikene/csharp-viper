@@ -12,18 +12,18 @@ namespace Viper.Game.Screens
     {
         private bool isCurrentlyShowing = false;
 
-        private Grid _gameplayContainer = new()
+        private Grid _gameplay = new()
         {
             Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch,
         };
 
-        public Grid GameplayContainer
+        public Grid Gameplay
         {
             get
             {
-                return _gameplayContainer;
+                return _gameplay;
             }
         }
 
@@ -43,14 +43,14 @@ namespace Viper.Game.Screens
                     Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
                 };
 
-                _gameplayContainer.Children.Add(screenIdetifier);
+                _gameplay.Children.Add(screenIdetifier);
             }
         }
 
         public void CleanUp()
         {
             isCurrentlyShowing = false;
-            _gameplayContainer.Children.Clear();
+            _gameplay.Children.Clear();
         }
     }
 }

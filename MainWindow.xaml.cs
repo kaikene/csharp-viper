@@ -7,10 +7,10 @@ namespace ViperWindow
     {
         private void window_Loaded(object sender, RoutedEventArgs e)
         {
-            ViperGame viperGame = new();
+            ViperGame vg = new();
 
-            MainGrid.Children.Add(viperGame.GameContainer);
-            viperGame.Start();
+            MainGrid.Children.Add(vg.Game);
+            vg.Start();
         }
     }
 }

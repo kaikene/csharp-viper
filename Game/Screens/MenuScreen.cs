@@ -20,7 +20,7 @@ namespace Viper.Game.Screens
             Focusable = true,
         };
 
-        public Grid MenuContainer
+        public Grid Menu
         {
             get
             {

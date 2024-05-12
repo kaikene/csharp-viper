@@ -12,18 +12,18 @@ namespace Viper.Game
     public class ViperGame()
     {
         // The main grid that holds the entire program.
-        private Grid _viperContainer = new()
+        private Grid _viper = new()
         {
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
-        public Grid GameContainer
+        public Grid Game
         {
             get
             {
-                return _viperContainer;
+                return _viper;
             }
         }
 
@@ -67,11 +67,11 @@ namespace Viper.Game
 #endif
 
 
-            _viperContainer.Children.Add(_versionFooter);
+            _viper.Children.Add(_versionFooter);
             Panel.SetZIndex(_versionFooter, 5);
 
             // Settings panel, not done yet.
-            _viperContainer.PreviewKeyDown += (s, e) =>
+            _viper.PreviewKeyDown += (s, e) =>
             {
                 if (e.Key == System.Windows.Input.Key.S)
                 {
@@ -93,7 +93,7 @@ namespace Viper.Game
                 }
             }
 
-            _viperContainer.Children.Add(_screenManager.ScreenContainer);
+            _viper.Children.Add(_screenManager.Screen);
 
             _screenManager.Start();
             _screenManager.ShowMainMenu();
@@ -102,7 +102,7 @@ namespace Viper.Game
         public void CleanUp()
         {
             _screenManager.CleanUp();
-            _viperContainer.Children.Clear();
+            _viper.Children.Clear();
         }
     }
 }

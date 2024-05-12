@@ -21,7 +21,7 @@ namespace Viper.Screens
             HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
         };
 
-        public Grid TestingContainer { get { return _testing; } }
+        public Grid Testing { get { return _testing; } }
 
         private Grid _testingSpace = new()
         {
@@ -253,7 +253,7 @@ namespace Viper.Screens
 
                 player.CleanUp();
 
-                // For now, you can play as one.
+                // For now, you can play only as one.
                 tempPlayfield.Children.Add(player.AddPlayer());
 
                 debugStats.Children.Add(testDebugMov);

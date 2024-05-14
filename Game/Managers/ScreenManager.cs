@@ -63,20 +63,26 @@ namespace Viper.Game.Managers
         // A history of each screen you went through, used to determine who is the previous screen when you want to go back.
         private List<Screens> _screenHistory = new();
 
-        // Shows the screen manager and sets events for all instances of the screens.
+        /// <summary>
+        /// Shows the screen manager and sets events for all instances of the screens.
+        /// </summary>
         public void Start()
         {
-            MenuScreen.PlayClicked += (s, e) =>
-            {
-                ShowGameplay();
-            };
+            MenuScreen.PlayClicked += MenuScreen_PlayClicked;
 
-            MenuScreen.ExitGame += (s, e) =>
-            {
-                ExitProgramDialog();
-            };
+            MenuScreen.ExitGame += MenuScreen_ExitGame;
 
             Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
+        }
+
+        private void MenuScreen_PlayClicked(object? sender, EventArgs e)
+        {
+            ShowGameplay();
+        }
+
+        private void MenuScreen_ExitGame(object? sender, EventArgs e)
+        {
+            ExitProgramDialog();
         }
 
         private void OnEscapeKeyPress(object sender, KeyEventArgs e)
@@ -123,7 +129,7 @@ namespace Viper.Game.Managers
 
         public void ShowMainMenu(bool isReturningHere = false)
         {
-            // If theres no screens, then showing this one is possible.
+            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
             // If the current screen is already this one, then prevent it from showing it again.
             if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Menu)
             {
@@ -141,7 +147,7 @@ namespace Viper.Game.Managers
 
         public void ShowGameplay(bool isReturningHere = false)
         {
-            // If theres no screens, then showing this one is possible.
+            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
             // If the current screen is already this one, then prevent it from showing it again.
             if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Gameplay)
             {
@@ -159,7 +165,7 @@ namespace Viper.Game.Managers
 
         public void ShowTesting(bool isReturningHere = false)
         {
-            // If theres no screens, then showing this one is possible.
+            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
             // If the current screen is already this one, then prevent it from showing it again.
             if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Testing)
             {
@@ -191,6 +197,8 @@ namespace Viper.Game.Managers
         public void CleanUp()
         {
             Application.Current.MainWindow.PreviewKeyDown -= OnEscapeKeyPress;
+            MenuScreen.PlayClicked -= MenuScreen_PlayClicked;
+            MenuScreen.ExitGame -= MenuScreen_ExitGame;
             GameplayScreen.CleanUp();
             MenuScreen.CleanUp();
             TestingScreen.CleanUp();

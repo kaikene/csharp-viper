@@ -263,7 +263,7 @@ namespace Viper.Screens
 
                 player.CleanUp();
 
-                tempPlayfield.Children.Add(player.AddPlayer());
+                tempPlayfield.Children.Add(player.ShowPlayer());
 
                 debugStats.Children.Add(testDebugMov);
                 debugStats.Children.Add(testDebugDir);

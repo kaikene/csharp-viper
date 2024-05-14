@@ -152,7 +152,7 @@ namespace Viper.Game.Elements
         public const int SIZE = 30;
 
         // Tick rate.
-        private int _tickRate = 150;
+        private int _tickRate = 50;
 
         /// <summary>
         /// Gets the current tickrate being used at the moment.
@@ -190,17 +190,24 @@ namespace Viper.Game.Elements
         /// Adds a player.
         /// </summary>
         /// <returns></returns>
-        public Rectangle AddPlayer()
+        public Rectangle ShowPlayer()
         {
-            IncreasePlayerSize();
+            if (!_isPlayerAlreadyShowing)
+            {
+                IncreasePlayerSize();
 
-            Application.Current.MainWindow.PreviewKeyDown += ChangeDirection;
+                Application.Current.MainWindow.PreviewKeyDown += ChangeDirection;
 
-            Application.Current.Exit += Current_Exit;
+                Application.Current.Exit += Current_Exit;
 
-            RaiseAllEvents();
+                RaiseAllEvents();
 
-            return _playerBody[0];
+                return _playerBody[0];
+            }
+            else
+            {
+                throw new Exception("Player was already being shown!");
+            }
         }
 
         // Changes the direction depending on the key pressed.
@@ -463,7 +470,7 @@ namespace Viper.Game.Elements
             Panel parent = _playerBody[0].Parent as Panel;
 
             CleanUp();
-            parent.Children.Add(AddPlayer());
+            parent.Children.Add(ShowPlayer());
         }
 
         public void RaiseAllEvents()

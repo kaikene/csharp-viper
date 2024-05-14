@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
@@ -77,6 +78,10 @@ namespace Viper.Game.Managers
             isShowing = false;
         }
 
+        private List<Player> _players = new();
+
+        private List<Food> _foods = new();
+
         /// <summary>
         /// Add a playfield with a player included.
         /// </summary>
@@ -87,6 +92,12 @@ namespace Viper.Game.Managers
             Player player = new();
 
             Food food = new();
+
+            _players.Add(player);
+
+            _foods.Add(food);
+
+            int currentIndex = _foods.Count - 1;
 
             // If theres no playfields or the amount of playfields is higher than the limit availible per row, put the newly created playfield in a new row.
             if (_playfieldAmount == 1 || _playfieldAmount > _playfieldLimitPerRow)
@@ -107,6 +118,20 @@ namespace Viper.Game.Managers
                 }
             }
 
+            player.PositionChanged += Player_PositionChanged;
+
+            void Player_PositionChanged(object? sender, Events.PlayerPositionChangedEventArgs e)
+            {
+                for (int i = 0; i < _foods[currentIndex].FoodAmount; i++)
+                {
+                    if (e.X == _foods[currentIndex].GetFoodPosition(i).X && e.Y == _foods[currentIndex].GetFoodPosition(i).Y)
+                    {
+                        _foods[currentIndex].RePosition(i);
+                        _players[currentIndex].IncreasePlayerSize();
+                    }
+                }
+            }
+
             Grid playfield = new()
             {
                 Height = 360,
@@ -115,10 +140,11 @@ namespace Viper.Game.Managers
                 Margin = new Thickness(10, 10, 10, 10),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
+                ClipToBounds = true,
             };
 
             // Add player and food to the playfield.
-            playfield.Children.Add(player.AddPlayer());
+            playfield.Children.Add(player.ShowPlayer());
             playfield.Children.Add(food.AddFood());
 
             _playfields.Add(playfield);
@@ -133,6 +159,12 @@ namespace Viper.Game.Managers
         {
             if (_playfieldAmount - 1 != -1) // If theres no more playfields left, then theres nothing to remove.
             {
+                _players[_players.Count - 1].CleanUp();
+                _foods[_players.Count - 1].CleanUp();
+
+                _players.RemoveAt(_players.Count - 1);
+                _foods.RemoveAt(_foods.Count - 1);
+
                 _playfieldAmount -= 1;
 
                 int lastPlayfieldRow = _playfieldRows.Count - 1;
@@ -141,6 +173,7 @@ namespace Viper.Game.Managers
                 void RemoveLastPlayfield()
                 {
                     _playfieldRows[_playfieldRows.Count - 1].Children.RemoveAt(lastPlayfield); // Remove playfield from panel.
+                    _playfields[_playfields.Count - 1].Children.Clear(); // Remove elements from playfield
                     _playfields.RemoveAt(_playfields.Count - 1); // Remove playfield from list.
                 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -303,7 +304,7 @@ namespace Viper.Screens
                     testDebugRIGHT.Text = $"{player.InputRight}";
                 };
 
-                player.CleanUp();
+                player.CleanUp(true);
 
                 tempPlayfield.Children.Add(player.ShowPlayer());
 
@@ -496,6 +497,8 @@ namespace Viper.Screens
 
             void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
             {
+                int counter = 0;
+
                 _testingSpace.Children.Clear();
                 _testingAdditionalSelector.Children.Clear();
 
@@ -504,6 +507,10 @@ namespace Viper.Screens
                 _testingSpace.Children.Add(gameplayManager.PlayfieldManager);
 
                 gameplayManager.AddPlayfield();
+
+                SetInputsForFirstThreePlayers();
+
+                counter++;
 
                 gameplayManager.Show();
 
@@ -543,6 +550,15 @@ namespace Viper.Screens
                     Content = "Remove Playfield"
                 };
 
+                TextBlock testDebugPF = new() { Text = $"Playfields: {gameplayManager.PlayfieldAmount}", Foreground = new SolidColorBrush(Colors.White), };
+
+                StackPanel debugStats = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Width = 300,
+                };
+
                 show.Click += (s, e) =>
                 {
                     gameplayManager.Show();
@@ -556,12 +572,56 @@ namespace Viper.Screens
                 addPlayfield.Click += (s, e) =>
                 {
                     gameplayManager.AddPlayfield();
+
+                    SetInputsForFirstThreePlayers();
+
+                    counter++;
                 };
 
                 removePlayfield.Click += (s, e) =>
                 {
                     gameplayManager.RemovePlayfield();
+
+                    if (!(counter - 1 < 0))
+                    {
+                        counter--;
+                    }
                 };
+
+                // jank but is for testing after all.
+                void SetInputsForFirstThreePlayers()
+                {
+                    if (counter == 0)
+                    {
+                        gameplayManager.Players[counter].InputUp = Key.W;
+                        gameplayManager.Players[counter].InputDown = Key.S;
+                        gameplayManager.Players[counter].InputLeft = Key.A;
+                        gameplayManager.Players[counter].InputRight = Key.D;
+                    }
+                    else if (counter == 1)
+                    {
+                        gameplayManager.Players[counter].InputUp = Key.T;
+                        gameplayManager.Players[counter].InputDown = Key.G;
+                        gameplayManager.Players[counter].InputLeft = Key.F;
+                        gameplayManager.Players[counter].InputRight = Key.H;
+                    }
+                    else if (counter == 2)
+                    {
+                        gameplayManager.Players[counter].InputUp = Key.I;
+                        gameplayManager.Players[counter].InputDown = Key.K;
+                        gameplayManager.Players[counter].InputLeft = Key.J;
+                        gameplayManager.Players[counter].InputRight = Key.L;
+                    }
+                }
+
+                gameplayManager.PlayfieldAmountChanged += (s, e) =>
+                {
+                    testDebugPF.Text = $"Playfields: {e.NewAmount}";
+                };
+
+                debugStats.Children.Add(testDebugPF);
+
+                _testingSpace.Children.Add(debugStats);
 
                 _testingAdditionalSelector.Children.Add(show);
                 _testingAdditionalSelector.Children.Add(hide);

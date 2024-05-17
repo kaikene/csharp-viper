@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Viper.Game.Elements;
+using Viper.Game.Events;
 
 namespace Viper.Game.Managers
 {
@@ -16,6 +17,8 @@ namespace Viper.Game.Managers
     /// </summary>
     public class GameplayManager()
     {
+        public EventHandler<PlayfieldAmountChangedEventArgs>? PlayfieldAmountChanged;
+
         /// <summary>
         /// This is the limit of playfields per row.
         /// </summary>
@@ -81,6 +84,22 @@ namespace Viper.Game.Managers
         private List<Player> _players = new();
 
         private List<Food> _foods = new();
+
+        public List<Player> Players
+        {
+            get
+            {
+                return _players;
+            }
+        }
+
+        public List<Food> Foods
+        {
+            get
+            {
+                return _foods;
+            }
+        }
 
         /// <summary>
         /// Add a playfield with a player included.
@@ -150,6 +169,8 @@ namespace Viper.Game.Managers
             _playfields.Add(playfield);
 
             _playfieldRows[_playfieldRows.Count - 1].Children.Add(playfield);
+
+            PlayfieldAmountChanged?.Invoke(this, new PlayfieldAmountChangedEventArgs(_playfields.Count));
         }
 
         /// <summary>
@@ -197,6 +218,8 @@ namespace Viper.Game.Managers
                 {
                     RemoveLastPlayfield();
                 }
+
+                PlayfieldAmountChanged?.Invoke(this, new PlayfieldAmountChangedEventArgs(_playfields.Count));
             }
         }
 

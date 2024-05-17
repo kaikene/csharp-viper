@@ -205,7 +205,12 @@ namespace Viper.Game.Elements
 
                 Application.Current.Exit += Current_Exit;
 
-                RaiseAllEvents();
+                BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
+                DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
+                PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
+                IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+                ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
 
                 return _playerBody[0];
             }
@@ -502,11 +507,10 @@ namespace Viper.Game.Elements
         }
 
         // Removes, resets and ends everything
-        public void CleanUp()
+        public void CleanUp(bool resetInputs = false)
         {
             Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
             Application.Current.Exit -= Current_Exit;
-            _isPlayerMoving = false;
 
             try
             {
@@ -527,12 +531,23 @@ namespace Viper.Game.Elements
             _directionBuffer.Clear();
             _playerXpos = 0;
             _playerYpos = 0;
-            InputUp = Key.Up;
-            InputDown = Key.Down;
-            InputLeft = Key.Left;
-            InputRight = Key.Right;
 
-            RaiseAllEvents();
+            if (resetInputs)
+            {
+                InputUp = Key.Up;
+                InputDown = Key.Down;
+                InputLeft = Key.Left;
+                InputRight = Key.Right;
+            }
+
+            _isPlayerMoving = false;
+
+            BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
+            DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
+            PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
+            IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+            TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+            ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
         }
 
         /// <summary>
@@ -544,19 +559,6 @@ namespace Viper.Game.Elements
 
             CleanUp();
             parent.Children.Add(ShowPlayer());
-        }
-
-        public void RaiseAllEvents()
-        {
-            if (CanTriggerValueEvents)
-            {
-                BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
-                DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
-                PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
-                IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
-                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
-                ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
-            }
         }
     }
 }

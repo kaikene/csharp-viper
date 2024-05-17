@@ -169,6 +169,15 @@ namespace Viper.Screens
                     Content = "Reset"
                 };
 
+                Button changeInputs = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "Change to WASD/Arrows"
+                };
+
                 TextBlock testDebugMov = new() { Text = "Player Moving:", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugDir = new() { Text = "Player Direction:", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugBE = new() { Text = "Player Elements:", Foreground = new SolidColorBrush(Colors.White), };
@@ -176,6 +185,10 @@ namespace Viper.Screens
                 TextBlock testDebugPD = new() { Text = "Player Died: 0 times", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate, Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugUP = new() { Text = $"{player.InputUp}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugDOWN = new() { Text = $"{player.InputDown}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugLEFT = new() { Text = $"{player.InputLeft}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugRIGHT = new() { Text = $"{player.InputRight}", Foreground = new SolidColorBrush(Colors.White), };
 
                 StackPanel debugStats = new()
                 {
@@ -224,6 +237,28 @@ namespace Viper.Screens
                     player.ResetGameplay();
                 };
 
+                bool inputSwitch = false;
+
+                changeInputs.Click += (s, e) =>
+                {
+                    if (!inputSwitch)
+                    {
+                        player.InputUp = Key.W;
+                        player.InputDown = Key.S;
+                        player.InputLeft = Key.A;
+                        player.InputRight = Key.D;
+                    }
+                    else
+                    {
+                        player.InputUp = Key.Up;
+                        player.InputDown = Key.Down;
+                        player.InputLeft = Key.Left;
+                        player.InputRight = Key.Right;
+                    }
+
+                    inputSwitch = !inputSwitch;
+                };
+
                 player.DirectionChanged += (s, e) =>
                 {
                     testDebugDir.Text = "Direction: " + e.Direction.ToString();
@@ -260,6 +295,13 @@ namespace Viper.Screens
                     testDebugPC.Text = $"Player Color: Color.FromArgb({e.Color.A}, {e.Color.R}, {e.Color.G}, {e.Color.B})";
                 };
 
+                player.InputChanged += (s, e) =>
+                {
+                    testDebugUP.Text = $"{player.InputUp}";
+                    testDebugDOWN.Text = $"{player.InputDown}";
+                    testDebugLEFT.Text = $"{player.InputLeft}";
+                    testDebugRIGHT.Text = $"{player.InputRight}";
+                };
 
                 player.CleanUp();
 
@@ -272,12 +314,18 @@ namespace Viper.Screens
                 debugStats.Children.Add(testDebugPD);
                 debugStats.Children.Add(testDebugTR);
                 debugStats.Children.Add(testDebugPC);
+                debugStats.Children.Add(testDebugUP);
+                debugStats.Children.Add(testDebugDOWN);
+                debugStats.Children.Add(testDebugLEFT);
+                debugStats.Children.Add(testDebugRIGHT);
 
                 _testingAdditionalSelector.Children.Add(addTickRate);
                 _testingAdditionalSelector.Children.Add(decreaseTickRate);
                 _testingAdditionalSelector.Children.Add(changeColor);
                 _testingAdditionalSelector.Children.Add(increaseSize);
                 _testingAdditionalSelector.Children.Add(decreaseSize);
+                _testingAdditionalSelector.Children.Add(reset);
+                _testingAdditionalSelector.Children.Add(changeInputs);
 
                 _testingSpace.Children.Add(tempPlayfield);
                 _testingSpace.Children.Add(debugStats);

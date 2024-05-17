@@ -31,6 +31,11 @@ namespace Viper.Game.Elements
         public event EventHandler<PlayerPositionChangedEventArgs>? PositionChanged;
 
         /// <summary>
+        /// Triggers when the player changes inputs.
+        /// </summary>
+        public event EventHandler<PlayerInputChangedEventArgs>? InputChanged;
+
+        /// <summary>
         /// Triggers when the player is moving or not
         /// </summary>
         public event EventHandler<PlayerMovingChangedEventArgs>? IsMovingChanged;
@@ -210,24 +215,88 @@ namespace Viper.Game.Elements
             }
         }
 
+        private Key _inputUp = Key.Up;
+
+        private Key _inputDown = Key.Down;
+
+        private Key _inputLeft = Key.Left;
+
+        private Key _inputRight = Key.Right;
+
+        public Key InputUp
+        {
+            get
+            {
+                return _inputUp;
+            }
+
+            set
+            {
+                _inputUp = value;
+                InputChanged?.Invoke(this, new PlayerInputChangedEventArgs(PlayerInputChangedEventArgs.Input.Up, value));
+            }
+        }
+
+        public Key InputDown
+        {
+            get
+            {
+                return _inputDown;
+            }
+
+            set
+            {
+                _inputDown = value;
+                InputChanged?.Invoke(this, new PlayerInputChangedEventArgs(PlayerInputChangedEventArgs.Input.Down, value));
+            }
+        }
+
+        public Key InputLeft
+        {
+            get
+            {
+                return _inputLeft;
+            }
+
+            set
+            {
+                _inputLeft = value;
+                InputChanged?.Invoke(this, new PlayerInputChangedEventArgs(PlayerInputChangedEventArgs.Input.Left, value));
+            }
+        }
+
+        public Key InputRight
+        {
+            get
+            {
+                return _inputRight;
+            }
+
+            set
+            {
+                _inputRight = value;
+                InputChanged?.Invoke(this, new PlayerInputChangedEventArgs(PlayerInputChangedEventArgs.Input.Right, value));
+            }
+        }
+
         // Changes the direction depending on the key pressed.
         private void ChangeDirection(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Up || e.Key == Key.Down || e.Key == Key.Left || e.Key == Key.Right)
+            if (e.Key == _inputUp || e.Key == _inputDown || e.Key == _inputLeft || e.Key == _inputRight)
             {
-                if (e.Key == Key.Up && _playerDirection != Direction.Down)
+                if (e.Key == _inputUp && _playerDirection != Direction.Down)
                 {
                     _playerDirection = Direction.Up;
                 }
-                else if (e.Key == Key.Down && _playerDirection != Direction.Up)
+                else if (e.Key == _inputDown && _playerDirection != Direction.Up)
                 {
                     _playerDirection = Direction.Down;
                 }
-                else if (e.Key == Key.Left && _playerDirection != Direction.Right)
+                else if (e.Key == _inputLeft && _playerDirection != Direction.Right)
                 {
                     _playerDirection = Direction.Left;
                 }
-                else if (e.Key == Key.Right && _playerDirection != Direction.Left)
+                else if (e.Key == _inputRight && _playerDirection != Direction.Left)
                 {
                     _playerDirection = Direction.Right;
                 }
@@ -458,6 +527,10 @@ namespace Viper.Game.Elements
             _directionBuffer.Clear();
             _playerXpos = 0;
             _playerYpos = 0;
+            InputUp = Key.Up;
+            InputDown = Key.Down;
+            InputLeft = Key.Left;
+            InputRight = Key.Right;
 
             RaiseAllEvents();
         }

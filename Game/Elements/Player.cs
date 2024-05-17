@@ -118,11 +118,11 @@ namespace Viper.Game.Elements
         /// <summary>
         /// Gets the current amount of player elements.
         /// </summary>
-        public int PlayerBodyCount
+        public List<Rectangle> PlayerBody
         {
             get
             {
-                return _playerBody.Count();
+                return _playerBody;
             }
         }
 
@@ -154,7 +154,7 @@ namespace Viper.Game.Elements
         /// <summary>
         /// Size of the player elements.
         /// </summary>
-        public const int SIZE = 30;
+        public const int SIZE = 10;
 
         // Tick rate.
         private int _tickRate = 50;

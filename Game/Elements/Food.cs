@@ -70,7 +70,7 @@ namespace Viper.Game.Elements
         private List<Rectangle> _foods = new();
 
         // Constant size of the food elements
-        public const int SIZE = 30;
+        public const int SIZE = 10;
 
         /// <summary>
         /// Gets the current amount of food being shown.

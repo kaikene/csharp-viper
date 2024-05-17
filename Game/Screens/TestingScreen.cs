@@ -497,6 +497,13 @@ namespace Viper.Screens
 
             void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
             {
+                StackPanel debugPlayerPoints = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Width = 300,
+                };
+
                 int counter = 0;
 
                 _testingSpace.Children.Clear();
@@ -506,17 +513,13 @@ namespace Viper.Screens
 
                 _testingSpace.Children.Add(gameplayManager.PlayfieldManager);
 
-                gameplayManager.AddPlayfield();
-
-                SetInputsForFirstThreePlayers();
-
-                counter++;
+                AddPlayfieldSetup();
 
                 gameplayManager.Show();
 
                 Button show = new()
                 {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    VerticalAlignment = VerticalAlignment.Top,
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
                     Margin = new System.Windows.Thickness(2, 2, 2, 2),
                     Height = 25,
@@ -571,11 +574,7 @@ namespace Viper.Screens
 
                 addPlayfield.Click += (s, e) =>
                 {
-                    gameplayManager.AddPlayfield();
-
-                    SetInputsForFirstThreePlayers();
-
-                    counter++;
+                    AddPlayfieldSetup();
                 };
 
                 removePlayfield.Click += (s, e) =>
@@ -584,9 +583,33 @@ namespace Viper.Screens
 
                     if (!(counter - 1 < 0))
                     {
+                        debugPlayerPoints.Children.RemoveAt(debugPlayerPoints.Children.Count - 1);
                         counter--;
                     }
                 };
+
+                void AddPlayfieldSetup()
+                {
+                    gameplayManager.AddPlayfield();
+
+                    SetInputsForFirstThreePlayers();
+
+                    int playerIndex = counter;
+
+                    TextBlock tempPoints = new() { Text = "0", Foreground = new SolidColorBrush(Colors.White), };
+
+                    gameplayManager.PlayerPointChanged += (s, e) =>
+                    {
+                        if (e.PlayerIndex == playerIndex)
+                        {
+                            tempPoints.Text = e.NewPoints.ToString();
+                        }
+                    };
+
+                    debugPlayerPoints.Children.Add(tempPoints);
+
+                    counter++;
+                }
 
                 // jank but is for testing after all.
                 void SetInputsForFirstThreePlayers()
@@ -620,6 +643,7 @@ namespace Viper.Screens
                 };
 
                 debugStats.Children.Add(testDebugPF);
+                debugStats.Children.Add(debugPlayerPoints);
 
                 _testingSpace.Children.Add(debugStats);
 

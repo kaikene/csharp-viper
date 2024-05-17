@@ -19,6 +19,8 @@ namespace Viper.Game.Managers
     {
         public EventHandler<PlayfieldAmountChangedEventArgs>? PlayfieldAmountChanged;
 
+        public EventHandler<PlayerPointChangedEventArgs>? PlayerPointChanged;
+
         /// <summary>
         /// This is the limit of playfields per row.
         /// </summary>
@@ -85,6 +87,8 @@ namespace Viper.Game.Managers
 
         private List<Food> _foods = new();
 
+        private List<int> _points = new();
+
         public List<Player> Players
         {
             get
@@ -116,6 +120,8 @@ namespace Viper.Game.Managers
 
             _foods.Add(food);
 
+            _points.Add(0);
+
             int currentIndex = _foods.Count - 1;
 
             // If theres no playfields or the amount of playfields is higher than the limit availible per row, put the newly created playfield in a new row.
@@ -139,6 +145,12 @@ namespace Viper.Game.Managers
 
             player.PositionChanged += Player_PositionChanged;
 
+            player.PlayerDied += (s, e) =>
+            {
+                _points[currentIndex] = 0;
+                PlayerPointChanged?.Invoke(this, new PlayerPointChangedEventArgs(currentIndex, _points[currentIndex]));
+            };
+
             void Player_PositionChanged(object? sender, Events.PlayerPositionChangedEventArgs e)
             {
                 for (int i = 0; i < _foods[currentIndex].FoodAmount; i++)
@@ -147,6 +159,8 @@ namespace Viper.Game.Managers
                     {
                         _foods[currentIndex].RePosition(i);
                         _players[currentIndex].IncreasePlayerSize();
+                        _points[currentIndex]++;
+                        PlayerPointChanged?.Invoke(this, new PlayerPointChangedEventArgs(currentIndex, _points[currentIndex]));
                     }
                 }
             }
@@ -185,6 +199,9 @@ namespace Viper.Game.Managers
 
                 _players.RemoveAt(_players.Count - 1);
                 _foods.RemoveAt(_foods.Count - 1);
+
+                PlayerPointChanged?.Invoke(this, new PlayerPointChangedEventArgs(_points.Count - 1, 0, true));
+                _points.RemoveAt(_points.Count - 1);
 
                 _playfieldAmount -= 1;
 

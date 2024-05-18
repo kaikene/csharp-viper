@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the PlayfieldAmountChanged event.
+    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the AmountChanged event.
     /// </summary>
     public class PlayfieldAmountChangedEventArgs : EventArgs
     {

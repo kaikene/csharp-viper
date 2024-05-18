@@ -12,18 +12,24 @@ using System.Reflection;
 using System.Numerics;
 using System.Diagnostics;
 using Viper.Game.Events;
+using Viper.Game.Interfaces;
 
-namespace Viper.Game.Elements
+namespace Viper.Game.Elements.Gameplay
 {
     /// <summary>
     /// Add, remove and manage a player.
     /// </summary>
-    public class Player
+    public class Player : IGameplayElements
     {
         /// <summary>
         /// Triggers when the player dies.
         /// </summary>
-        public event EventHandler? PlayerDied;
+        public event EventHandler<PlayerDiedEventArgs>? Died;
+
+        /// <summary>
+        /// Triggers when the player lives change value.
+        /// </summary>
+        public event EventHandler<PlayerLivesChangedEventArgs>? LivesChanged;
 
         /// <summary>
         /// Triggers when the player changes position.
@@ -90,7 +96,7 @@ namespace Viper.Game.Elements
         /// <summary>
         /// Gets the current direction tha player is heading.
         /// </summary>
-        public Direction PlayerDirection
+        public Direction CurrentDirection
         {
             get
             {
@@ -112,13 +118,23 @@ namespace Viper.Game.Elements
             }
         }
 
+        private int _deathCounter = 0;
+
+        public int DeathCounter
+        {
+            get
+            {
+                return _deathCounter;
+            }
+        }
+
         // List of the player elements
         private List<Rectangle> _playerBody = new();
 
         /// <summary>
         /// Gets the current amount of player elements.
         /// </summary>
-        public List<Rectangle> PlayerBody
+        public List<Rectangle> BodyElements
         {
             get
             {
@@ -132,7 +148,7 @@ namespace Viper.Game.Elements
         /// <summary>
         /// Current player position in the X axis.
         /// </summary>
-        public double PlayerXPosition
+        public double XPosition
         {
             get
             {
@@ -140,10 +156,31 @@ namespace Viper.Game.Elements
             }
         }
 
+        private int _lives = DEFAULT_LIVES;
+
+        /// <summary>
+        /// Current player position in the X axis.
+        /// </summary>
+        public int Lives
+        {
+            get
+            {
+                return _lives;
+            }
+
+            set
+            {
+                if (value >= 1)
+                {
+                    _lives = value;
+                }
+            }
+        }
+
         /// <summary>
         /// Current player position in the Y axis.
         /// </summary>
-        public double PlayerYPosition
+        public double YPosition
         {
             get
             {
@@ -155,6 +192,26 @@ namespace Viper.Game.Elements
         /// Size of the player elements.
         /// </summary>
         public const int SIZE = 10;
+
+        public const int DEFAULT_LIVES = 2;
+
+        public const int DEFAULT_TICKRATE = 100;
+
+        public const byte DEFAULT_BODY_ALPHA = 255;
+
+        public const byte DEFAULT_BODY_RED = 255;
+
+        public const byte DEFAULT_BODY_GREEN = 255;
+
+        public const byte DEFAULT_BODY_BLUE = 255;
+
+        public const byte DEFAULT_STROKE_ALPHA = 0;
+
+        public const byte DEFAULT_STROKE_RED = 0;
+
+        public const byte DEFAULT_STROKE_GREEN = 0;
+
+        public const byte DEFAULT_STROKE_BLUE = 0;
 
         // Tick rate.
         private int _tickRate = 50;
@@ -170,7 +227,7 @@ namespace Viper.Game.Elements
             }
         }
 
-        private bool _isPlayerAlreadyShowing = false;
+        private bool _isShowing = false;
 
         // Player color.
         private Color _color = Color.FromArgb(255, 255, 255, 255);
@@ -190,35 +247,6 @@ namespace Viper.Game.Elements
         /// Determines if value change events can be triggered, like if the amount of food changes or if a food changed position, etc.
         /// </summary>
         public bool CanTriggerValueEvents = false;
-
-        /// <summary>
-        /// Adds a player.
-        /// </summary>
-        /// <returns></returns>
-        public Rectangle ShowPlayer()
-        {
-            if (!_isPlayerAlreadyShowing)
-            {
-                IncreasePlayerSize();
-
-                Application.Current.MainWindow.PreviewKeyDown += ChangeDirection;
-
-                Application.Current.Exit += Current_Exit;
-
-                BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
-                DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
-                PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
-                IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
-                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
-                ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
-
-                return _playerBody[0];
-            }
-            else
-            {
-                throw new Exception("Player was already being shown!");
-            }
-        }
 
         private Key _inputUp = Key.Up;
 
@@ -284,24 +312,57 @@ namespace Viper.Game.Elements
             }
         }
 
+        private Panel _parent;
+
+        /// <summary>
+        /// Adds a player.
+        /// </summary>
+        /// <returns></returns>
+        public void Show(Panel panel)
+        {
+            if (!_isShowing)
+            {
+                _parent = panel;
+
+                IncreasePlayerSize();
+
+                Application.Current.MainWindow.PreviewKeyDown += ChangeDirection;
+
+                Application.Current.Exit += Current_Exit;
+
+                BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
+                DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
+                PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
+                IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+                ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
+
+                panel.Children.Add(_playerBody[0]);
+            }
+            else
+            {
+                throw new Exception("Player is already being shown!");
+            }
+        }
+
         // Changes the direction depending on the key pressed.
         private void ChangeDirection(object sender, KeyEventArgs e)
         {
             if (e.Key == _inputUp || e.Key == _inputDown || e.Key == _inputLeft || e.Key == _inputRight)
             {
-                if (e.Key == _inputUp && _playerDirection != Direction.Down)
+                if (e.Key == _inputUp && _playerBody.Count == 1 || e.Key == _inputUp && _playerDirection != Direction.Down)
                 {
                     _playerDirection = Direction.Up;
                 }
-                else if (e.Key == _inputDown && _playerDirection != Direction.Up)
+                else if (e.Key == _inputDown && _playerBody.Count == 1 || e.Key == _inputDown && _playerDirection != Direction.Up)
                 {
                     _playerDirection = Direction.Down;
                 }
-                else if (e.Key == _inputLeft && _playerDirection != Direction.Right)
+                else if (e.Key == _inputLeft && _playerBody.Count == 1 || e.Key == _inputLeft && _playerDirection != Direction.Right)
                 {
                     _playerDirection = Direction.Left;
                 }
-                else if (e.Key == _inputRight && _playerDirection != Direction.Left)
+                else if (e.Key == _inputRight && _playerBody.Count == 1 || e.Key == _inputRight && _playerDirection != Direction.Left)
                 {
                     _playerDirection = Direction.Right;
                 }
@@ -328,6 +389,29 @@ namespace Viper.Game.Elements
 
             bool isPlayerDead = false;
 
+            double playfieldLimitY = _parent.Height;
+            double playfieldLimitX = _parent.Width;
+
+            double currentSavedHeight = _parent.Height;
+            double currentSavedWidth = _parent.Width;
+
+            CheckMaxUsableSpace();
+
+            void CheckMaxUsableSpace()
+            {
+                if (playfieldLimitY % SIZE != 0)
+                {
+                    playfieldLimitY--;
+                    CheckMaxUsableSpace();
+                }
+
+                if (playfieldLimitX % SIZE != 0)
+                {
+                    playfieldLimitX--;
+                    CheckMaxUsableSpace();
+                }
+            }
+
             while (_isPlayerMoving)
             {
                 for (int i = 0; i < _playerBody.Count; i++)
@@ -350,14 +434,30 @@ namespace Viper.Game.Elements
 
                     Direction currentDirection = _directionBuffer[0];
 
-                    double playfieldLimitY = (_playerBody[0].Parent as FrameworkElement).Height - SIZE;
-                    double playfieldLimitX = (_playerBody[0].Parent as FrameworkElement).Width - SIZE;
+                    if (currentSavedHeight != _parent.Height)
+                    {
+                        playfieldLimitY = _parent.Height;
+
+                        CheckMaxUsableSpace();
+
+                        currentSavedHeight = _parent.Height;
+                    }
+
+                    if (currentSavedWidth != _parent.Width)
+                    {
+                        playfieldLimitX = _parent.Width;
+
+                        CheckMaxUsableSpace();
+
+                        currentSavedWidth = _parent.Width;
+                    }
+
 
                     if (currentDirection == Direction.Up)
                     {
                         if (currentPosY - SIZE < 0)
                         {
-                            newPosY = playfieldLimitY;
+                            newPosY = playfieldLimitY - SIZE; // Because of aligments, elements can still appear slightly out of bounds, this makes sure that it doesnt happend by avoiding the last possible bottom Y axis.
                         }
                         else
                         {
@@ -366,7 +466,7 @@ namespace Viper.Game.Elements
                     }
                     else if (currentDirection == Direction.Down)
                     {
-                        if (currentPosY + SIZE > playfieldLimitY)
+                        if (currentPosY + SIZE > playfieldLimitY - SIZE)
                         {
                             newPosY = 0;
                         }
@@ -379,7 +479,7 @@ namespace Viper.Game.Elements
                     {
                         if (currentPosX - SIZE < 0)
                         {
-                            newPosX = playfieldLimitX;
+                            newPosX = playfieldLimitX - SIZE; // Same comment as above but avoids the last far right X axis.
                         }
                         else
                         {
@@ -388,7 +488,7 @@ namespace Viper.Game.Elements
                     }
                     else if (currentDirection == Direction.Right)
                     {
-                        if (currentPosX + SIZE > playfieldLimitX)
+                        if (currentPosX + SIZE > playfieldLimitX - SIZE)
                         {
                             newPosX = 0;
                         }
@@ -416,9 +516,13 @@ namespace Viper.Game.Elements
                         {
                             if (bodyElement != _playerBody[i])
                             {
-                                PlayerDied?.Invoke(this, new EventArgs());
+                                _deathCounter++;
+                                _lives--;
+                                LivesChanged?.Invoke(this, new PlayerLivesChangedEventArgs(_lives));
+                                Died?.Invoke(this, new PlayerDiedEventArgs(_deathCounter));
                                 isPlayerDead = true;
-                                ResetGameplay();
+                                Reset();
+
                                 break;
                             }
                         }
@@ -436,10 +540,10 @@ namespace Viper.Game.Elements
             }
         }
 
-        // Stop loops and clean things in case the program is closed abruptly.
+        // Stop loops and remove things in case the program is closed abruptly.
         private void Current_Exit(object sender, ExitEventArgs e)
         {
-            CleanUp();
+            Remove();
         }
 
         public void ChangeTickRate(int newTickRate)
@@ -468,18 +572,15 @@ namespace Viper.Game.Elements
 
             _playerBody.Add(playerBodyPart);
 
-            if (!_isPlayerAlreadyShowing) // If the player is not showing, then that means no elements have been loaded
+            if (!_isShowing) // If the player is not showing, then that means no elements have been loaded
             {
-                playerBodyPart.Loaded += (s, e) =>
-                {
-                    playerBodyPart.RenderTransform = new TranslateTransform(0, 0); // Move it to a position in which is visible as soon as is loaded.
-                };
+                playerBodyPart.RenderTransform = new TranslateTransform(0, 0); // Move it to a position in which is visible as soon as is loaded.
 
-                _isPlayerAlreadyShowing = true; // Now is visible.
+                _isShowing = true; // Now is visible.
             }
             else
             {
-                (_playerBody[0].Parent as Panel).Children.Add(playerBodyPart); // If is already being shown, then just add a new element to grow the player size.
+                _parent.Children.Add(playerBodyPart); // If is already being shown, then just add a new element to grow the player size.
             }
 
             BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
@@ -487,9 +588,9 @@ namespace Viper.Game.Elements
 
         public void DecreasePlayerSize()
         {
-            if (_isPlayerAlreadyShowing && _playerBody.Count - 1 > 0)
+            if (_isShowing && _playerBody.Count - 1 > 0)
             {
-                (_playerBody[0].Parent as Panel).Children.Remove(_playerBody[_playerBody.Count - 1]); // Remove the last player element from the panel.
+                _parent.Children.Remove(_playerBody[_playerBody.Count - 1]); // Remove the last player element from the panel.
                 _playerBody.RemoveAt(_playerBody.Count - 1); // Remove from the list.
 
                 BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
@@ -506,59 +607,75 @@ namespace Viper.Game.Elements
             ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
         }
 
-        // Removes, resets and ends everything
-        public void CleanUp(bool resetInputs = false)
+        public void Remove()
         {
-            Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
-            Application.Current.Exit -= Current_Exit;
-
-            try
-            {
-                Panel parent = _playerBody[0].Parent as Panel;
-
-                foreach (Rectangle playerBody in _playerBody)
-                {
-                    parent.Children.Remove(playerBody);
-                }
-            }
-            catch
-            {
-                // Player is not loaded, nothing to remove.
-            }
-
-            _isPlayerAlreadyShowing = false;
-            _playerBody.Clear();
-            _directionBuffer.Clear();
-            _playerXpos = 0;
-            _playerYpos = 0;
-
-            if (resetInputs)
-            {
-                InputUp = Key.Up;
-                InputDown = Key.Down;
-                InputLeft = Key.Left;
-                InputRight = Key.Right;
-            }
-
-            _isPlayerMoving = false;
-
-            BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
-            DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
-            PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
-            IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
-            TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
-            ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
+            ResetOrRemove(true);
         }
 
-        /// <summary>
-        /// Resets the player state.
-        /// </summary>
-        public void ResetGameplay()
+        public void Reset()
         {
-            Panel parent = _playerBody[0].Parent as Panel;
+            ResetOrRemove(false);
+        }
 
-            CleanUp();
-            parent.Children.Add(ShowPlayer());
+        private void ResetOrRemove(bool doRemoval)
+        {
+            // If theres more than 0 player elements, that means the player is being shown and theres something to remove.
+            if (_playerBody.Count > 0)
+            {
+                _isPlayerMoving = false;
+                _directionBuffer.Clear();
+                _playerXpos = 0;
+                _playerYpos = 0;
+                _deathCounter = 0;
+
+                if (_lives == 0)
+                {
+                    _lives = DEFAULT_LIVES;
+                }
+
+                if (doRemoval)
+                {
+                    foreach (Rectangle playerBody in _playerBody)
+                    {
+                        _parent.Children.Remove(playerBody);
+                    }
+
+                    Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
+                    Application.Current.Exit -= Current_Exit;
+
+                    InputUp = Key.Up;
+                    InputDown = Key.Down;
+                    InputLeft = Key.Left;
+                    InputRight = Key.Right;
+
+                    _playerBody.Clear();
+                    _isShowing = false;
+                }
+                else
+                {
+                    int amountOfPlayerBodyElements = _playerBody.Count;
+
+                    for (int i = amountOfPlayerBodyElements - 1; i >= 0; i--)
+                    {
+                        if (i != 0)
+                        {
+                            _parent.Children.Remove(_playerBody[i]);
+                            _playerBody.Remove(_playerBody[i]);
+                        }
+                    }
+
+                    _playerBody[0].RenderTransform = new TranslateTransform(_playerXpos, _playerYpos);
+                }
+
+                LivesChanged?.Invoke(this, new PlayerLivesChangedEventArgs(_lives));
+                BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
+                DirectionChanged?.Invoke(this, new PlayerDirectionChangedEventArgs(_playerDirection));
+                PositionChanged?.Invoke(this, new PlayerPositionChangedEventArgs(_playerXpos, _playerYpos));
+                IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+                ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
+                Died?.Invoke(this, new PlayerDiedEventArgs(_deathCounter));
+            }
         }
     }
 }

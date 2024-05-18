@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Viper.Game.Elements;
+using Viper.Game.Elements.Gameplay;
 using Viper.Game.Events;
 using Viper.Game.Managers;
 
@@ -114,8 +114,6 @@ namespace Viper.Screens
                 _testingSpace.Children.Clear();
                 _testingAdditionalSelector.Children.Clear();
 
-                int playerDeaths = 0;
-
                 Button addTickRate = new()
                 {
                     VerticalAlignment = System.Windows.VerticalAlignment.Top,
@@ -179,17 +177,33 @@ namespace Viper.Screens
                     Content = "Change to WASD/Arrows"
                 };
 
+                Button addLive = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "+1 Live"
+                };
+
+                Button removeLive = new()
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                    Height = 25,
+                    Content = "-1 Live"
+                };
+
                 TextBlock testDebugMov = new() { Text = "Player Moving:", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugDir = new() { Text = "Player Direction:", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugBE = new() { Text = "Player Elements:", Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugPos = new() { Text = "Position: X: " + player.PlayerXPosition + " | Y: " + player.PlayerYPosition, Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugPD = new() { Text = "Player Died: 0 times", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPos = new() { Text = "Position: X: " + player.XPosition + " | Y: " + player.YPosition, Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPD = new() { Text = "Player Died: 0 time(s)", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate, Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugUP = new() { Text = $"{player.InputUp}", Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugDOWN = new() { Text = $"{player.InputDown}", Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugLEFT = new() { Text = $"{player.InputLeft}", Foreground = new SolidColorBrush(Colors.White), };
-                TextBlock testDebugRIGHT = new() { Text = $"{player.InputRight}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugIN = new() { Text = $"Key Bindings: {player.InputUp}, {player.InputDown}, {player.InputLeft}, {player.InputRight}", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugLV = new() { Text = $"Lives: {player.Lives}", Foreground = new SolidColorBrush(Colors.White), };
 
                 StackPanel debugStats = new()
                 {
@@ -200,8 +214,8 @@ namespace Viper.Screens
 
                 Grid tempPlayfield = new()
                 {
-                    Height = 450,
-                    Width = 510,
+                    Height = 457,
+                    Width = 515,
                     Background = new SolidColorBrush(Colors.DarkGray),
                     ClipToBounds = true,
                 };
@@ -235,7 +249,7 @@ namespace Viper.Screens
 
                 reset.Click += (s, e) =>
                 {
-                    player.ResetGameplay();
+                    player.Reset();
                 };
 
                 bool inputSwitch = false;
@@ -260,6 +274,18 @@ namespace Viper.Screens
                     inputSwitch = !inputSwitch;
                 };
 
+                addLive.Click += (s, e) =>
+                {
+                    player.Lives++;
+                    testDebugLV.Text = $"Lives: {player.Lives}";
+                };
+
+                removeLive.Click += (s, e) =>
+                {
+                    player.Lives--;
+                    testDebugLV.Text = $"Lives: {player.Lives}";
+                };
+
                 player.DirectionChanged += (s, e) =>
                 {
                     testDebugDir.Text = "Direction: " + e.Direction.ToString();
@@ -280,10 +306,19 @@ namespace Viper.Screens
                     testDebugPos.Text = "Position: X: " + e.X + " | Y: " + e.Y;
                 };
 
-                player.PlayerDied += (s, e) =>
+                player.Died += (s, e) =>
                 {
-                    playerDeaths += 1;
-                    testDebugPD.Text = "Player Died: " + playerDeaths + " times";
+                    testDebugPD.Text = "Player Died: " + e.DeathCounter + " time(s)";
+                };
+
+                player.LivesChanged += (s, e) =>
+                {
+                    testDebugLV.Text = $"Lives: {e.CurrentLives}";
+
+                    if (e.CurrentLives == 0)
+                    {
+                        MessageBox.Show("You have zero lives!", "Wawa", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    }
                 };
 
                 player.TickrateChanged += (s, e) =>
@@ -298,15 +333,12 @@ namespace Viper.Screens
 
                 player.InputChanged += (s, e) =>
                 {
-                    testDebugUP.Text = $"{player.InputUp}";
-                    testDebugDOWN.Text = $"{player.InputDown}";
-                    testDebugLEFT.Text = $"{player.InputLeft}";
-                    testDebugRIGHT.Text = $"{player.InputRight}";
+                    testDebugIN.Text = $"Key Bindings: {player.InputUp}, {player.InputDown}, {player.InputLeft}, {player.InputRight}";
                 };
 
-                player.CleanUp(true);
+                player.Reset();
 
-                tempPlayfield.Children.Add(player.ShowPlayer());
+                player.Show(tempPlayfield);
 
                 debugStats.Children.Add(testDebugMov);
                 debugStats.Children.Add(testDebugDir);
@@ -315,10 +347,8 @@ namespace Viper.Screens
                 debugStats.Children.Add(testDebugPD);
                 debugStats.Children.Add(testDebugTR);
                 debugStats.Children.Add(testDebugPC);
-                debugStats.Children.Add(testDebugUP);
-                debugStats.Children.Add(testDebugDOWN);
-                debugStats.Children.Add(testDebugLEFT);
-                debugStats.Children.Add(testDebugRIGHT);
+                debugStats.Children.Add(testDebugIN);
+                debugStats.Children.Add(testDebugLV);
 
                 _testingAdditionalSelector.Children.Add(addTickRate);
                 _testingAdditionalSelector.Children.Add(decreaseTickRate);
@@ -327,6 +357,8 @@ namespace Viper.Screens
                 _testingAdditionalSelector.Children.Add(decreaseSize);
                 _testingAdditionalSelector.Children.Add(reset);
                 _testingAdditionalSelector.Children.Add(changeInputs);
+                _testingAdditionalSelector.Children.Add(addLive);
+                _testingAdditionalSelector.Children.Add(removeLive);
 
                 _testingSpace.Children.Add(tempPlayfield);
                 _testingSpace.Children.Add(debugStats);
@@ -343,14 +375,14 @@ namespace Viper.Screens
 
                 Grid tempPlayfield = new()
                 {
-                    Height = 450,
-                    Width = 510,
+                    Height = 234,
+                    Width = 345,
                     Background = new SolidColorBrush(Colors.DarkGray),
-                    ClipToBounds = true,
+                    ClipToBounds = false,
                 };
 
-                TextBlock testDebugFA = new() { Text = $"Food Amount: {food.FoodAmount}", Foreground = new SolidColorBrush(Colors.White), };
                 TextBlock testDebugFC = new() { Text = $"Food Color: Color.FromArgb({food.CurrentColor.A}, {food.CurrentColor.R}, {food.CurrentColor.G}, {food.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
+                TextBlock testDebugPS = new() { Text = $"Food Position: X: {food.Position.X} | Y: {food.Position.Y}", Foreground = new SolidColorBrush(Colors.White), };
 
                 StackPanel debugStats = new()
                 {
@@ -360,23 +392,6 @@ namespace Viper.Screens
                 };
 
                 Panel.SetZIndex(debugStats, 10);
-
-                ScrollViewer debugPosSW = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    Width = 100,
-                };
-
-                StackPanel debugPosStats = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                    Width = 300,
-                };
-
-                List<TextBlock> foodPositionsTB = new();
 
                 Button addFood = new()
                 {
@@ -411,17 +426,17 @@ namespace Viper.Screens
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
                     Margin = new System.Windows.Thickness(2, 2, 2, 2),
                     Height = 25,
-                    Content = "Random Respawn"
+                    Content = "Reset"
                 };
 
                 addFood.Click += (s, e) =>
                 {
-                    tempPlayfield.Children.Add(food.AddFood());
+                    food.Show(tempPlayfield);
                 };
 
                 removeFood.Click += (s, e) =>
                 {
-                    food.RemoveFood();
+                    food.Remove();
                 };
 
                 changeColor.Click += (s, e) =>
@@ -435,37 +450,12 @@ namespace Viper.Screens
                 {
                     Random random = new();
 
-                    food.RePosition(random.Next(0, food.FoodAmount));
+                    food.Reset();
                 };
 
-                food.FoodAmountChanged += (s, e) =>
+                food.PositionChanged += (s, e) =>
                 {
-                    testDebugFA.Text = "Food Amount: " + e.FoodElements;
-
-                    TextBlock tempTB = new()
-                    {
-                        Foreground = new SolidColorBrush(Colors.White),
-                    };
-
-                    if (e.Action == Food.FoodAction.Add)
-                    {
-                        foodPositionsTB.Add(tempTB);
-                        debugPosStats.Children.Add(tempTB);
-                    }
-                    else if (e.Action == Food.FoodAction.Remove)
-                    {
-                        debugPosStats.Children.RemoveAt(foodPositionsTB.Count - 1);
-                        foodPositionsTB.RemoveAt(foodPositionsTB.Count - 1);
-                    }
-                    else
-                    {
-                        // Value is just being checked.
-                    }
-                };
-
-                food.FoodPositionsChanged += (s, e) =>
-                {
-                    foodPositionsTB[e.FoodIndex].Text = $"X: {e.X}, Y: {e.Y}";
+                    testDebugPS.Text = $"Food position: X: {e.X}, Y: {e.Y}";
                 };
 
                 food.ColorChanged += (s, e) =>
@@ -474,18 +464,15 @@ namespace Viper.Screens
                 };
 
 
-                food.CleanUp();
+                food.Reset();
 
-                debugStats.Children.Add(testDebugFA);
                 debugStats.Children.Add(testDebugFC);
-
-                debugPosSW.Content = debugPosStats;
+                debugStats.Children.Add(testDebugPS);
 
                 _testingSpace.Children.Add(tempPlayfield);
                 _testingSpace.Children.Add(debugStats);
-                _testingSpace.Children.Add(debugPosSW);
 
-                tempPlayfield.Children.Add(food.AddFood());
+                food.Show(tempPlayfield);
 
                 _testingAdditionalSelector.Children.Add(addFood);
                 _testingAdditionalSelector.Children.Add(removeFood);
@@ -497,160 +484,7 @@ namespace Viper.Screens
 
             void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
             {
-                StackPanel debugPlayerPoints = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                    Width = 300,
-                };
-
-                int counter = 0;
-
-                _testingSpace.Children.Clear();
-                _testingAdditionalSelector.Children.Clear();
-
-                GameplayManager gameplayManager = new();
-
-                _testingSpace.Children.Add(gameplayManager.PlayfieldManager);
-
-                AddPlayfieldSetup();
-
-                gameplayManager.Show();
-
-                Button show = new()
-                {
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
-                    Height = 25,
-                    Content = "Show"
-                };
-
-                Button hide = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
-                    Height = 25,
-                    Content = "Hide"
-                };
-
-                Button addPlayfield = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
-                    Height = 25,
-                    Content = "Add Playfield"
-                };
-
-                Button removePlayfield = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
-                    Margin = new System.Windows.Thickness(2, 2, 2, 2),
-                    Height = 25,
-                    Content = "Remove Playfield"
-                };
-
-                TextBlock testDebugPF = new() { Text = $"Playfields: {gameplayManager.PlayfieldAmount}", Foreground = new SolidColorBrush(Colors.White), };
-
-                StackPanel debugStats = new()
-                {
-                    VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                    Width = 300,
-                };
-
-                show.Click += (s, e) =>
-                {
-                    gameplayManager.Show();
-                };
-
-                hide.Click += (s, e) =>
-                {
-                    gameplayManager.Hide();
-                };
-
-                addPlayfield.Click += (s, e) =>
-                {
-                    AddPlayfieldSetup();
-                };
-
-                removePlayfield.Click += (s, e) =>
-                {
-                    gameplayManager.RemovePlayfield();
-
-                    if (!(counter - 1 < 0))
-                    {
-                        debugPlayerPoints.Children.RemoveAt(debugPlayerPoints.Children.Count - 1);
-                        counter--;
-                    }
-                };
-
-                void AddPlayfieldSetup()
-                {
-                    gameplayManager.AddPlayfield();
-
-                    SetInputsForFirstThreePlayers();
-
-                    int playerIndex = counter;
-
-                    TextBlock tempPoints = new() { Text = "0", Foreground = new SolidColorBrush(Colors.White), };
-
-                    gameplayManager.PlayerPointChanged += (s, e) =>
-                    {
-                        if (e.PlayerIndex == playerIndex)
-                        {
-                            tempPoints.Text = e.NewPoints.ToString();
-                        }
-                    };
-
-                    debugPlayerPoints.Children.Add(tempPoints);
-
-                    counter++;
-                }
-
-                // jank but is for testing after all.
-                void SetInputsForFirstThreePlayers()
-                {
-                    if (counter == 0)
-                    {
-                        gameplayManager.Players[counter].InputUp = Key.W;
-                        gameplayManager.Players[counter].InputDown = Key.S;
-                        gameplayManager.Players[counter].InputLeft = Key.A;
-                        gameplayManager.Players[counter].InputRight = Key.D;
-                    }
-                    else if (counter == 1)
-                    {
-                        gameplayManager.Players[counter].InputUp = Key.T;
-                        gameplayManager.Players[counter].InputDown = Key.G;
-                        gameplayManager.Players[counter].InputLeft = Key.F;
-                        gameplayManager.Players[counter].InputRight = Key.H;
-                    }
-                    else if (counter == 2)
-                    {
-                        gameplayManager.Players[counter].InputUp = Key.I;
-                        gameplayManager.Players[counter].InputDown = Key.K;
-                        gameplayManager.Players[counter].InputLeft = Key.J;
-                        gameplayManager.Players[counter].InputRight = Key.L;
-                    }
-                }
-
-                gameplayManager.PlayfieldAmountChanged += (s, e) =>
-                {
-                    testDebugPF.Text = $"Playfields: {e.NewAmount}";
-                };
-
-                debugStats.Children.Add(testDebugPF);
-                debugStats.Children.Add(debugPlayerPoints);
-
-                _testingSpace.Children.Add(debugStats);
-
-                _testingAdditionalSelector.Children.Add(show);
-                _testingAdditionalSelector.Children.Add(hide);
-                _testingAdditionalSelector.Children.Add(addPlayfield);
-                _testingAdditionalSelector.Children.Add(removePlayfield);
+                MessageBox.Show("This was removed, will be implemented again later.");
             }
 
             _testingSelector.Children.Add(_playerTest);

@@ -9,7 +9,7 @@ using System.Windows.Media;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the PlayerInputChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the InputChanged event.
     /// </summary>
     public class PlayerInputChangedEventArgs : EventArgs
     {

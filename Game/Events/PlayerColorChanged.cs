@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the PlayerColorChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the ColorChanged event.
     /// </summary>
     public class PlayerColorChangedEventArgs : EventArgs
     {

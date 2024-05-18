@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the PlayerPositionChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the PositionChanged event.
     /// </summary>
     public class PlayerPositionChangedEventArgs : EventArgs
     {

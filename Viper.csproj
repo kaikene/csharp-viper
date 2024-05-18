@@ -25,6 +25,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Game\Elements\UI\" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="&quot;$(ProjectDir)UpdateBuildData.bat&quot;&#xA;" />
   </Target>

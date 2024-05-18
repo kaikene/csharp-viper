@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Food triggers the FoodColorChanged event.
+    /// Provides data for when Viper.Game.Elements.Food triggers the ColorChanged event.
     /// </summary>
     public class FoodColorChangedEventArgs : EventArgs
     {

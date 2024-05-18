@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the PlayerPointChanged event.
+    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the PointChanged event.
     /// </summary>
     public class PlayerPointChangedEventArgs : EventArgs
     {

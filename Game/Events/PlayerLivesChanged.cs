@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the TickRateChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the LivesChanged event.
     /// </summary>
-    public class PlayerTickRateChangedEventArgs : EventArgs
+    public class PlayerLivesChangedEventArgs : EventArgs
     {
         /// <summary>
         /// Return the new tick rate value.
         /// </summary>
-        public int TickRate { get; }
+        public int CurrentLives { get; }
 
-        public PlayerTickRateChangedEventArgs(int tickRate)
+        public PlayerLivesChangedEventArgs(int livesLeft)
         {
-            TickRate = tickRate;
+            CurrentLives = livesLeft;
         }
     }
 }

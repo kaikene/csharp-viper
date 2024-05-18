@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the PlayerBodyElementsCountChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the BodyElementsCountChanged event.
     /// </summary>
     public class PlayerBodyElementsCountChangedEventArgs : EventArgs
     {

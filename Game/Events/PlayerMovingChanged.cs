@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Player triggers the PlayerMovingChanged event.
+    /// Provides data for when Viper.Game.Elements.Player triggers the MovingChanged event.
     /// </summary>
     public class PlayerMovingChangedEventArgs : EventArgs
     {

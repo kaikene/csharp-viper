@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Elements.Food triggers the FoodPositionChanged event.
+    /// Provides data for when Viper.Game.Elements.Food triggers the PositionChanged event.
     /// </summary>
     public class FoodPositionChangedEventArgs : EventArgs
     {
-        /// <summary>
-        /// Index of the food element that was moved.
-        /// </summary>
-        public int FoodIndex { get; }
-
         /// <summary>
         /// X axis position of the food element that was moved.
         /// </summary>
@@ -26,9 +21,8 @@ namespace Viper.Game.Events
         /// </summary>
         public double Y { get; }
 
-        public FoodPositionChangedEventArgs(int foodIndexThatMoved, double toWhereX, double toWhereY)
+        public FoodPositionChangedEventArgs(double toWhereX, double toWhereY)
         {
-            FoodIndex = foodIndexThatMoved;
             X = toWhereX;
             Y = toWhereY;
         }

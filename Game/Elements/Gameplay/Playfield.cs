@@ -3,22 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace Viper.Game.Elements.Gameplay
 {
     public class Playfield
     {
-        private Grid _playfield = new();
-
-        public Grid CurrentPlayfield
-        {
-            get { return _playfield; }
-        }
-
         private int _size = 0;
 
         public const int DEFAULT_SIZE = 7;
+
+        public const int SPACE_SIZES = 10;
 
         public int Size
         {
@@ -36,42 +33,21 @@ namespace Viper.Game.Elements.Gameplay
             }
         }
 
-        public const int SPACE_SIZES = 10;
-
-        private Panel? _parent;
-
-        private bool _showing = false;
-
-        public void Show(Panel panel)
+        private Grid _playfield = new()
         {
-            if (_showing == false)
-            {
-                _showing = true;
-                _parent = panel;
+            Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+        };
 
-                _playfield.Tag = "Viper.Game.Elements.Playfield";
-
-                panel.Children.Add(_playfield);
-            }
-        }
-
-        public void Remove()
+        public Grid CurrentPlayfield
         {
-            if (_showing == true)
+            get
             {
-                _parent.Children.Remove(_playfield);
-                _playfield = new();
-                _parent = null;
-                _showing = false;
-            }
-        }
+                if (_size == 0)
+                {
+                    Size = DEFAULT_SIZE;
+                }
 
-        public void Reset()
-        {
-            if (_showing == true)
-            {
-                _playfield.Height = DEFAULT_SIZE * SPACE_SIZES;
-                _playfield.Width = DEFAULT_SIZE * SPACE_SIZES;
+                return _playfield;
             }
         }
     }

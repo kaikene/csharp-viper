@@ -19,7 +19,7 @@ namespace Viper.Game.Elements.Gameplay
     /// <summary>
     /// Add, remove and manage a player.
     /// </summary>
-    public class Player : IGameplayElements
+    public class Player : IPlayableElements
     {
         /// <summary>
         /// Triggers when the player dies.
@@ -312,17 +312,19 @@ namespace Viper.Game.Elements.Gameplay
             }
         }
 
-        private Panel _parent;
+        // Why a panel?: Player needs to know the size and move arround on where it is, putting this into something that its not a panel causes weird things
+        // so i will be restricting this so the player can only be added to a panel.
+        private Panel _parent; 
 
         /// <summary>
-        /// Adds a player.
+        /// Adds a player to the specififed panel.
         /// </summary>
         /// <returns></returns>
-        public void Show(Panel panel)
+        public void Show(Panel parent)
         {
             if (!_isShowing)
             {
-                _parent = panel;
+                _parent = parent;
 
                 IncreasePlayerSize();
 
@@ -337,7 +339,7 @@ namespace Viper.Game.Elements.Gameplay
                 TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
                 ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
 
-                panel.Children.Add(_playerBody[0]);
+                _parent.Children.Add(_playerBody[0]);
             }
             else
             {

@@ -8,7 +8,7 @@ using System.Windows.Shapes;
 
 namespace Viper.Game.Interfaces
 {
-    public interface IGameplayElements
+    public interface IPlayableElements
     {
         /// <summary>
         /// Returns the gameplay element specified, cannot be added more than one time.

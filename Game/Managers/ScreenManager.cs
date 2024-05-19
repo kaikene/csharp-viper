@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Viper.Game.Events;
 using Viper.Game.Screens;
@@ -18,6 +19,8 @@ namespace Viper.Game.Managers
     /// </summary>
     public class ScreenManager
     {
+        private bool _hasStarted = false;
+
         public EventHandler<ScreenChangedEventArgs>? ScreenChanged;
 
         /// <summary>
@@ -71,12 +74,25 @@ namespace Viper.Game.Managers
         /// </summary>
         public void Start()
         {
-            // MenuScreen events.
-            MenuScreen.PlayClicked += MenuScreen_PlayClicked;
-            MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
-            MenuScreen.ExitGame += MenuScreen_ExitGame;
+            if (!_hasStarted)
+            {
+                TextBlock sampletext = new()
+                {
+                    Text = "ScreenManager has been started, Nothing to see here",
+                    Foreground = new SolidColorBrush(Color.FromArgb(120, 255, 255, 255)),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                };
 
-            Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
+                _screen.Children.Add(sampletext);
+
+                // MenuScreen events.
+                MenuScreen.PlayClicked += MenuScreen_PlayClicked;
+                MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
+                MenuScreen.ExitGame += MenuScreen_ExitGame;
+
+                Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
+            }
         }
 
         private void MenuScreen_SettingsClicked(object? sender, EventArgs e)

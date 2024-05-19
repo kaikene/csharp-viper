@@ -12,7 +12,7 @@ namespace Viper.Game.Elements.Gameplay
     /// <summary>
     /// Add, remove and manage a food element.
     /// </summary>
-    public class Food : IGameplayElements
+    public class Food : IPlayableElements
     {
         /// <summary>
         /// Triggers when the color of the food changed.
@@ -61,6 +61,8 @@ namespace Viper.Game.Elements.Gameplay
 
         private bool _showing = false;
 
+        // Why a panel?: Food needs to know the size and teleport arround on where it is, putting this into something that its not a panel causes the food to not work
+        // as intentded and sometimes causes exceptions because idk.
         private Panel _parent;
 
         // Size of the food elements
@@ -86,13 +88,13 @@ namespace Viper.Game.Elements.Gameplay
         /// Adds a food element to the panel.
         /// </summary>
         /// <returns></returns>
-        public void Show(Panel panel)
+        public void Show(Panel parent)
         {
             // If the element tag matches, then that means an element was created and is being shown somewhere, so it cannot be shown again.
             if (_showing == false)
             {
                 _showing = true;
-                _parent = panel;
+                _parent = parent;
 
                 Rectangle food = new()
                 {
@@ -108,7 +110,7 @@ namespace Viper.Game.Elements.Gameplay
                 _food = food;
                 _foodPosition = food.RenderTransform as TranslateTransform;
 
-                panel.Children.Add(_food);
+                _parent.Children.Add(_food);
 
                 Reset();
             }

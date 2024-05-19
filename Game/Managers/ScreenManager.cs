@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Viper.Game.Events;
 using Viper.Game.Screens;
 using Viper.Screens;
 
@@ -15,8 +16,10 @@ namespace Viper.Game.Managers
     /// <summary>
     /// Manages screens in a better way.
     /// </summary>
-    public class ScreenManager()
+    public class ScreenManager
     {
+        public EventHandler<ScreenChangedEventArgs>? ScreenChanged;
+
         /// <summary>
         /// Screen that shows the gameplay.
         /// </summary>
@@ -139,6 +142,8 @@ namespace Viper.Game.Managers
             // If the current screen is already this one, then prevent it from showing it again.
             if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != screen)
             {
+                ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(screen));
+
                 if (screen == Screens.Menu)
                 {
                     // If the screen was loaded, it means that its already on the screen history and is not cleared, so we dont need to add it again.

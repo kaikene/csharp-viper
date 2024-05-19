@@ -13,10 +13,15 @@ using Viper.Game.Events;
 namespace Viper.Game.Managers
 {
     /// <summary>
-    /// Manages players and food elements in a nicer way, with a custom amount of playfields.
+    /// Manages a playfield with a player and custom amounts of food.
     /// </summary>
     public class GameplayManager
     {
+        private Playfield _playfield = new();
+
+        private Player _player = new();
+
+        private List<Food> _food = new();
         
     }
 }

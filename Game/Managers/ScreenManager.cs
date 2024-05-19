@@ -42,7 +42,7 @@ namespace Viper.Game.Managers
         /// <summary>
         /// The main container that will handle the screens.
         /// </summary>
-        public Grid Screen
+        public Grid Displayer
         {
             get
             {
@@ -53,7 +53,7 @@ namespace Viper.Game.Managers
         /// <summary>
         /// Used to identify the screens
         /// </summary>
-        private enum Screens
+        public enum Screens
         {
             Gameplay,
             Menu,
@@ -68,16 +68,22 @@ namespace Viper.Game.Managers
         /// </summary>
         public void Start()
         {
+            // MenuScreen events.
             MenuScreen.PlayClicked += MenuScreen_PlayClicked;
-
+            MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
             MenuScreen.ExitGame += MenuScreen_ExitGame;
 
             Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
         }
 
+        private void MenuScreen_SettingsClicked(object? sender, EventArgs e)
+        {
+            MessageBox.Show("Settings still not added");
+        }
+
         private void MenuScreen_PlayClicked(object? sender, EventArgs e)
         {
-            ShowGameplay();
+            ShowScreen(Screens.Gameplay);
         }
 
         private void MenuScreen_ExitGame(object? sender, EventArgs e)
@@ -94,103 +100,82 @@ namespace Viper.Game.Managers
                     // Check who is the screen we need to go back.
                     if (_screenHistory[_screenHistory.Count - 2] == Screens.Menu)
                     {
-                        ShowMainMenu(true);
+                        ShowScreen(Screens.Menu);
                     }
                     else if (_screenHistory[_screenHistory.Count - 2] == Screens.Gameplay)
                     {
-                        ShowGameplay(true);
+                        ShowScreen(Screens.Gameplay);
                     }
                     else if (_screenHistory[_screenHistory.Count - 2] == Screens.Testing)
                     {
-                        ShowTesting(true);
+                        ShowScreen(Screens.Testing);
                     }
 
                     // Remove everything from the screen you just left.
                     if (_screenHistory[_screenHistory.Count - 1] == Screens.Menu)
                     {
-                        MenuScreen.CleanUp();
+                        MenuScreen.Clear();
                     }
                     else if (_screenHistory[_screenHistory.Count - 1] == Screens.Gameplay)
                     {
-                        GameplayScreen.CleanUp();
+                        GameplayScreen.Clear();
                     }
                     else if (_screenHistory[_screenHistory.Count - 1] == Screens.Testing)
                     {
-                        TestingScreen.CleanUp();
+                        TestingScreen.Clear();
                     }
                     _screenHistory.RemoveAt(_screenHistory.Count - 1);
                 }
-                else
+                else // If theres no screens left to go back, just tell the user if they want to exit.
                 {
                     ExitProgramDialog();
                 }
             }
         }
 
-        public void ShowMainMenu(bool isReturningHere = false)
+        public void ShowScreen(Screens screen)
         {
-            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
+            // If theres no screens, or theres a screen different from the one selected, then this screen can be shown.
             // If the current screen is already this one, then prevent it from showing it again.
-            if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Menu)
+            if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != screen)
             {
-                AddToScreenHistory(!isReturningHere, Screens.Menu);
-
-                _screen.Children.Clear();
-                _screen.Children.Add(MenuScreen.Menu);
-
-                if (!isReturningHere)
+                if (screen == Screens.Menu)
                 {
+                    // If the screen was loaded, it means that its already on the screen history and is not cleared, so we dont need to add it again.
+                    if (!MenuScreen.IsLoaded)
+                    {
+                        _screenHistory.Add(screen);
+                    }
+
+                    _screen.Children.Clear();
+                    _screen.Children.Add(MenuScreen.Container);
+
                     MenuScreen.Show();
                 }
-            }
-        }
-
-        public void ShowGameplay(bool isReturningHere = false)
-        {
-            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
-            // If the current screen is already this one, then prevent it from showing it again.
-            if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Gameplay)
-            {
-                AddToScreenHistory(!isReturningHere, Screens.Gameplay);
-
-                _screen.Children.Clear();
-                _screen.Children.Add(GameplayScreen.Gameplay);
-
-                if (!isReturningHere)
+                else if (screen == Screens.Gameplay)
                 {
+                    if (!GameplayScreen.IsLoaded)
+                    {
+                        _screenHistory.Add(screen);
+                    }
+
+                    _screen.Children.Clear();
+                    _screen.Children.Add(GameplayScreen.Container);
+
                     GameplayScreen.Show();
                 }
-            }
-        }
-
-        public void ShowTesting(bool isReturningHere = false)
-        {
-            // If theres no screens, or theres a different screen other than this one being showed, then showing this one can be shown.
-            // If the current screen is already this one, then prevent it from showing it again.
-            if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != Screens.Testing)
-            {
-                AddToScreenHistory(!isReturningHere, Screens.Testing);
-
-                _screen.Children.Clear();
-                TestingScreen.CleanUp();
-                _screen.Children.Add(TestingScreen.Testing);
-
-                // If you are returning here, then the screen elements dont have to be reloaded
-                // but if you arent returning, then they have to be loaded otherwise you will just be watching a gray screen
-                if (!isReturningHere)
+                else if (screen == Screens.Testing)
                 {
+                    if (!TestingScreen.IsLoaded)
+                    {
+                        _screenHistory.Add(screen);
+                    }
+
+                    _screen.Children.Clear();
+                    _screen.Children.Add(TestingScreen.Container);
+
                     TestingScreen.Show();
                 }
-            }
-        }
-
-        // Adds screens to the screen history
-        private void AddToScreenHistory(bool canSave, Screens screenToSave)
-        {
-            if (canSave)
-            {
-                Screens currrentScreen = screenToSave;
-                _screenHistory.Add(currrentScreen);
             }
         }
 
@@ -199,9 +184,9 @@ namespace Viper.Game.Managers
             Application.Current.MainWindow.PreviewKeyDown -= OnEscapeKeyPress;
             MenuScreen.PlayClicked -= MenuScreen_PlayClicked;
             MenuScreen.ExitGame -= MenuScreen_ExitGame;
-            GameplayScreen.CleanUp();
-            MenuScreen.CleanUp();
-            TestingScreen.CleanUp();
+            GameplayScreen.Clear();
+            MenuScreen.Clear();
+            TestingScreen.Clear();
             _screen.Children.Clear();
             _screenHistory.Clear();
         }

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Viper.Game.Elements;
+using Viper.Game.Interfaces;
 using Viper.Game.Managers;
 
 namespace Viper.Game.Screens
@@ -11,9 +12,13 @@ namespace Viper.Game.Screens
     /// <summary>
     /// The gameplay screen.
     /// </summary>
-    public class GameplayScreen()
+    public class GameplayScreen : IScreenStates
     {
-        private bool isCurrentlyShowing = false;
+        private bool _isLoaded = false, _isHidden = false;
+
+        public bool IsLoaded { get { return _isLoaded; } }
+
+        public bool IsHidden { get { return _isHidden; } }
 
         private Grid _gameplay = new()
         {
@@ -25,7 +30,7 @@ namespace Viper.Game.Screens
         /// <summary>
         /// The main container handling all gameplay elements.
         /// </summary>
-        public Grid Gameplay
+        public Grid Container
         {
             get
             {
@@ -38,9 +43,9 @@ namespace Viper.Game.Screens
         /// </summary>
         public void Show()
         {
-            if (!isCurrentlyShowing)
+            if (!_isLoaded)
             {
-                isCurrentlyShowing = true;
+                _isLoaded = true;
 
                 TextBlock screenIdetifier = new()
                 {
@@ -54,11 +59,27 @@ namespace Viper.Game.Screens
 
                 _gameplay.Children.Add(screenIdetifier);
             }
+            else if (_isHidden)
+            {
+                _gameplay.Visibility = Visibility.Visible;
+                _gameplay.IsHitTestVisible = true;
+                _isHidden = false;
+            }
         }
 
-        public void CleanUp()
+        public void Hide()
         {
-            isCurrentlyShowing = false;
+            if (_isLoaded)
+            {
+                _gameplay.Visibility = Visibility.Hidden;
+                _gameplay.IsHitTestVisible = false;
+                _isHidden = true;
+            }
+        }
+
+        public void Clear()
+        {
+            _isLoaded = false;
             _gameplay.Children.Clear();
         }
     }

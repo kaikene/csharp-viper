@@ -3,23 +3,29 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using Viper.Game.Interfaces;
 
 namespace Viper.Game.Screens
 {
     /// <summary>
     /// The menu screen of the game.
     /// </summary>
-    public class MenuScreen
+    public class MenuScreen : IScreenStates
     {
         /// <summary>
         /// Triggers when the user clicks "Play"
         /// </summary>
-        public event EventHandler PlayClicked;
+        public event EventHandler? PlayClicked;
+
+        /// <summary>
+        /// Triggers when the user clicks "Settings"
+        /// </summary>
+        public event EventHandler? SettingsClicked;
 
         /// <summary>
         /// Triggers when the user clicks Exit
         /// </summary>
-        public event EventHandler ExitGame;
+        public event EventHandler? ExitGame;
 
         // Container that handles all menu elements.
         private Grid _menu = new()
@@ -32,95 +38,123 @@ namespace Viper.Game.Screens
         /// <summary>
         /// Container that handles all menu elements.
         /// </summary>
-        public Grid Menu { get { return _menu; } }
+        public Grid Container { get { return _menu; } }
 
-        public void CleanUp()
-        {
-            _menu.Children.Clear();
-        }
+        private bool _isLoaded = false, _isHidden = false;
+
+        public bool IsLoaded { get { return _isLoaded; } }
+
+        public bool IsHidden { get { return _isHidden; } }
 
         /// <summary>
         /// Loads and shows the menu elements.
         /// </summary>
         public void Show()
         {
-            const int BUTTON_STACKPANEL_WIDTH = 250;
-
-            const int BUTTON_SEPARATION = 12;
-
-            const int BUTTON_HEIGHT = 25;
-
-            TextBlock screenIdetifier = new()
+            if (!_isLoaded)
             {
-                Text = "Viper.Game.Screens.MenuScreen",
-                FontSize = 15,
-                VerticalAlignment = VerticalAlignment.Top,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255)),
-                Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
-            };
+                _isLoaded = true;
 
-            Panel.SetZIndex(screenIdetifier, 5);
+                const int BUTTON_STACKPANEL_WIDTH = 250;
 
-            StackPanel buttonStackPanel = new()
+                const int BUTTON_SEPARATION = 12;
+
+                const int BUTTON_HEIGHT = 25;
+
+                TextBlock screenIdetifier = new()
+                {
+                    Text = "Viper.Game.Screens.MenuScreen",
+                    FontSize = 15,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Foreground = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255)),
+                    Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
+                };
+
+                Panel.SetZIndex(screenIdetifier, 5);
+
+                StackPanel buttonStackPanel = new()
+                {
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, -100),
+                    Width = BUTTON_STACKPANEL_WIDTH,
+                };
+
+                Button startButton = new()
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
+                    Content = "Jugar",
+                    Height = BUTTON_HEIGHT,
+                };
+
+                Button settingsButton = new()
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
+                    Content = "Ajustes",
+                    Height = BUTTON_HEIGHT,
+                };
+
+                Button exitButton = new()
+                {
+                    VerticalAlignment = VerticalAlignment.Top,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
+                    Content = "Salir",
+                    Height = BUTTON_HEIGHT,
+                };
+
+                buttonStackPanel.Children.Add(startButton);
+
+                buttonStackPanel.Children.Add(settingsButton);
+
+                buttonStackPanel.Children.Add(exitButton);
+
+                startButton.PreviewMouseUp += (s, e) =>
+                {
+                    PlayClicked?.Invoke(this, e);
+                };
+
+                settingsButton.PreviewMouseUp += (s, e) =>
+                {
+                    SettingsClicked?.Invoke(this, e);
+                };
+
+                exitButton.PreviewMouseUp += (s, e) =>
+                {
+                    ExitGame?.Invoke(this, e);
+                };
+
+                _menu.Children.Add(buttonStackPanel);
+
+                _menu.Children.Add(screenIdetifier);
+            }
+            else if (_isHidden)
             {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0,0,0,-100),
-                Width = BUTTON_STACKPANEL_WIDTH,
-            };
+                _menu.Visibility = Visibility.Visible;
+                _menu.IsHitTestVisible = true;
+                _isHidden = false;
+            }
+        }
 
-            Button startButton = new()
+        public void Hide()
+        {
+            if (_isLoaded)
             {
-                VerticalAlignment = VerticalAlignment.Top,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0,0,0,BUTTON_SEPARATION),
-                Content = "Jugar",
-                Height = BUTTON_HEIGHT,
-            };
+                _menu.Visibility = Visibility.Hidden;
+                _menu.IsHitTestVisible = false;
+                _isHidden = true;
+            }
+        }
 
-            Button settingsButton = new()
-            {
-                VerticalAlignment = VerticalAlignment.Top,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
-                Content = "Ajustes",
-                Height = BUTTON_HEIGHT,
-            };
-
-            Button exitButton = new()
-            {
-                VerticalAlignment = VerticalAlignment.Top,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
-                Content = "Salir",
-                Height = BUTTON_HEIGHT,
-            };
-
-            buttonStackPanel.Children.Add(startButton);
-
-            buttonStackPanel.Children.Add(settingsButton);
-
-            buttonStackPanel.Children.Add(exitButton);
-
-            _menu.Children.Add(buttonStackPanel);
-
-            _menu.Children.Add(screenIdetifier);
-
-            startButton.PreviewMouseUp += (s, e) =>
-            {
-                PlayClicked.Invoke(this, e);
-            };
-
-            exitButton.PreviewMouseUp += (s, e) =>
-            {
-                ExitGame.Invoke(this, e);
-            };
-
-            _menu.Loaded += (s, e) =>
-            {
-                startButton.Focus();
-            };
+        public void Clear()
+        {
+            _menu.Children.Clear();
+            _isLoaded = false;
         }
     }
 }

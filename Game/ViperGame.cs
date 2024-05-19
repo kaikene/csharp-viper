@@ -88,15 +88,15 @@ namespace Viper.Game
                 {
                     if (e.Key == Key.T)
                     {
-                        _screenManager.ShowTesting();
+                        _screenManager.ShowScreen(ScreenManager.Screens.Testing);
                     }
                 }
             }
 
-            _viper.Children.Add(_screenManager.Screen);
+            _viper.Children.Add(_screenManager.Displayer);
 
             _screenManager.Start();
-            _screenManager.ShowMainMenu();
+            _screenManager.ShowScreen(ScreenManager.Screens.Menu);
         }
 
         public void CleanUp()

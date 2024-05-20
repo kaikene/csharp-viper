@@ -116,73 +116,97 @@ namespace Viper.Game.Elements.Gameplay
             }
         }
 
+        public void ResetOutOfBounds()
+        {
+            _foodPosition = new TranslateTransform(-30, -30);
+            _food.RenderTransform = _foodPosition;
+        }
+
         /// <summary>
         /// Resets a selected food element to a random place.
         /// </summary>
         public void Reset()
         {
-            // If the element tag matches, then that means an element was created and is being shown somewhere, so it can be reseted.
-            if (_showing == true)
+            CheckForRepetition();
+
+            void CheckForRepetition()
             {
-                // Check how big is the space.
-                int spaceH = Convert.ToInt32(_parent.Height), spaceW = Convert.ToInt32(_parent.Width);
-
-                CheckMaxUsableSpace();
-
-                void CheckMaxUsableSpace()
+                // If the element tag matches, then that means an element was created and is being shown somewhere, so it can be reseted.
+                if (_showing == true)
                 {
-                    if (spaceH % SIZE != 0)
+                    // Check how big is the space.
+                    int spaceH = Convert.ToInt32(_parent.Height), spaceW = Convert.ToInt32(_parent.Width);
+
+                    CheckMaxUsableSpace();
+
+                    // If the total space has some extra pixels bigger, than means the player can go out of bounds, we can remove recursively until the calc. gives 0
+                    void CheckMaxUsableSpace()
                     {
-                        spaceH--;
-                        CheckMaxUsableSpace();
+                        if (spaceH % SIZE != 0)
+                        {
+                            spaceH--;
+                            CheckMaxUsableSpace();
+                        }
+
+                        if (spaceW % SIZE != 0)
+                        {
+                            spaceW--;
+                            CheckMaxUsableSpace();
+                        }
                     }
 
-                    if (spaceW % SIZE != 0)
+                    Random rnd = new();
+
+                    int newX = rnd.Next(0, spaceW + 1);
+                    int newY = rnd.Next(0, spaceH + 1);
+
+                    AdjustNewPositions();
+
+                    // Picking two random values can lead to weird values, example: if you expect values multiple of 10 (10, 20, 30), a value of 24 is not very usable
+                    // so here we remove -1 to round the value into a usable one, so if we had a random number of 43, now this func. converts it to 40.
+                    // if we had 123 then now its 120, 2342 = 2340
+                    void AdjustNewPositions()
                     {
-                        spaceW--;
-                        CheckMaxUsableSpace();
+                        if (newX % SIZE != 0)
+                        {
+                            newX--;
+                            AdjustNewPositions();
+                        }
+
+                        if (newY % SIZE != 0)
+                        {
+                            newY--;
+                            AdjustNewPositions();
+                        }
+                    }
+
+                    // Because of aligments, elements can still appear slightly out of bounds, this makes sure that it doesnt happend by avoiding the last possible bottom Y axis and right X axis.
+                    if (newY == spaceH)
+                    {
+                        newY -= SIZE;
+                    }
+
+                    if (newX == spaceW)
+                    {
+                        newX -= SIZE;
+                    }
+
+                    // Check if the new position is not the same as before to avoid moving to the same place.
+                    if (newX == (_food.RenderTransform as TranslateTransform).X && newY == (_food.RenderTransform as TranslateTransform).Y)
+                    {
+                        CheckForRepetition();
+                    }
+                    else
+                    {
+                        TranslateTransform newPos = new(newX, newY);
+
+                        _food.RenderTransform = new TranslateTransform(newPos.X, newPos.Y); // Apply new position.
+
+                        _foodPosition = newPos; // Add to the list.
+
+                        PositionChanged?.Invoke(this, new FoodPositionChangedEventArgs(newPos.X, newPos.Y));
                     }
                 }
-
-                Random rnd = new();
-
-                int newX = rnd.Next(0, spaceW + 1);
-                int newY = rnd.Next(0, spaceH + 1);
-
-                AdjustNewPositions();
-
-                void AdjustNewPositions()
-                {
-                    if (newX % SIZE != 0)
-                    {
-                        newX--;
-                        AdjustNewPositions();
-                    }
-
-                    if (newY % SIZE != 0)
-                    {
-                        newY--;
-                        AdjustNewPositions();
-                    }
-                }
-
-                // Because of aligments, elements can still appear slightly out of bounds, this makes sure that it doesnt happend by avoiding the last possible bottom Y axis and right X axis.
-                if (newY == spaceH)
-                {
-                    newY =- SIZE;
-                }
-                                        
-                if (newX == spaceW)
-                {
-                    newX =- SIZE;
-                }
-
-                TranslateTransform newPos = new(newX, newY);
-
-                _food.RenderTransform = new TranslateTransform(newPos.X, newPos.Y); // Apply new position.
-                _foodPosition = newPos; // Add to the list.
-
-                PositionChanged?.Invoke(this, new FoodPositionChangedEventArgs(newPos.X, newPos.Y));
             }
         }
 

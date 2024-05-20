@@ -219,9 +219,9 @@ namespace Viper.Screens
                     TextBlock testDebugMov = new() { Text = "Player Moving:", Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugDir = new() { Text = "Player Direction:", Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugBE = new() { Text = "Player Elements:", Foreground = new SolidColorBrush(Colors.White), };
-                    TextBlock testDebugPos = new() { Text = "Position: X: " + player.XPosition + " | Y: " + player.YPosition, Foreground = new SolidColorBrush(Colors.White), };
+                    TextBlock testDebugPos = new() { Text = "Position: X: " + player.Position.X + " | Y: " + player.Position.X, Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugPD = new() { Text = "Player Died: 0 time(s)", Foreground = new SolidColorBrush(Colors.White), };
-                    TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.CurrentTickRate, Foreground = new SolidColorBrush(Colors.White), };
+                    TextBlock testDebugTR = new() { Text = "Current Tickrate: " + player.TickRate, Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugPC = new() { Text = $"Player Color: Color.FromArgb({player.CurrentColor.A}, {player.CurrentColor.R}, {player.CurrentColor.G}, {player.CurrentColor.B})", Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugIN = new() { Text = $"Key Bindings: {player.InputUp}, {player.InputDown}, {player.InputLeft}, {player.InputRight}", Foreground = new SolidColorBrush(Colors.White), };
                     TextBlock testDebugLV = new() { Text = $"Lives: {player.Lives}", Foreground = new SolidColorBrush(Colors.White), };
@@ -243,12 +243,12 @@ namespace Viper.Screens
 
                     addTickRate.Click += (s, e) =>
                     {
-                        player.ChangeTickRate(player.CurrentTickRate + 10);
+                        player.TickRate += 10;
                     };
 
                     decreaseTickRate.Click += (s, e) =>
                     {
-                        player.ChangeTickRate(player.CurrentTickRate - 10);
+                        player.TickRate -= 10;
                     };
 
                     changeColor.Click += (s, e) =>
@@ -396,8 +396,8 @@ namespace Viper.Screens
 
                     Grid tempPlayfield = new()
                     {
-                        Height = 234,
-                        Width = 345,
+                        Height = 34,
+                        Width = 45,
                         Background = new SolidColorBrush(Colors.DarkGray),
                         ClipToBounds = false,
                     };
@@ -505,7 +505,153 @@ namespace Viper.Screens
 
                 void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
                 {
-                    MessageBox.Show("This was removed, will be implemented again later.");
+                    _testingSpace.Children.Clear();
+                    _testingAdditionalSelector.Children.Clear();
+
+                    GameplayManager gm = new();
+
+                    int pfSize = GameplayManager.DEFAULT_PLAYFIELD_SIZE, dpSize = GameplayManager.DEFAULT_DISPLAYER_SIZE;
+
+                    _testingSpace.Children.Add(gm.Displayer);
+
+                    gm.Player.TickRate = 200;
+
+                    gm.Start();
+
+                    Button start = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Start"
+                    };
+
+                    Button addFood = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Add more food"
+                    };
+
+                    Button removeFood = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Remove Food"
+                    };
+
+                    Button incrementPlayfieldSize = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "+50 PF Size"
+                    };
+
+                    Button decreasePlayfieldSize = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "-50 PF Size"
+                    };
+
+                    Button incrementDisplayerSize = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "+50 DP Size"
+                    };
+
+                    Button decreaseDisplayerSize = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "-50 DP Size"
+                    };
+
+                    Button cleanUp = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Clear"
+                    };
+
+                    start.Click += (s, e) =>
+                    {
+                        gm.Start();
+                    };
+
+                    addFood.Click += (s, e) =>
+                    {
+                        gm.AddFood();
+                    };
+
+                    removeFood.Click += (s, e) =>
+                    {
+                        gm.RemoveFood();
+                    };
+
+                    incrementPlayfieldSize.Click += (s, e) =>
+                    {
+                        pfSize += 1;
+                        gm.ChangePlayfieldGridSize(pfSize);
+
+                        foreach (Food food in gm.Food)
+                        {
+                            food.Reset();
+                        }
+                    };
+
+                    decreasePlayfieldSize.Click += (s, e) =>
+                    {
+                        pfSize -= 1;
+                        gm.ChangePlayfieldGridSize(pfSize);
+
+                        foreach (Food food in gm.Food)
+                        {
+                            food.Reset();
+                        }
+                    };
+
+                    incrementDisplayerSize.Click += (s, e) =>
+                    {
+                        dpSize += 10;
+                        gm.ChangeDisplayerSize(dpSize);
+                    };
+
+                    decreaseDisplayerSize.Click += (s, e) =>
+                    {
+                        dpSize -= 10;
+                        gm.ChangeDisplayerSize(dpSize);
+                    };
+
+                    cleanUp.Click += (s, e) =>
+                    {
+                        gm.CleanUp();
+                    };
+
+                    _testingAdditionalSelector.Children.Add(start);
+                    _testingAdditionalSelector.Children.Add(addFood);
+                    _testingAdditionalSelector.Children.Add(removeFood);
+                    _testingAdditionalSelector.Children.Add(incrementPlayfieldSize);
+                    _testingAdditionalSelector.Children.Add(decreasePlayfieldSize);
+                    _testingAdditionalSelector.Children.Add(incrementDisplayerSize);
+                    _testingAdditionalSelector.Children.Add(decreaseDisplayerSize);
+                    _testingAdditionalSelector.Children.Add(cleanUp);
                 }
 
                 _testingSelector.Children.Add(_playerTest);

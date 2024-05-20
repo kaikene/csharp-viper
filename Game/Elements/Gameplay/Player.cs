@@ -148,11 +148,11 @@ namespace Viper.Game.Elements.Gameplay
         /// <summary>
         /// Current player position in the X axis.
         /// </summary>
-        public double XPosition
+        public TranslateTransform Position
         {
             get
             {
-                return _playerXpos;
+                return new TranslateTransform(_playerXpos, _playerYpos);
             }
         }
 
@@ -174,17 +174,6 @@ namespace Viper.Game.Elements.Gameplay
                 {
                     _lives = value;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Current player position in the Y axis.
-        /// </summary>
-        public double YPosition
-        {
-            get
-            {
-                return _playerYpos;
             }
         }
 
@@ -219,11 +208,20 @@ namespace Viper.Game.Elements.Gameplay
         /// <summary>
         /// Gets the current tickrate being used at the moment.
         /// </summary>
-        public int CurrentTickRate
+        public int TickRate
         {
             get
             {
                 return _tickRate;
+            }
+
+            set
+            {
+                if (value > 0)
+                {
+                    _tickRate = value;
+                    TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
+                }
             }
         }
 
@@ -548,15 +546,6 @@ namespace Viper.Game.Elements.Gameplay
             Remove();
         }
 
-        public void ChangeTickRate(int newTickRate)
-        {
-            if (newTickRate > 0)
-            {
-                _tickRate = newTickRate;
-                TickrateChanged?.Invoke(this, new PlayerTickRateChangedEventArgs(_tickRate));
-            }
-        }
-
         public void IncreasePlayerSize()
         {
             Rectangle playerBodyPart = new()
@@ -567,7 +556,6 @@ namespace Viper.Game.Elements.Gameplay
                 Height = SIZE,
                 Width = SIZE,
                 RenderTransform = new TranslateTransform(-30, -30), // Spawn out of bounds.
-                Focusable = true,
             };
 
             Panel.SetZIndex(playerBodyPart, 3);

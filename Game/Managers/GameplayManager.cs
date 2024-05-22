@@ -164,7 +164,7 @@ namespace Viper.Game.Managers
             }
         }
 
-        public void CleanUp()
+        public void Stop()
         {
             _hasStarted = false;
             _manager.Child = null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,8 @@ namespace Viper.Game.Managers
 
         public EventHandler<ScreenChangedEventArgs>? ScreenChanged;
 
+        public EventHandler? NoScreensLeft;
+
         /// <summary>
         /// Screen that shows the gameplay.
         /// </summary>
@@ -43,6 +46,25 @@ namespace Viper.Game.Managers
         {
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch,
+        };
+
+        private TextBlock _startedText = new()
+        {
+            Text = "ScreenManager has been started, No screens loaded.",
+            Foreground = new SolidColorBrush(Color.FromArgb(160, 255, 255, 255)),
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+
+        private Button _backButton = new()
+        {
+            Height = 40,
+            Width = 60,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new Thickness(10, 0, 0, 10),
+            Content = "Atras",
+            Visibility = Visibility.Hidden,
         };
 
         /// <summary>
@@ -76,152 +98,123 @@ namespace Viper.Game.Managers
         {
             if (!_hasStarted)
             {
-                TextBlock sampletext = new()
-                {
-                    Text = "ScreenManager has been started, Nothing to see here",
-                    Foreground = new SolidColorBrush(Color.FromArgb(120, 255, 255, 255)),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                };
+                _hasStarted = true;
 
-                _screen.Children.Add(sampletext);
+                _backButton.Click += _backButton_Click;
 
-                // MenuScreen events.
-                MenuScreen.PlayClicked += MenuScreen_PlayClicked;
-                MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
-                MenuScreen.ExitGame += MenuScreen_ExitGame;
+                Panel.SetZIndex(_backButton, 10);
 
-                Application.Current.MainWindow.PreviewKeyDown += OnEscapeKeyPress;
+                _screen.Children.Add(_startedText);
+                _screen.Children.Add(_backButton);
+                _screen.Children.Add(MenuScreen.Container);
+                _screen.Children.Add(GameplayScreen.Container);
+                _screen.Children.Add(TestingScreen.Container);
             }
         }
 
-        private void MenuScreen_SettingsClicked(object? sender, EventArgs e)
+        private void _backButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Settings still not added");
+            GoBack();
         }
 
-        private void MenuScreen_PlayClicked(object? sender, EventArgs e)
+        public void GoBack()
         {
-            ShowScreen(Screens.Gameplay);
-        }
-
-        private void MenuScreen_ExitGame(object? sender, EventArgs e)
-        {
-            ExitProgramDialog();
-        }
-
-        private void OnEscapeKeyPress(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
+            if (_screenHistory.Count - 1 > 0)
             {
-                if (_screenHistory.Count - 1 > 0)
+                // Check who is the screen we need to go back.
+                if (_screenHistory[_screenHistory.Count - 2] == Screens.Menu)
                 {
-                    // Check who is the screen we need to go back.
-                    if (_screenHistory[_screenHistory.Count - 2] == Screens.Menu)
-                    {
-                        ShowScreen(Screens.Menu);
-                    }
-                    else if (_screenHistory[_screenHistory.Count - 2] == Screens.Gameplay)
-                    {
-                        ShowScreen(Screens.Gameplay);
-                    }
-                    else if (_screenHistory[_screenHistory.Count - 2] == Screens.Testing)
-                    {
-                        ShowScreen(Screens.Testing);
-                    }
-
-                    // Remove everything from the screen you just left.
-                    if (_screenHistory[_screenHistory.Count - 1] == Screens.Menu)
-                    {
-                        MenuScreen.Clear();
-                    }
-                    else if (_screenHistory[_screenHistory.Count - 1] == Screens.Gameplay)
-                    {
-                        GameplayScreen.Clear();
-                    }
-                    else if (_screenHistory[_screenHistory.Count - 1] == Screens.Testing)
-                    {
-                        TestingScreen.Clear();
-                    }
-                    _screenHistory.RemoveAt(_screenHistory.Count - 1);
+                    ShowScreen(Screens.Menu, true);
                 }
-                else // If theres no screens left to go back, just tell the user if they want to exit.
+                else if (_screenHistory[_screenHistory.Count - 2] == Screens.Gameplay)
                 {
-                    ExitProgramDialog();
+                    ShowScreen(Screens.Gameplay, true);
+                }
+                else if (_screenHistory[_screenHistory.Count - 2] == Screens.Testing)
+                {
+                    ShowScreen(Screens.Testing, true);
+                }
+
+                _screenHistory.RemoveAt(_screenHistory.Count - 1);
+
+                if (_screenHistory.Count == 1)
+                {
+                    _backButton.Visibility = Visibility.Hidden;
                 }
             }
-        }
-
-        public void ShowScreen(Screens screen)
-        {
-            // If theres no screens, or theres a screen different from the one selected, then this screen can be shown.
-            // If the current screen is already this one, then prevent it from showing it again.
-            if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != screen)
+            else
             {
-                ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(screen));
+                NoScreensLeft?.Invoke(this, new EventArgs());
+            }
+        }
 
-                if (screen == Screens.Menu)
+        public void ShowScreen(Screens screen, bool isReturning = false)
+        {
+            if (_hasStarted)
+            {
+                _startedText.Visibility = Visibility.Hidden;
+
+                // If theres no screens, or theres a screen different from the one selected, then this screen can be shown.
+                // If the current screen is already this one, then prevent it from showing it again.
+                if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != screen)
                 {
-                    // If the screen was loaded, it means that its already on the screen history and is not cleared, so we dont need to add it again.
-                    if (!MenuScreen.IsLoaded)
+                    ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(screen));
+
+                    // Remove the screen being shown before showing a new screen. 
+                    if (_screenHistory.Count > 0)
+                    {
+                        if (_screenHistory[_screenHistory.Count - 1] == Screens.Menu)
+                        {
+                            MenuScreen.Clear();
+                        }
+                        else if (_screenHistory[_screenHistory.Count - 1] == Screens.Gameplay)
+                        {
+                            GameplayScreen.Clear();
+                        }
+                        else if (_screenHistory[_screenHistory.Count - 1] == Screens.Testing)
+                        {
+                            TestingScreen.Clear();
+                        }
+                    }
+
+                    // Show the selected screen.
+                    if (screen == Screens.Menu)
+                    {
+                        MenuScreen.Show();
+                    }
+                    else if (screen == Screens.Gameplay)
+                    {
+                        GameplayScreen.Show();
+                    }
+                    else if (screen == Screens.Testing)
+                    {
+                        TestingScreen.Show();
+                    }
+
+                    // If we are returning to this screen, then dont add it to the history.
+                    if (!isReturning)
                     {
                         _screenHistory.Add(screen);
                     }
-
-                    _screen.Children.Clear();
-                    _screen.Children.Add(MenuScreen.Container);
-
-                    MenuScreen.Show();
                 }
-                else if (screen == Screens.Gameplay)
+
+                if (_screenHistory.Count > 1)
                 {
-                    if (!GameplayScreen.IsLoaded)
-                    {
-                        _screenHistory.Add(screen);
-                    }
-
-                    _screen.Children.Clear();
-                    _screen.Children.Add(GameplayScreen.Container);
-
-                    GameplayScreen.Show();
-                }
-                else if (screen == Screens.Testing)
-                {
-                    if (!TestingScreen.IsLoaded)
-                    {
-                        _screenHistory.Add(screen);
-                    }
-
-                    _screen.Children.Clear();
-                    _screen.Children.Add(TestingScreen.Container);
-
-                    TestingScreen.Show();
+                    _backButton.Visibility = Visibility.Visible;
                 }
             }
         }
 
-        public void CleanUp()
+        public void Stop()
         {
-            Application.Current.MainWindow.PreviewKeyDown -= OnEscapeKeyPress;
-            MenuScreen.PlayClicked -= MenuScreen_PlayClicked;
-            MenuScreen.ExitGame -= MenuScreen_ExitGame;
             GameplayScreen.Clear();
             MenuScreen.Clear();
             TestingScreen.Clear();
+            _startedText.Visibility = Visibility.Visible;
             _screen.Children.Clear();
             _screenHistory.Clear();
-        }
-
-        // Dialog used when theres no screens left and the user presses "Escape", or when a button for exiting is visible to the user.
-        private void ExitProgramDialog()
-        {
-            MessageBoxResult result = MessageBox.Show("Estas seguro de que quieres salir?", "Salir", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                CleanUp();
-                Application.Current.Shutdown();
-            }
+            _hasStarted = false;
+            _backButton.Click -= _backButton_Click;
         }
     }
 }

@@ -616,14 +616,13 @@ namespace Viper.Game.Elements.Gameplay
                 _directionBuffer.Clear();
                 _playerXpos = 0;
                 _playerYpos = 0;
-                _deathCounter = 0;
 
                 if (_lives == 0)
                 {
                     _lives = DEFAULT_LIVES;
                 }
 
-                if (doRemoval)
+                if (doRemoval) // All remaining values, events and lists will be reset and the player will be removed from the panel.
                 {
                     foreach (Rectangle playerBody in _playerBody)
                     {
@@ -638,10 +637,11 @@ namespace Viper.Game.Elements.Gameplay
                     InputLeft = Key.Left;
                     InputRight = Key.Right;
 
+                    _deathCounter = 0;
                     _playerBody.Clear();
                     _isShowing = false;
                 }
-                else
+                else // Remove everything except the first player element.
                 {
                     int amountOfPlayerBodyElements = _playerBody.Count;
 

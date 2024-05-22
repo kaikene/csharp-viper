@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using Viper.Game.Elements.Gameplay;
 using Viper.Game.Events;
 using Viper.Game.Interfaces;
@@ -24,10 +25,19 @@ namespace Viper.Screens
 
         public bool IsHidden { get { return _isHidden; } }
 
+        private LinearGradientBrush lGradient = new()
+        {
+            StartPoint = new Point(0, 0),
+            EndPoint = new Point(1, 1),
+            GradientStops = { new GradientStop(Color.FromArgb(255, 151, 255, 77), 0.0), new GradientStop(Color.FromArgb(255, 145, 184, 255), 1.0) },
+        };
+
         private Grid _testing = new()
         {
             VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            IsHitTestVisible = false,
+            Visibility = Visibility.Hidden,
         };
 
         public Grid Container { get { return _testing; } }
@@ -37,7 +47,7 @@ namespace Viper.Screens
             VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
-            Margin = new System.Windows.Thickness(350, 0, 0, 0),
+            Margin = new System.Windows.Thickness(380, 30, 30, 30),
         };
 
         private ScrollViewer _testingSelectorSV = new()
@@ -100,6 +110,15 @@ namespace Viper.Screens
             Content = "GameplayManager"
         };
 
+        private Button _screenManagerTest = new()
+        {
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            Margin = new System.Windows.Thickness(3, 3, 3, 3),
+            Height = 30,
+            Content = "ScreenManager"
+        };
+
         public void Hide()
         {
             if (_isLoaded)
@@ -115,6 +134,9 @@ namespace Viper.Screens
             if (!_isLoaded)
             {
                 _isLoaded = true;
+                _testing.IsHitTestVisible = true;
+                _testing.Visibility = Visibility.Visible;
+                _testing.Background = lGradient;
 
                 TextBlock screenIdetifier = new()
                 {
@@ -641,22 +663,112 @@ namespace Viper.Screens
 
                     cleanUp.Click += (s, e) =>
                     {
-                        gm.CleanUp();
+                        gm.Stop();
                     };
 
                     _testingAdditionalSelector.Children.Add(start);
+                    _testingAdditionalSelector.Children.Add(cleanUp);
                     _testingAdditionalSelector.Children.Add(addFood);
                     _testingAdditionalSelector.Children.Add(removeFood);
                     _testingAdditionalSelector.Children.Add(incrementPlayfieldSize);
                     _testingAdditionalSelector.Children.Add(decreasePlayfieldSize);
                     _testingAdditionalSelector.Children.Add(incrementDisplayerSize);
                     _testingAdditionalSelector.Children.Add(decreaseDisplayerSize);
+                }
+
+                _screenManagerTest.Click += OnScreenManagerClick;
+
+                void OnScreenManagerClick(object sender, RoutedEventArgs e)
+                {
+                    ScreenManager screenManager = new();
+
+                    _testingSpace.Children.Clear();
+                    _testingAdditionalSelector.Children.Clear();
+
+                    _testingSpace.Children.Add(screenManager.Displayer);
+                    screenManager.Start();
+
+                    Button start = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Start"
+                    };
+
+                    Button cleanUp = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "cleanUp"
+                    };
+
+                    Button showMenu = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Show Menu"
+                    };
+
+                    Button showGameplay = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Show Gameplay"
+                    };
+
+                    Button showTesting = new()
+                    {
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                        Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                        Height = 25,
+                        Content = "Show Testing"
+                    };
+
+                    start.Click += (s, e) =>
+                    {
+                        screenManager.Start();
+                    };
+
+                    cleanUp.Click += (s, e) =>
+                    {
+                        screenManager.Stop();
+                    };
+
+                    showMenu.Click += (s, e) =>
+                    {
+                        screenManager.ShowScreen(ScreenManager.Screens.Menu);
+                    };
+
+                    showGameplay.Click += (s, e) =>
+                    {
+                        screenManager.ShowScreen(ScreenManager.Screens.Gameplay);
+                    };
+
+                    showTesting.Click += (s, e) =>
+                    {
+                        screenManager.ShowScreen(ScreenManager.Screens.Testing);
+                    };
+
+                    _testingAdditionalSelector.Children.Add(start);
                     _testingAdditionalSelector.Children.Add(cleanUp);
+                    _testingAdditionalSelector.Children.Add(showMenu);
+                    _testingAdditionalSelector.Children.Add(showGameplay);
+                    _testingAdditionalSelector.Children.Add(showTesting);
                 }
 
                 _testingSelector.Children.Add(_playerTest);
                 _testingSelector.Children.Add(_foodTest);
                 _testingSelector.Children.Add(_gameplayManagerTest);
+                _testingSelector.Children.Add(_screenManagerTest);
 
                 _testingSelectorSV.Content = _testingSelector;
                 _testingAdditionalSelectorSV.Content = _testingAdditionalSelector;
@@ -677,11 +789,13 @@ namespace Viper.Screens
         public void Clear()
         {
             _testingSelector.Children.Clear();
+            _testing.Visibility = Visibility.Hidden;
             _testingSelectorSV.Content = null;
             _testingAdditionalSelectorSV.Content = null;
             _testingSpace.Children.Clear();
             _testing.Children.Clear();
             _isLoaded = false;
+            _testing.IsHitTestVisible = false;
         }
     }
 }

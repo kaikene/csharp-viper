@@ -32,7 +32,8 @@ namespace Viper.Game.Screens
         {
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Focusable = true,
+            IsHitTestVisible = false,
+            Visibility = Visibility.Hidden,
         };
 
         /// <summary>
@@ -54,6 +55,8 @@ namespace Viper.Game.Screens
             if (!_isLoaded)
             {
                 _isLoaded = true;
+                _menu.IsHitTestVisible = true;
+                _menu.Visibility = Visibility.Visible;
 
                 const int BUTTON_STACKPANEL_WIDTH = 250;
 
@@ -154,7 +157,9 @@ namespace Viper.Game.Screens
         public void Clear()
         {
             _menu.Children.Clear();
+            _menu.Visibility = Visibility.Hidden;
             _isLoaded = false;
+            _menu.IsHitTestVisible = false;
         }
     }
 }

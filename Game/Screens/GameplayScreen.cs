@@ -22,9 +22,11 @@ namespace Viper.Game.Screens
 
         private Grid _gameplay = new()
         {
-            Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
             VerticalAlignment = VerticalAlignment.Stretch,
             HorizontalAlignment = HorizontalAlignment.Stretch,
+            IsHitTestVisible = false,
+            Visibility = Visibility.Hidden
+
         };
 
         /// <summary>
@@ -38,6 +40,16 @@ namespace Viper.Game.Screens
             }
         }
 
+        private GameplayManager _gameplayManager = new();
+
+        public GameplayManager GameplayManager
+        {
+            get
+            {
+                return _gameplayManager;
+            }
+        }
+
         /// <summary>
         /// Loads and shows the gameplay screen.
         /// </summary>
@@ -46,6 +58,8 @@ namespace Viper.Game.Screens
             if (!_isLoaded)
             {
                 _isLoaded = true;
+                _gameplay.IsHitTestVisible = true;
+                _gameplay.Visibility = Visibility.Visible;
 
                 TextBlock screenIdetifier = new()
                 {
@@ -57,6 +71,7 @@ namespace Viper.Game.Screens
                     Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
                 };
 
+                _gameplay.Children.Add(_gameplayManager.Displayer);
                 _gameplay.Children.Add(screenIdetifier);
             }
             else if (_isHidden)
@@ -79,8 +94,12 @@ namespace Viper.Game.Screens
 
         public void Clear()
         {
+            _gameplay.Visibility = Visibility.Hidden;
             _isLoaded = false;
+            _isHidden = false;
             _gameplay.Children.Clear();
+            _gameplayManager.Stop();
+            _gameplay.IsHitTestVisible = false;
         }
     }
 }

@@ -8,6 +8,9 @@ for /f "tokens=1-6 delims=/:. " %%a in ("%date% %time%") do (
     set "minute=%%f"
 )
 
+REM Add a leading zero to the hour if necessary
+if %hour% LSS 10 set "hour=0%hour%"
+
 REM Assemble the formatted date and time
 set "formatted_datetime=%year%%month%%day%.%hour%%minute%"
 
@@ -24,3 +27,4 @@ REM Create a C# file named CompileTime.cs
 ) > BuildData.cs
 
 echo BuildData.cs updated!
+

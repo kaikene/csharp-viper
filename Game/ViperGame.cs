@@ -6,6 +6,7 @@ using Viper.Game.Screens;
 using Viper.Game.Managers;
 using System.Windows.Threading;
 using System.Windows.Input;
+using System.Runtime.Intrinsics;
 
 namespace Viper.Game
 {
@@ -37,13 +38,21 @@ namespace Viper.Game
         }
 
         // Compile date.
-        private string _version = BuildData.DateTime;
+        private string _build = BuildData.DateTime;
+
+        private StackPanel _versionSP = new()
+        {
+            Orientation = Orientation.Horizontal,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Center,
+
+        };
 
         public string Version
         {
             get
             {
-                return _version;
+                return _build;
             }
         }
 
@@ -52,35 +61,42 @@ namespace Viper.Game
         private OverlayManager _overlayManager = new();
 
         // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
-        private TextBlock _versionFooter = new()
+        private TextBlock _buildFooter = new()
         {
-            Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
-            Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)),
+            Foreground = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10)),
             VerticalAlignment = VerticalAlignment.Bottom,
             HorizontalAlignment = HorizontalAlignment.Center,
+            FontSize = 12,
+            FontWeight = FontWeights.Bold,
+            Height = 17,
+        };
+
+        private TextBlock _buildText = new()
+        {
+            Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+            Foreground = new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)),
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            FontSize = 11,
+            Height = 17,
         };
 
         // Main method to start the program somewhere.
         public void Start()
         {
+            _buildText.Text = " Build ";
 #if DEBUG
-            _versionFooter.Text = _version + "d - Development Build";
-            _versionFooter.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 140, 140)); // Bright Red
-#elif ALPHA
-            _versionFooter.Text = _version + "a - Alpha Build";
-            _versionFooter.Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 87, 87)); // Bright Yellow
-#elif BETA
-            _versionFooter.Text = _version + "b - Beta Build";
-            _versionFooter.Foreground = new SolidColorBrush(Color.FromArgb(255, 155, 255, 133)); // Bright Green
+            _buildFooter.Text = $" {_build}d ";
+            _buildFooter.Background = new SolidColorBrush(Color.FromArgb(130, 255, 123, 74));
 #elif RELEASE
-            _versionFooter.Text = _version + "s";
-            _versionFooter.Foreground = new SolidColorBrush(Color.FromArgb(255, 133, 208, 255)); // Bright blue
+            _buildFooter.Text = $" {_build}s ";
+            _buildFooter.Background = new SolidColorBrush(Color.FromArgb(80, 105, 220, 255));
 #endif
-
-
-            _viper.Children.Add(_versionFooter);
+            _versionSP.Children.Add(_buildText);
+            _versionSP.Children.Add(_buildFooter);
+            _viper.Children.Add(_versionSP);
             _viper.Children.Add(_unfocus);
-            Panel.SetZIndex(_versionFooter, 5);
+            Panel.SetZIndex(_versionSP, 20);
             Panel.SetZIndex(_unfocus, 15);
 
             _screenManager.MenuScreen.PlayClicked += MenuScreen_PlayClicked;
@@ -138,7 +154,7 @@ namespace Viper.Game
 
                     if (e.Key == System.Windows.Input.Key.M)
                     {
-                        _overlayManager.SampleOverlay.FlashMessage();
+
                     }
                 }
 

@@ -61,18 +61,7 @@ namespace Viper.Game.Screens
                 _gameplay.IsHitTestVisible = true;
                 _gameplay.Visibility = Visibility.Visible;
 
-                TextBlock screenIdetifier = new()
-                {
-                    Text = "Viper.Game.Screens.GameplayScreen",
-                    FontSize = 15,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Foreground = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255)),
-                    Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
-                };
-
                 _gameplay.Children.Add(_gameplayManager.Displayer);
-                _gameplay.Children.Add(screenIdetifier);
             }
             else if (_isHidden)
             {
@@ -98,7 +87,7 @@ namespace Viper.Game.Screens
             _isLoaded = false;
             _isHidden = false;
             _gameplay.Children.Clear();
-            _gameplayManager.Stop();
+            _gameplayManager.End();
             _gameplay.IsHitTestVisible = false;
         }
     }

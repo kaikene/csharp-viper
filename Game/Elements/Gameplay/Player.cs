@@ -19,7 +19,7 @@ namespace Viper.Game.Elements.Gameplay
     /// <summary>
     /// Add, remove and manage a player.
     /// </summary>
-    public class Player : IPlayableElements
+    public class Player
     {
         /// <summary>
         /// Triggers when the player dies.
@@ -346,7 +346,7 @@ namespace Viper.Game.Elements.Gameplay
         }
 
         // Changes the direction depending on the key pressed.
-        private void ChangeDirection(object sender, KeyEventArgs e)
+        public void ChangeDirection(object sender, KeyEventArgs e)
         {
             if (e.Key == _inputUp || e.Key == _inputDown || e.Key == _inputLeft || e.Key == _inputRight)
             {

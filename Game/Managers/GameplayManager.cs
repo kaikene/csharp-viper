@@ -74,7 +74,7 @@ namespace Viper.Game.Managers
             }
         }
 
-        public void Start()
+        public void LoadElements()
         {
             if (!_hasStarted)
             {
@@ -164,7 +164,7 @@ namespace Viper.Game.Managers
             }
         }
 
-        public void Stop()
+        public void End()
         {
             _hasStarted = false;
             _manager.Child = null;

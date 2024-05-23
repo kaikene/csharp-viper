@@ -138,15 +138,8 @@ namespace Viper.Screens
                 _testing.Visibility = Visibility.Visible;
                 _testing.Background = lGradient;
 
-                TextBlock screenIdetifier = new()
-                {
-                    Text = "Viper.Game.Screens.TestingScreen",
-                    FontSize = 15,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    Foreground = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255)),
-                    Background = new SolidColorBrush(Color.FromArgb(40, 0, 0, 0)),
-                };
+                _testingSpace.Children.Clear();
+                _testingAdditionalSelector.Children.Clear();
 
                 _playerTest.Click += OnPlayerButtonClick;
 
@@ -474,7 +467,14 @@ namespace Viper.Screens
 
                     addFood.Click += (s, e) =>
                     {
-                        food.Show(tempPlayfield);
+                        try
+                        {
+                            food.Show(tempPlayfield);
+                        }
+                        catch
+                        {
+                            // Already added
+                        }
                     };
 
                     removeFood.Click += (s, e) =>
@@ -515,8 +515,6 @@ namespace Viper.Screens
                     _testingSpace.Children.Add(tempPlayfield);
                     _testingSpace.Children.Add(debugStats);
 
-                    food.Show(tempPlayfield);
-
                     _testingAdditionalSelector.Children.Add(addFood);
                     _testingAdditionalSelector.Children.Add(removeFood);
                     _testingAdditionalSelector.Children.Add(changeColor);
@@ -538,7 +536,7 @@ namespace Viper.Screens
 
                     gm.Player.TickRate = 200;
 
-                    gm.Start();
+                    gm.LoadElements();
 
                     Button start = new()
                     {
@@ -614,7 +612,7 @@ namespace Viper.Screens
 
                     start.Click += (s, e) =>
                     {
-                        gm.Start();
+                        gm.LoadElements();
                     };
 
                     addFood.Click += (s, e) =>
@@ -663,7 +661,7 @@ namespace Viper.Screens
 
                     cleanUp.Click += (s, e) =>
                     {
-                        gm.Stop();
+                        gm.End();
                     };
 
                     _testingAdditionalSelector.Children.Add(start);
@@ -686,7 +684,7 @@ namespace Viper.Screens
                     _testingAdditionalSelector.Children.Clear();
 
                     _testingSpace.Children.Add(screenManager.Displayer);
-                    screenManager.Start();
+                    screenManager.LoadScreens();
 
                     Button start = new()
                     {
@@ -735,12 +733,12 @@ namespace Viper.Screens
 
                     start.Click += (s, e) =>
                     {
-                        screenManager.Start();
+                        screenManager.LoadScreens();
                     };
 
                     cleanUp.Click += (s, e) =>
                     {
-                        screenManager.Stop();
+                        screenManager.End();
                     };
 
                     showMenu.Click += (s, e) =>
@@ -776,7 +774,6 @@ namespace Viper.Screens
                 _testing.Children.Add(_testingSpace);
                 _testing.Children.Add(_testingSelectorSV);
                 _testing.Children.Add(_testingAdditionalSelectorSV);
-                _testing.Children.Add(screenIdetifier);
             }
             else if (_isHidden)
             {

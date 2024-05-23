@@ -94,7 +94,7 @@ namespace Viper.Game.Managers
         /// <summary>
         /// Shows the screen manager and sets events for all instances of the screens.
         /// </summary>
-        public void Start()
+        public void LoadScreens()
         {
             if (!_hasStarted)
             {
@@ -205,7 +205,7 @@ namespace Viper.Game.Managers
             }
         }
 
-        public void Stop()
+        public void End()
         {
             GameplayScreen.Clear();
             MenuScreen.Clear();

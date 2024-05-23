@@ -12,7 +12,7 @@ namespace Viper.Game.Elements.Gameplay
     /// <summary>
     /// Add, remove and manage a food element.
     /// </summary>
-    public class Food : IPlayableElements
+    public class Food
     {
         /// <summary>
         /// Triggers when the color of the food changed.

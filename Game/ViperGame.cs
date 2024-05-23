@@ -19,6 +19,15 @@ namespace Viper.Game
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
+        private Grid _unfocus = new()
+        {
+            Background = new SolidColorBrush(Color.FromArgb(60, 0, 0, 0)),
+            VerticalAlignment = VerticalAlignment.Stretch,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            Opacity = 0,
+            IsHitTestVisible = false,
+        };
+
         public Grid Game
         {
             get
@@ -39,6 +48,8 @@ namespace Viper.Game
         }
 
         private ScreenManager _screenManager = new();
+
+        private OverlayManager _overlayManager = new();
 
         // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
         private TextBlock _versionFooter = new()
@@ -68,21 +79,50 @@ namespace Viper.Game
 
 
             _viper.Children.Add(_versionFooter);
+            _viper.Children.Add(_unfocus);
             Panel.SetZIndex(_versionFooter, 5);
+            Panel.SetZIndex(_unfocus, 15);
 
-            // Settings panel, not done yet.
-            _viper.PreviewKeyDown += (s, e) =>
+            _screenManager.MenuScreen.PlayClicked += MenuScreen_PlayClicked;
+            _screenManager.MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
+            _screenManager.MenuScreen.ExitGame += MenuScreen_ExitGame;
+            _screenManager.NoScreensLeft += NoScreensLeft;
+            _viper.MouseEnter += _viper_MouseEnter;
+            _viper.MouseLeave += _viper_MouseLeave;
+
+            void NoScreensLeft(object sender, EventArgs e)
             {
-                if (e.Key == System.Windows.Input.Key.S)
-                {
+                ExitProgramDialog();
+            }
 
-                }
-            };
+            void _viper_MouseLeave(object sender, MouseEventArgs e)
+            {
+                _unfocus.Opacity = 1;
+                Application.Current.MainWindow.PreviewKeyDown -= OnKeyPress;
+            }
 
-            // Show TestingScreen.
-            Application.Current.MainWindow.PreviewKeyDown += OnCtrlTKeyPress;
+            void _viper_MouseEnter(object sender, MouseEventArgs e)
+            {
+                _unfocus.Opacity = 0;
+                Application.Current.MainWindow.PreviewKeyDown += OnKeyPress;
+            }
 
-            void OnCtrlTKeyPress(object sender, KeyEventArgs e)
+            void MenuScreen_ExitGame(object? sender, EventArgs e)
+            {
+                ExitProgramDialog();
+            }
+
+            void MenuScreen_SettingsClicked(object? sender, EventArgs e)
+            {
+                // Settings logic here.
+            }
+
+            void MenuScreen_PlayClicked(object? sender, EventArgs e)
+            {
+                _screenManager.ShowScreen(ScreenManager.Screens.Gameplay);
+            }
+
+            void OnKeyPress(object sender, KeyEventArgs e)
             {
                 if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
@@ -90,18 +130,46 @@ namespace Viper.Game
                     {
                         _screenManager.ShowScreen(ScreenManager.Screens.Testing);
                     }
+
+                    if (e.Key == System.Windows.Input.Key.S)
+                    {
+                        // Settings logic here.
+                    }
+
+                    if (e.Key == System.Windows.Input.Key.M)
+                    {
+                        _overlayManager.SampleOverlay.FlashMessage();
+                    }
+                }
+
+                if (e.Key == System.Windows.Input.Key.Escape)
+                {
+                    _screenManager.GoBack();
                 }
             }
 
             _viper.Children.Add(_screenManager.Displayer);
+            _viper.Children.Add(_overlayManager.Displayer);
 
-            _screenManager.Start();
+            _screenManager.LoadScreens();
+            _overlayManager.LoadOverlays();
             _screenManager.ShowScreen(ScreenManager.Screens.Menu);
+        }
+
+        private void ExitProgramDialog()
+        {
+            MessageBoxResult result = MessageBox.Show("Estas seguro de que quieres salir?", "Salir", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                CleanUp();
+                Application.Current.Shutdown();
+            }
         }
 
         public void CleanUp()
         {
-            _screenManager.CleanUp();
+            _screenManager.End();
             _viper.Children.Clear();
         }
     }

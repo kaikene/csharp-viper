@@ -8,7 +8,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using Viper.Game.Animations;
 using Viper.Game.Events;
 using Viper.Game.Screens;
 using Viper.Screens;
@@ -20,9 +22,19 @@ namespace Viper.Game.Managers
     /// </summary>
     public class ScreenManager
     {
-        private bool _hasStarted = false;
+        private bool _isInitialized = false;
 
-        public EventHandler<ScreenChangedEventArgs>? ScreenChanged;
+        public bool IsInitialized
+        {
+            get
+            {
+                return _isInitialized;
+            }
+        }
+
+        public EventHandler<SMScreenChangedEventArgs>? ScreenChanged;
+
+        public EventHandler<SMScreenHistoryChangedEventArgs>? HistoryChanged;
 
         public EventHandler? NoScreensLeft;
 
@@ -64,6 +76,9 @@ namespace Viper.Game.Managers
             HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new Thickness(10, 0, 0, 10),
             Content = "Atras",
+            Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+            Foreground = new SolidColorBrush(Colors.White),
+            BorderThickness = new Thickness(2, 2, 2, 2),
             Visibility = Visibility.Hidden,
         };
 
@@ -86,6 +101,7 @@ namespace Viper.Game.Managers
             Gameplay,
             Menu,
             Testing,
+            None,
         }
 
         // A history of each screen you went through, used to determine who is the previous screen when you want to go back.
@@ -96,13 +112,15 @@ namespace Viper.Game.Managers
         /// </summary>
         public void LoadScreens()
         {
-            if (!_hasStarted)
+            if (!_isInitialized)
             {
-                _hasStarted = true;
+                _isInitialized = true;
 
                 _backButton.Click += _backButton_Click;
+                _backButton.MouseLeave += Element_MouseLeave;
+                _backButton.MouseEnter += Element_MouseEnter;
 
-                Panel.SetZIndex(_backButton, 10);
+                Panel.SetZIndex(_backButton, 1);
 
                 _screen.Children.Add(_startedText);
                 _screen.Children.Add(_backButton);
@@ -110,6 +128,16 @@ namespace Viper.Game.Managers
                 _screen.Children.Add(GameplayScreen.Container);
                 _screen.Children.Add(TestingScreen.Container);
             }
+        }
+
+        private void Element_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+        }
+
+        private void Element_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
         }
 
         private void _backButton_Click(object sender, RoutedEventArgs e)
@@ -136,6 +164,7 @@ namespace Viper.Game.Managers
                 }
 
                 _screenHistory.RemoveAt(_screenHistory.Count - 1);
+                HistoryChanged?.Invoke(this, new SMScreenHistoryChangedEventArgs(_screenHistory.Count));
 
                 if (_screenHistory.Count == 1)
                 {
@@ -150,7 +179,7 @@ namespace Viper.Game.Managers
 
         public void ShowScreen(Screens screen, bool isReturning = false)
         {
-            if (_hasStarted)
+            if (_isInitialized)
             {
                 _startedText.Visibility = Visibility.Hidden;
 
@@ -158,7 +187,7 @@ namespace Viper.Game.Managers
                 // If the current screen is already this one, then prevent it from showing it again.
                 if (_screenHistory.Count == 0 || _screenHistory[_screenHistory.Count - 1] != screen)
                 {
-                    ScreenChanged?.Invoke(this, new ScreenChangedEventArgs(screen));
+                    ScreenChanged?.Invoke(this, new SMScreenChangedEventArgs(screen));
 
                     // Remove the screen being shown before showing a new screen. 
                     if (_screenHistory.Count > 0)
@@ -195,6 +224,7 @@ namespace Viper.Game.Managers
                     if (!isReturning)
                     {
                         _screenHistory.Add(screen);
+                        HistoryChanged?.Invoke(this, new SMScreenHistoryChangedEventArgs(_screenHistory.Count));
                     }
                 }
 
@@ -210,11 +240,19 @@ namespace Viper.Game.Managers
             GameplayScreen.Clear();
             MenuScreen.Clear();
             TestingScreen.Clear();
-            _startedText.Visibility = Visibility.Visible;
             _screen.Children.Clear();
             _screenHistory.Clear();
-            _hasStarted = false;
+
+            _startedText.Visibility = Visibility.Visible;
+
+            _isInitialized = false;
+
             _backButton.Click -= _backButton_Click;
+            _backButton.MouseLeave -= Element_MouseLeave;
+            _backButton.MouseEnter -= Element_MouseEnter;
+
+            HistoryChanged?.Invoke(this, new SMScreenHistoryChangedEventArgs(_screenHistory.Count));
+            ScreenChanged?.Invoke(this, new SMScreenChangedEventArgs(Screens.None));
         }
     }
 }

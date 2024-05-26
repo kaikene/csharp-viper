@@ -1,8 +1,11 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using Viper.Game.Animations;
 using Viper.Game.Interfaces;
 
 namespace Viper.Game.Screens
@@ -41,9 +44,17 @@ namespace Viper.Game.Screens
         /// </summary>
         public Grid Container { get { return _menu; } }
 
-        private bool _isLoaded = false, _isHidden = false;
+        private bool _isHidden = false;
 
-        public bool IsLoaded { get { return _isLoaded; } }
+        private bool _isInitialized = false;
+
+        public bool IsInitialized
+        {
+            get
+            {
+                return _isInitialized;
+            }
+        }
 
         public bool IsHidden { get { return _isHidden; } }
 
@@ -52,9 +63,9 @@ namespace Viper.Game.Screens
         /// </summary>
         public void Show()
         {
-            if (!_isLoaded)
+            if (!_isInitialized)
             {
-                _isLoaded = true;
+                _isInitialized = true;
                 _menu.IsHitTestVisible = true;
                 _menu.Visibility = Visibility.Visible;
 
@@ -78,7 +89,12 @@ namespace Viper.Game.Screens
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
                     Content = "Jugar",
+                    Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    BorderThickness = new Thickness(2, 2, 2, 2),
+                    RenderTransform = new TranslateTransform(30, 0),
                     Height = BUTTON_HEIGHT,
+                    Opacity = 0,
                 };
 
                 Button settingsButton = new()
@@ -87,7 +103,12 @@ namespace Viper.Game.Screens
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
                     Content = "Ajustes",
+                    Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    BorderThickness = new Thickness(2, 2, 2, 2),
+                    RenderTransform = new TranslateTransform(30, 0),
                     Height = BUTTON_HEIGHT,
+                    Opacity = 0,
                 };
 
                 Button exitButton = new()
@@ -96,7 +117,12 @@ namespace Viper.Game.Screens
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION),
                     Content = "Salir",
+                    Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    BorderThickness = new Thickness(2, 2, 2, 2),
+                    RenderTransform = new TranslateTransform(30, 0),
                     Height = BUTTON_HEIGHT,
+                    Opacity = 0,
                 };
 
                 buttonStackPanel.Children.Add(startButton);
@@ -120,6 +146,33 @@ namespace Viper.Game.Screens
                     ExitGame?.Invoke(this, e);
                 };
 
+                startButton.MouseEnter += Element_MouseEnter;
+                startButton.MouseLeave += Element_MouseLeave;
+
+                settingsButton.MouseEnter += Element_MouseEnter;
+                settingsButton.MouseLeave += Element_MouseLeave;
+
+                exitButton.MouseEnter += Element_MouseEnter;
+                exitButton.MouseLeave += Element_MouseLeave;
+
+                async void ButtonApearAnimation()
+                {
+                    Animate.Position(startButton, new TranslateTransform(0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                    Animate.Opacity(startButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+
+                    await Task.Delay(20);
+
+                    Animate.Position(settingsButton, new TranslateTransform(0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                    Animate.Opacity(settingsButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+
+                    await Task.Delay(20);
+
+                    Animate.Position(exitButton, new TranslateTransform(0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                    Animate.Opacity(exitButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                }
+
+                ButtonApearAnimation();
+
                 _menu.Children.Add(buttonStackPanel);
             }
             else if (_isHidden)
@@ -130,9 +183,19 @@ namespace Viper.Game.Screens
             }
         }
 
+        private void Element_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+        }
+
+        private void Element_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+        }
+
         public void Hide()
         {
-            if (_isLoaded)
+            if (_isInitialized)
             {
                 _menu.Visibility = Visibility.Hidden;
                 _menu.IsHitTestVisible = false;
@@ -144,7 +207,7 @@ namespace Viper.Game.Screens
         {
             _menu.Children.Clear();
             _menu.Visibility = Visibility.Hidden;
-            _isLoaded = false;
+            _isInitialized = false;
             _menu.IsHitTestVisible = false;
         }
     }

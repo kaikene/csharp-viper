@@ -60,7 +60,6 @@ namespace Viper.Game
 
         private OverlayManager _overlayManager = new();
 
-        // Version footer that displays... the game version!, takes multiple forms depending on the configuration.
         private TextBlock _buildFooter = new()
         {
             Foreground = new SolidColorBrush(Color.FromArgb(255, 10, 10, 10)),
@@ -81,7 +80,7 @@ namespace Viper.Game
             Height = 17,
         };
 
-        // Main method to start the program somewhere.
+        // Main method to start the game.
         public void Start()
         {
             _buildText.Text = " Build ";
@@ -96,8 +95,15 @@ namespace Viper.Game
             _versionSP.Children.Add(_buildFooter);
             _viper.Children.Add(_versionSP);
             _viper.Children.Add(_unfocus);
-            Panel.SetZIndex(_versionSP, 20);
-            Panel.SetZIndex(_unfocus, 15);
+
+            // Panel index reminder:
+            // 1 = Above anything that doesnt have its index defined.
+            // 2 to 4 = Above 1 but still below overlays.
+            // 5 = Reserved for OverlayManager, should not be used by anything else.
+            // 6 to 9 = For overlays or anything that needs to stay visible on screen, use these for simple notifications/pop-ups (6, 7, 8) or almost full screen dialogs that require attention (9).
+            // 10+ = Above everything.
+            Panel.SetZIndex(_versionSP, 11);
+            Panel.SetZIndex(_unfocus, 10);
 
             _screenManager.MenuScreen.PlayClicked += MenuScreen_PlayClicked;
             _screenManager.MenuScreen.SettingsClicked += MenuScreen_SettingsClicked;
@@ -105,6 +111,18 @@ namespace Viper.Game
             _screenManager.NoScreensLeft += NoScreensLeft;
             _viper.MouseEnter += _viper_MouseEnter;
             _viper.MouseLeave += _viper_MouseLeave;
+            Application.Current.MainWindow.Deactivated += MainWindow_Deactivated;
+            Application.Current.MainWindow.Activated += MainWindow_Activated;
+
+            void MainWindow_Deactivated(object? sender, EventArgs e)
+            {
+                _unfocus.Opacity = 1;
+            }
+
+            void MainWindow_Activated(object? sender, EventArgs e)
+            {
+                _unfocus.Opacity = 0;
+            }
 
             void NoScreensLeft(object sender, EventArgs e)
             {
@@ -113,13 +131,11 @@ namespace Viper.Game
 
             void _viper_MouseLeave(object sender, MouseEventArgs e)
             {
-                _unfocus.Opacity = 1;
                 Application.Current.MainWindow.PreviewKeyDown -= OnKeyPress;
             }
 
             void _viper_MouseEnter(object sender, MouseEventArgs e)
             {
-                _unfocus.Opacity = 0;
                 Application.Current.MainWindow.PreviewKeyDown += OnKeyPress;
             }
 

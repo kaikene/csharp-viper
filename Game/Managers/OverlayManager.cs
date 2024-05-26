@@ -19,22 +19,30 @@ namespace Viper.Game.Managers
 
         public Grid Displayer { get { return _overlay; } }
 
-        private bool _hasStarted = false;
+        private bool _isInitialized = false;
+
+        public bool IsInitialized
+        {
+            get
+            {
+                return _isInitialized;
+            }
+        }
 
         public void LoadOverlays()
         {
-            if (!_hasStarted)
+            if (!_isInitialized)
             {
-                _hasStarted = true;
+                _isInitialized = true;
             }
         }
 
         public void End()
         {
-            if (_hasStarted)
+            if (_isInitialized)
             {
                 _overlay.Children.Clear();
-                _hasStarted = false;
+                _isInitialized = false;
             }
         }
     }

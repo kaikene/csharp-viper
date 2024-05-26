@@ -67,6 +67,11 @@ namespace Viper.Game.Elements.Gameplay
         public event EventHandler<PlayerColorChangedEventArgs>? ColorChanged;
 
         /// <summary>
+        /// Triggers when the player being showed is set as automatic
+        /// </summary>
+        public event EventHandler<PlayerIsAutomaticEventArgs>? AutomatizationChanged;
+
+        /// <summary>
         /// Used to determine the direction of the player.
         /// </summary>
         public enum Direction
@@ -75,6 +80,7 @@ namespace Viper.Game.Elements.Gameplay
             Down,
             Left,
             Right,
+            None,
         }
 
         private bool _isPlayerMoving; // bool used for the player loop, if its false, then the loop ends.
@@ -110,11 +116,11 @@ namespace Viper.Game.Elements.Gameplay
         /// <summary>
         /// Shows the amount of inputs that got buffered in case the player presses a lot of keys in a short time.
         /// </summary>
-        public int DirectionsBuffered
+        public List<Direction> DirectionsBuffered
         {
             get
             {
-                return _directionBuffer.Count();
+                return _directionBuffer;
             }
         }
 
@@ -246,13 +252,13 @@ namespace Viper.Game.Elements.Gameplay
         /// </summary>
         public bool CanTriggerValueEvents = false;
 
-        private Key _inputUp = Key.Up;
+        private Key _inputUp;
 
-        private Key _inputDown = Key.Down;
+        private Key _inputDown;
 
-        private Key _inputLeft = Key.Left;
+        private Key _inputLeft;
 
-        private Key _inputRight = Key.Right;
+        private Key _inputRight;
 
         public Key InputUp
         {
@@ -310,6 +316,18 @@ namespace Viper.Game.Elements.Gameplay
             }
         }
 
+        private bool _automatic = false;
+
+        public bool IsAutomatic
+        {
+            get
+            {
+                return _automatic;
+            }
+        }
+
+        private bool _loopAutoDirections = false;
+
         // Why a panel?: Player needs to know the size and move arround on where it is, putting this into something that its not a panel causes weird things
         // so i will be restricting this so the player can only be added to a panel.
         private Panel _parent; 
@@ -318,7 +336,7 @@ namespace Viper.Game.Elements.Gameplay
         /// Adds a player to the specififed panel.
         /// </summary>
         /// <returns></returns>
-        public void Show(Panel parent)
+        public void Show(Panel parent, List<Direction>? autoPresetDirections = null, bool loopAutoDirections = false)
         {
             if (!_isShowing)
             {
@@ -327,7 +345,6 @@ namespace Viper.Game.Elements.Gameplay
                 IncreasePlayerSize();
 
                 Application.Current.MainWindow.PreviewKeyDown += ChangeDirection;
-
                 Application.Current.Exit += Current_Exit;
 
                 BodyElementsCountChanged?.Invoke(this, new PlayerBodyElementsCountChangedEventArgs(_playerBody.Count));
@@ -338,10 +355,26 @@ namespace Viper.Game.Elements.Gameplay
                 ColorChanged?.Invoke(this, new PlayerColorChangedEventArgs(_color));
 
                 _parent.Children.Add(_playerBody[0]);
-            }
-            else
-            {
-                throw new Exception("Player is already being shown!");
+
+                if (autoPresetDirections != null)
+                {
+                    _automatic = true;
+                    _loopAutoDirections = loopAutoDirections;
+                    AutomatizationChanged?.Invoke(this, new PlayerIsAutomaticEventArgs(_automatic));
+                    Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
+                    _directionBuffer = autoPresetDirections;
+
+                    if (!_isPlayerMoving)
+                    {
+                        _isPlayerMoving = true;
+                        IsMovingChanged?.Invoke(this, new PlayerMovingChangedEventArgs(_isPlayerMoving));
+                        PlayerMovementLoop();
+                    }
+                }
+                else
+                {
+                    AutomatizationChanged?.Invoke(this, new PlayerIsAutomaticEventArgs(false));
+                }
             }
         }
 
@@ -395,19 +428,24 @@ namespace Viper.Game.Elements.Gameplay
             double currentSavedHeight = _parent.Height;
             double currentSavedWidth = _parent.Width;
 
+            int automaticDirectionIndexCounter = 0;
+
+            Direction currentDirection = Direction.None;
+
             CheckMaxUsableSpace();
 
             void CheckMaxUsableSpace()
             {
                 if (playfieldLimitY % SIZE != 0)
                 {
-                    playfieldLimitY--;
+                    playfieldLimitY = (int)Math.Round(playfieldLimitY / SIZE) * SIZE;
+
                     CheckMaxUsableSpace();
                 }
 
                 if (playfieldLimitX % SIZE != 0)
                 {
-                    playfieldLimitX--;
+                    playfieldLimitX = ((int)Math.Round(playfieldLimitX / SIZE) * SIZE) - SIZE;
                     CheckMaxUsableSpace();
                 }
             }
@@ -416,23 +454,48 @@ namespace Viper.Game.Elements.Gameplay
             {
                 for (int i = 0; i < _playerBody.Count; i++)
                 {
-                    // Direction buffer updater, moves directions "forward" so the List gets cleaned until just 1 direction is saved
-                    if (_directionBuffer.Count > 1)
+                    if (!_automatic)
                     {
-                        for (int x = 0; x < _directionBuffer.Count; x++)
+                        // Direction buffer updater, moves directions "forward" so the List gets cleaned until just 1 direction is saved
+                        if (_directionBuffer.Count > 1)
                         {
-                            if (x + 1 != _directionBuffer.Count)
+                            for (int x = 0; x < _directionBuffer.Count; x++)
                             {
-                                _directionBuffer[x] = _directionBuffer[x + 1]; // db1 = db2, db2 = db3, db3 = db4, etc...
+                                if (x + 1 != _directionBuffer.Count)
+                                {
+                                    _directionBuffer[x] = _directionBuffer[x + 1]; // db1 = db2, db2 = db3, db3 = db4, etc...
+                                }
+                                else
+                                {
+                                    _directionBuffer.RemoveAt(x); // If we reach the last element of the list, remove it.
+                                }
                             }
-                            else
+                        }
+
+                        currentDirection = _directionBuffer[0];
+                    }
+                    else
+                    {
+                        // If the mode is set to automatic, then we just go through each direction and go back to 0 when we reach the end.
+                        if (_directionBuffer.Count > 1)
+                        {
+                            currentDirection = _directionBuffer[automaticDirectionIndexCounter];
+
+                            automaticDirectionIndexCounter++;
+
+                            if (automaticDirectionIndexCounter == _directionBuffer.Count - 1)
                             {
-                                _directionBuffer.RemoveAt(x); // If we reach the last element of the list, remove it.
+                                if (_loopAutoDirections)
+                                {
+                                    automaticDirectionIndexCounter = 0;
+                                }
+                                else
+                                {
+                                    automaticDirectionIndexCounter--;
+                                }
                             }
                         }
                     }
-
-                    Direction currentDirection = _directionBuffer[0];
 
                     if (currentSavedHeight != _parent.Height)
                     {
@@ -452,50 +515,55 @@ namespace Viper.Game.Elements.Gameplay
                         currentSavedWidth = _parent.Width;
                     }
 
+                    switch (currentDirection)
+                    {
+                        case Direction.Up:
 
-                    if (currentDirection == Direction.Up)
-                    {
-                        if (currentPosY - SIZE < 0)
-                        {
-                            newPosY = playfieldLimitY - SIZE; // Because of aligments, elements can still appear slightly out of bounds, this makes sure that it doesnt happend by avoiding the last possible bottom Y axis.
-                        }
-                        else
-                        {
-                            newPosY = currentPosY - SIZE;
-                        }
-                    }
-                    else if (currentDirection == Direction.Down)
-                    {
-                        if (currentPosY + SIZE > playfieldLimitY - SIZE)
-                        {
-                            newPosY = 0;
-                        }
-                        else
-                        {
-                            newPosY = currentPosY + SIZE;
-                        }
-                    }
-                    else if (currentDirection == Direction.Left)
-                    {
-                        if (currentPosX - SIZE < 0)
-                        {
-                            newPosX = playfieldLimitX - SIZE; // Same comment as above but avoids the last far right X axis.
-                        }
-                        else
-                        {
-                            newPosX = currentPosX - SIZE;
-                        }
-                    }
-                    else if (currentDirection == Direction.Right)
-                    {
-                        if (currentPosX + SIZE > playfieldLimitX - SIZE)
-                        {
-                            newPosX = 0;
-                        }
-                        else
-                        {
-                            newPosX = currentPosX + SIZE;
-                        }
+                            if (currentPosY - SIZE < 0)
+                            {
+                                newPosY = playfieldLimitY - SIZE; // Because of aligments, elements can still appear slightly out of bounds, this makes sure that it doesnt happend by avoiding the last possible bottom Y axis.
+                            }
+                            else
+                            {
+                                newPosY = currentPosY - SIZE;
+                            }
+                            break;
+
+                        case Direction.Down:
+
+                            if (currentPosY + SIZE > playfieldLimitY - SIZE)
+                            {
+                                newPosY = 0;
+                            }
+                            else
+                            {
+                                newPosY = currentPosY + SIZE;
+                            }
+                            break;
+
+                        case Direction.Left:
+
+                            if (currentPosX - SIZE < 0)
+                            {
+                                newPosX = playfieldLimitX - SIZE; // Same comment as above but avoids the last far right X axis.
+                            }
+                            else
+                            {
+                                newPosX = currentPosX - SIZE;
+                            }
+                            break;
+
+                        case Direction.Right:
+
+                            if (currentPosX + SIZE > playfieldLimitX - SIZE)
+                            {
+                                newPosX = 0;
+                            }
+                            else
+                            {
+                                newPosX = currentPosX + SIZE;
+                            }
+                            break;
                     }
 
                     _playerXpos = newPosX;
@@ -505,6 +573,26 @@ namespace Viper.Game.Elements.Gameplay
 
                     // Apply new position to the last player element
                     _playerBody[i].RenderTransform = new TranslateTransform(newPosX, newPosY);
+
+                    if (currentPosY < 0)
+                    {
+                        newPosY = playfieldLimitY - SIZE;
+                    }
+
+                    if (currentPosY > playfieldLimitY - SIZE)
+                    {
+                        newPosY = 0;
+                    }
+
+                    if (currentPosX < 0)
+                    {
+                        newPosX = playfieldLimitX - SIZE;
+                    }
+
+                    if (currentPosX > playfieldLimitX - SIZE)
+                    {
+                        newPosX = 0;
+                    }
 
                     currentPosY = newPosY;
                     currentPosX = newPosX;
@@ -558,7 +646,7 @@ namespace Viper.Game.Elements.Gameplay
                 RenderTransform = new TranslateTransform(-30, -30), // Spawn out of bounds.
             };
 
-            Panel.SetZIndex(playerBodyPart, 3);
+            Panel.SetZIndex(playerBodyPart, 1);
 
             _playerBody.Add(playerBodyPart);
 
@@ -613,7 +701,16 @@ namespace Viper.Game.Elements.Gameplay
             if (_playerBody.Count > 0)
             {
                 _isPlayerMoving = false;
-                _directionBuffer.Clear();
+
+                try
+                {
+                    _directionBuffer.Clear();
+                }
+                catch
+                {
+                    // idk.
+                }
+
                 _playerXpos = 0;
                 _playerYpos = 0;
 
@@ -624,6 +721,8 @@ namespace Viper.Game.Elements.Gameplay
 
                 if (doRemoval) // All remaining values, events and lists will be reset and the player will be removed from the panel.
                 {
+                    _automatic = false;
+
                     foreach (Rectangle playerBody in _playerBody)
                     {
                         _parent.Children.Remove(playerBody);

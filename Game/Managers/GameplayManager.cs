@@ -23,21 +23,33 @@ namespace Viper.Game.Managers
 
         private double? _pfSize = null;
 
-        private double? _dpSize = null;
+        public double? PlayfieldSize
+        {
+            get
+            {
+                return _pfSize;
+            }
+        }
 
         private int _points = 0;
 
-        public EventHandler<PlayerPointChangedEventArgs>? PointsChanged;
+        public EventHandler<GMPointChangedEventArgs>? PointsChanged;
+
+        public EventHandler<GMFoodAmountChangedEventArgs>? FoodAmountChanged;
+
+        public EventHandler<GMPlayfieldSizeChangedEventArgs>? PlayfieldSizeChanged;
 
         public int Points { get { return _points; } }
 
-        private bool _hasStarted = false;
+        private bool _isInitialized = false;
 
-        private Viewbox _manager = new()
+        public bool IsInitialized
         {
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Center,
-        };
+            get
+            {
+                return _isInitialized;
+            }
+        }
 
         private Player _player = new();
 
@@ -66,19 +78,19 @@ namespace Viper.Game.Managers
             Background = new SolidColorBrush(Color.FromArgb(120,0,0,0)),
         };
 
-        public Viewbox Displayer
+        public Grid Displayer
         {
             get
             {
-                return _manager;
+                return _playfield;
             }
         }
 
         public void LoadElements()
         {
-            if (!_hasStarted)
+            if (!_isInitialized)
             {
-                _hasStarted = true;
+                _isInitialized = true;
 
                 _player.PositionChanged += _player_PositionChanged;
 
@@ -89,16 +101,7 @@ namespace Viper.Game.Managers
                     _playfield.Width = (double)(_pfSize * Player.SIZE);
                 }
 
-                if (_dpSize == null)
-                {
-                    _dpSize = DEFAULT_DISPLAYER_SIZE;
-                    _manager.Height = (double)_dpSize;
-                    _manager.Width = (double)_dpSize;
-                }
-
                 _player.Died += _player_Died;
-
-                _manager.Child = _playfield;
 
                 _player.Show(_playfield);
             }            
@@ -158,6 +161,7 @@ namespace Viper.Game.Managers
 
                     _player.IncreasePlayerSize();
                     _points++;
+                    PointsChanged?.Invoke(this, new GMPointChangedEventArgs(_points));
 
                     break;
                 }
@@ -166,9 +170,9 @@ namespace Viper.Game.Managers
 
         public void End()
         {
-            _hasStarted = false;
-            _manager.Child = null;
+            _isInitialized = false;
             _points = 0;
+            PointsChanged?.Invoke(this, new GMPointChangedEventArgs(_points));
             _player.Remove();
 
             foreach (Food food in _foods)
@@ -176,27 +180,31 @@ namespace Viper.Game.Managers
                 food.Remove();
             }
 
+            _playfield.Children.Clear();
             _foods.Clear();
         }
 
         public void AddFood()
         {
-            if (_hasStarted)
+            if (_isInitialized)
             {
                 Food food = new();
 
                 food.Show(_playfield);
 
                 _foods.Add(food);
+
+                FoodAmountChanged?.Invoke(this, new GMFoodAmountChangedEventArgs(_foods.Count));
             }
         }
 
         public void RemoveFood()
         {
-            if (_hasStarted && _foods.Count > 0)
+            if (_isInitialized && _foods.Count > 0)
             {
                 _foods[_foods.Count - 1].Remove();
                 _foods.RemoveAt(_foods.Count - 1);
+                FoodAmountChanged?.Invoke(this, new GMFoodAmountChangedEventArgs(_foods.Count));
             }
         }
 
@@ -205,13 +213,14 @@ namespace Viper.Game.Managers
             _pfSize = newGridSize;
             _playfield.Height = newGridSize * Player.SIZE;
             _playfield.Width = newGridSize * Player.SIZE;
+            PlayfieldSizeChanged.Invoke(this, new GMPlayfieldSizeChangedEventArgs(newGridSize));
         }
 
-        public void ChangeDisplayerSize(int newHeightAndWidth)
+        public void ChangePlayfieldBrush(Brush newBrush)
         {
-            _dpSize = newHeightAndWidth;
-            _manager.Width = newHeightAndWidth;
-            _manager.Height = newHeightAndWidth;
+            Brush shush = new SolidColorBrush();
+
+            _playfield.Background = newBrush;
         }
     }
 }

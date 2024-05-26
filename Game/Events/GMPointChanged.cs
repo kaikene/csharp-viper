@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the AmountChanged event.
+    /// Provides data for when Viper.Game.Managers.GameplayManager triggers the PointChanged event.
     /// </summary>
-    public class PlayfieldAmountChangedEventArgs : EventArgs
+    public class GMPointChangedEventArgs : EventArgs
     {
         /// <summary>
         /// Return the new tick rate value.
         /// </summary>
-        public int NewAmount { get; }
+        public int Points { get; }
 
-        public PlayfieldAmountChangedEventArgs(int amount)
+        public GMPointChangedEventArgs(int amount)
         {
-            NewAmount = amount;
+            Points = amount;
         }
     }
 }

@@ -11,14 +11,14 @@ namespace Viper.Game.Events
     /// <summary>
     /// Provides data for when Viper.Game.Managers.ScreenManager triggers the ScreenChanged event.
     /// </summary>
-    public class ScreenChangedEventArgs : EventArgs
+    public class SMScreenChangedEventArgs : EventArgs
     {
         /// <summary>
         /// Returns the new color selected.
         /// </summary>
         public ScreenManager.Screens CurrentScreen { get; }
 
-        public ScreenChangedEventArgs(ScreenManager.Screens screen)
+        public SMScreenChangedEventArgs(ScreenManager.Screens screen)
         {
             CurrentScreen = screen;
         }

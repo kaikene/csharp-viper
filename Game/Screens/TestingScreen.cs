@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using Viper.Game.Animations;
 using Viper.Game.Elements.Gameplay;
@@ -17,6 +18,9 @@ using Viper.Game.Events;
 using Viper.Game.Interfaces;
 using Viper.Game.Managers;
 using Viper.Game.Screens;
+using GradientStop = System.Windows.Media.GradientStop;
+using LinearGradientBrush = System.Windows.Media.LinearGradientBrush;
+using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace Viper.Screens
 {
@@ -189,6 +193,15 @@ namespace Viper.Screens
                     GradientStops = { new GradientStop(Color.FromRgb(Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255))), 0.0), new GradientStop(Color.FromRgb(Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255))), 1.0) },
                 };
 
+                var border = new Border
+                {
+                    Background = new SolidColorBrush(Color.FromArgb(127, 0, 0, 0)),
+                    Width = 300,
+                    Height = 200,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
                 _isInitialized = true;
                 _testing.IsHitTestVisible = true;
                 _testing.Visibility = Visibility.Visible;
@@ -197,6 +210,8 @@ namespace Viper.Screens
                 _testingSpace.Children.Clear();
                 _testingAdditionalSelector.Children.Clear();
                 _testingSpace.Children.Add(_notice);
+
+                _testingSpace.Children.Add(border);
 
                 _clear.Click += OnClearButtonClicked;
                 _playerTest.Click += OnPlayerButtonClick;

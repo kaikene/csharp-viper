@@ -7,6 +7,7 @@ using Viper.Game.Managers;
 using System.Windows.Threading;
 using System.Windows.Input;
 using System.Runtime.Intrinsics;
+using System.Windows.Media.Effects;
 
 namespace Viper.Game
 {
@@ -83,6 +84,8 @@ namespace Viper.Game
         // Main method to start the game.
         public void Start()
         {
+            SettingsManager.CheckIntegrity();
+
             _buildText.Text = " Build ";
 #if DEBUG
             _buildFooter.Text = $" {_build}d ";
@@ -154,6 +157,7 @@ namespace Viper.Game
                 _screenManager.ShowScreen(ScreenManager.Screens.Gameplay);
             }
 
+            // Global keybinds.
             void OnKeyPress(object sender, KeyEventArgs e)
             {
                 if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -165,7 +169,7 @@ namespace Viper.Game
 
                     if (e.Key == System.Windows.Input.Key.S)
                     {
-                        // Settings logic here.
+                        _overlayManager.SettingsOverlay.SettingsShowHide();
                     }
 
                     if (e.Key == System.Windows.Input.Key.M)

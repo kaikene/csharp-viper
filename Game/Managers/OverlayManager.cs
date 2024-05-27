@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Viper.Game.Elements.UI;
 
 namespace Viper.Game.Managers
 {
@@ -29,10 +30,24 @@ namespace Viper.Game.Managers
             }
         }
 
+        private SettingsOverlay _so = new();
+
+        public SettingsOverlay SettingsOverlay
+        {
+            get
+            {
+                return _so;
+            }
+        }
+
         public void LoadOverlays()
         {
             if (!_isInitialized)
             {
+                _overlay.Children.Add(_so.Displayer);
+
+                _so.LoadSettingsElements();
+
                 _isInitialized = true;
             }
         }

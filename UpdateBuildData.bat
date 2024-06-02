@@ -26,5 +26,8 @@ REM Create a C# file named CompileTime.cs
     echo }
 ) > BuildData.cs
 
-echo BuildData.cs updated!
+echo ===============================
+echo BuildData.cs UPDATED!
+echo IN CASE COMPILING FAILS, THEN JUST TRY AGAIN, IM TOO LAZY TO FIGURE OUT A BETTER WAY TO GET BUILD DATES XD.
+echo ===============================
 

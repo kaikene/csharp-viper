@@ -13,7 +13,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using Viper.Game.Animations;
+using Viper.Game.Builders;
 using Viper.Game.Elements.Gameplay;
+using Viper.Game.Elements.UI;
 using Viper.Game.Events;
 using Viper.Game.Interfaces;
 using Viper.Game.Managers;
@@ -26,6 +28,8 @@ namespace Viper.Screens
 {
     public class TestingScreen : IScreenStates
     {
+        private Animate _animate = new();
+
         private bool _isHidden = false;
 
         private bool _isInitialized = false;
@@ -127,6 +131,30 @@ namespace Viper.Screens
             Content = "Food"
         };
 
+        private Button _customElementsTest = new()
+        {
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            Margin = new System.Windows.Thickness(3, 3, 3, 3),
+            Height = 30,
+            Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+            Foreground = new SolidColorBrush(Colors.White),
+            BorderThickness = new Thickness(2, 2, 2, 2),
+            Content = "UI Elements Test"
+        };
+
+        private Button _menuPanelTest = new()
+        {
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            Margin = new System.Windows.Thickness(3, 3, 3, 3),
+            Height = 30,
+            Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+            Foreground = new SolidColorBrush(Colors.White),
+            BorderThickness = new Thickness(2, 2, 2, 2),
+            Content = "MenuButtonPanel"
+        };
+
         private Button _gameplayManagerTest = new()
         {
             VerticalAlignment = System.Windows.VerticalAlignment.Top,
@@ -193,15 +221,6 @@ namespace Viper.Screens
                     GradientStops = { new GradientStop(Color.FromRgb(Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255))), 0.0), new GradientStop(Color.FromRgb(Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255)), Convert.ToByte(rnd.Next(0, 255))), 1.0) },
                 };
 
-                var border = new Border
-                {
-                    Background = new SolidColorBrush(Color.FromArgb(127, 0, 0, 0)),
-                    Width = 300,
-                    Height = 200,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                };
-
                 _isInitialized = true;
                 _testing.IsHitTestVisible = true;
                 _testing.Visibility = Visibility.Visible;
@@ -211,14 +230,14 @@ namespace Viper.Screens
                 _testingAdditionalSelector.Children.Clear();
                 _testingSpace.Children.Add(_notice);
 
-                _testingSpace.Children.Add(border);
-
                 _clear.Click += OnClearButtonClicked;
                 _playerTest.Click += OnPlayerButtonClick;
                 _foodTest.Click += OnFoodtestClick;
                 _gameplayManagerTest.Click += OnGameplayManagerClick;
                 _screenManagerTest.Click += OnScreenManagerClick;
                 _gameplayScreenTest.Click += _gameplayScreenTest_Click;
+                _customElementsTest.Click += OnUITestClicked;
+                _menuPanelTest.Click += OnMenuPanelClick;
 
                 _clear.MouseLeave += Element_MouseLeave;
                 _playerTest.MouseLeave += Element_MouseLeave;
@@ -237,6 +256,8 @@ namespace Viper.Screens
                 _testingSelector.Children.Add(_clear);
                 _testingSelector.Children.Add(_playerTest);
                 _testingSelector.Children.Add(_foodTest);
+                _testingSelector.Children.Add(_customElementsTest);
+                _testingSelector.Children.Add(_menuPanelTest);
                 _testingSelector.Children.Add(_gameplayManagerTest);
                 _testingSelector.Children.Add(_screenManagerTest);
                 _testingSelector.Children.Add(_gameplayScreenTest);
@@ -864,14 +885,132 @@ namespace Viper.Screens
             _testingAdditionalSelector.Children.Add(changeTempPlayfieldHeightSize);
             _testingAdditionalSelector.Children.Add(changeTempPlayfieldWidthSize);
         }
+
+        private void OnUITestClicked(Object Sender, RoutedEventArgs e)
+        {
+            _testingSpace.Children.Clear();
+            _testingAdditionalSelector.Children.Clear();
+
+            int counter = 0;
+
+            StackPanel testThing = new()
+            {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Width = 200,
+            };
+
+            StackPanel debugStats = new()
+            {
+                VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Width = 300,
+            };
+
+            Button addElement = new()
+            {
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                Height = 25,
+                Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new Thickness(2, 2, 2, 2),
+                Content = "Add element to ComboBox"
+            };
+
+            Button removeElement = new()
+            {
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                Height = 25,
+                Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new Thickness(2, 2, 2, 2),
+                Content = "Remove element from ComboBox"
+            };
+
+            CustomComboBox combo = new();
+            CustomCheckBox check = new();
+            CustomButton button = new();
+            CustomSlider slider = new();
+
+            TextBlock testDebugComBoxSel = new() { Text = $"ComboBox selection: {combo.SelectedElementName} | Index: {combo.SelectedElementIndex}", Foreground = new SolidColorBrush(Colors.White), };
+            TextBlock testDebugCheBoxSta = new() { Text = $"Is checked: {check.State}", Foreground = new SolidColorBrush(Colors.White), };
+
+            StackPanel cmb = combo.NewComboBox("This is a ComboBox with nothing selected");
+            StackPanel cb = check.NewCheckBox("This is a checkBox");
+            StackPanel bt = button.NewButton("This is a button");
+
+            cb.Margin = new Thickness(0, 5, 0, 5);
+            cmb.Margin = new Thickness(0, 5, 0, 5);
+            bt.Margin = new Thickness(0, 5, 0, 5);
+
+            testThing.Children.Add(cmb);
+            testThing.Children.Add(cb);
+            testThing.Children.Add(bt);
+            testThing.Children.Add(slider.NewSlider());
+
+            addElement.Click += (s, e) =>
+            {
+                Random rnd = new();
+                combo.AddElement($"Test {rnd.Next(0, 1000)}");
+            };
+
+            removeElement.Click += (s, e) =>
+            {
+                if (combo.ElementAmount != 0)
+                {
+                    combo.RemoveAt(combo.ElementAmount - 1);
+                }
+            };
+
+            combo.SelectionChanged += (s, e) =>
+            {
+                testDebugComBoxSel.Text = $"ComboBox selection: {e.Selection} | Index: {e.SelectionIndex}";
+            };
+
+            check.StateChanged += (s, e) =>
+            {
+                testDebugCheBoxSta.Text = $"Is CheckBox checked: {e.State}";
+            };
+
+            button.Clicked += (s, e) =>
+            {
+                counter++;
+
+                button.ButtonText = $"Button clicked {counter} times!";
+            };
+
+            debugStats.Children.Add(testDebugCheBoxSta);
+            debugStats.Children.Add(testDebugComBoxSel);
+
+            _testingSpace.Children.Add(testThing);
+            _testingSpace.Children.Add(debugStats);
+
+            _testingAdditionalSelector.Children.Add(addElement);
+            _testingAdditionalSelector.Children.Add(removeElement);
+        }
+
+        private void OnMenuPanelClick(Object sender, RoutedEventArgs e)
+        {
+            _testingSpace.Children.Clear();
+            _testingAdditionalSelector.Children.Clear();
+
+            MenuButtonsPanel panel = new();
+
+            _testingSpace.Children.Add(panel.NewMenuPanel());
+        }
+
         private void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
         {
             _testingSpace.Children.Clear();
             _testingAdditionalSelector.Children.Clear();
 
-            GameplayManager gm = new();
+            GameplaySession gm = new();
 
-            int pfSize = GameplayManager.DEFAULT_PLAYFIELD_SIZE, dpSize = GameplayManager.DEFAULT_DISPLAYER_SIZE;
+            int pfSize = GameplaySession.DEFAULT_PLAYFIELD_SIZE, dpSize = GameplaySession.DEFAULT_DISPLAYER_SIZE;
 
             _testingSpace.Children.Add(gm.Displayer);
 
@@ -1059,7 +1198,7 @@ namespace Viper.Screens
 
             gm.PlayfieldSizeChanged += (s, e) =>
             {
-                testDebugPS.Text = $"Points {e.Size}";
+                testDebugPS.Text = $"Playfield Size: {e.Size}";
             };
 
             debugStats.Children.Add(testDebugFA);
@@ -1077,7 +1216,7 @@ namespace Viper.Screens
         }
         private void OnScreenManagerClick(object sender, RoutedEventArgs e)
         {
-            ScreenManager sm = new();
+            ScreenSwitcher sm = new();
 
             _testingSpace.Children.Clear();
             _testingAdditionalSelector.Children.Clear();
@@ -1182,17 +1321,17 @@ namespace Viper.Screens
 
             showMenu.Click += (s, e) =>
             {
-                sm.ShowScreen(ScreenManager.Screens.Menu);
+                sm.ShowScreen(ScreenSwitcher.Screens.Menu);
             };
 
             showGameplay.Click += (s, e) =>
             {
-                sm.ShowScreen(ScreenManager.Screens.Gameplay);
+                sm.ShowScreen(ScreenSwitcher.Screens.Gameplay);
             };
 
             showTesting.Click += (s, e) =>
             {
-                sm.ShowScreen(ScreenManager.Screens.Testing);
+                sm.ShowScreen(ScreenSwitcher.Screens.Testing);
             };
 
             sm.ScreenChanged += (s, e) =>
@@ -1398,7 +1537,7 @@ namespace Viper.Screens
 
             addFoodToAll.Click += (s, e) =>
             {
-                foreach (GameplayManager gmL in gs.GameplayManagers)
+                foreach (GameplaySession gmL in gs.GameplayManagers)
                 {
                     gmL.AddFood();
                 }
@@ -1406,7 +1545,7 @@ namespace Viper.Screens
 
             removeFoodFromAll.Click += (s, e) =>
             {
-                foreach (GameplayManager gmL in gs.GameplayManagers)
+                foreach (GameplaySession gmL in gs.GameplayManagers)
                 {
                     gmL.RemoveFood();
                 }
@@ -1414,7 +1553,7 @@ namespace Viper.Screens
 
             randomizePlayerColors.Click += (s, e) =>
             {
-                foreach (GameplayManager gmL in gs.GameplayManagers)
+                foreach (GameplaySession gmL in gs.GameplayManagers)
                 {
                     Random rnd = new();
 
@@ -1455,22 +1594,24 @@ namespace Viper.Screens
 
         private void Element_MouseLeave(object sender, MouseEventArgs e)
         {
-            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+            _animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
         }
 
         private void Element_MouseEnter(object sender, MouseEventArgs e)
         {
-            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+            _animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
         }
 
         public void Clear()
         {
-            _clear.Click += OnClearButtonClicked;
-            _playerTest.Click += OnPlayerButtonClick;
-            _foodTest.Click += OnFoodtestClick;
-            _gameplayManagerTest.Click += OnGameplayManagerClick;
-            _screenManagerTest.Click += OnScreenManagerClick;
-            _gameplayScreenTest.Click += _gameplayScreenTest_Click;
+            _clear.Click -= OnClearButtonClicked;
+            _playerTest.Click -= OnPlayerButtonClick;
+            _foodTest.Click -= OnFoodtestClick;
+            _gameplayManagerTest.Click -= OnGameplayManagerClick;
+            _screenManagerTest.Click -= OnScreenManagerClick;
+            _gameplayScreenTest.Click -= _gameplayScreenTest_Click;
+            _customElementsTest.Click += OnUITestClicked;
+            _menuPanelTest.Click += OnMenuPanelClick;
 
             _clear.MouseLeave -= Element_MouseLeave;
             _playerTest.MouseLeave -= Element_MouseLeave;

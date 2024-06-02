@@ -13,7 +13,7 @@ namespace Viper.Game.Events
     public class PlayerIsAutomaticEventArgs : EventArgs
     {
         /// <summary>
-        /// Returns the current amount of deaths.
+        /// Returns true if the player is currently automatic.
         /// </summary>
         public bool IsAutomatic { get; }
 

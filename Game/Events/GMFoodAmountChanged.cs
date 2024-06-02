@@ -12,7 +12,7 @@ namespace Viper.Game.Events
     public class GMFoodAmountChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Returns the new food amount.
         /// </summary>
         public int Amount { get; }
 

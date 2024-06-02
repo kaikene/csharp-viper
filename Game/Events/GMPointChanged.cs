@@ -12,7 +12,7 @@ namespace Viper.Game.Events
     public class GMPointChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Returns the new points value.
         /// </summary>
         public int Points { get; }
 

@@ -17,7 +17,7 @@ namespace Viper.Game.Managers
     /// <summary>
     /// Manages a playfield with a player and custom amounts of food.
     /// </summary>
-    public class GameplayManager
+    public class GameplaySession
     {
         public const int DEFAULT_DISPLAYER_SIZE = 200, DEFAULT_PLAYFIELD_SIZE = 10;
 

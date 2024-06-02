@@ -11,6 +11,7 @@ using Viper.Game.Elements;
 using Viper.Game.Events;
 using Viper.Game.Interfaces;
 using Viper.Game.Managers;
+using Viper.Game.Services;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Viper.Game.Screens
@@ -20,6 +21,8 @@ namespace Viper.Game.Screens
     /// </summary>
     public class GameplayScreen : IScreenStates
     {
+        private Animate _animate = new();
+
         public EventHandler<GSPlayfieldAmountChangedEventArgs>? PlayfieldAmountChanged;
 
         public EventHandler<GSScaleChangedEventArgs>? ScaleChanged;
@@ -60,9 +63,9 @@ namespace Viper.Game.Screens
             }
         }
 
-        private List<GameplayManager> _gameplayManagers = new();
+        private List<GameplaySession> _gameplayManagers = new();
 
-        public List<GameplayManager> GameplayManagers
+        public List<GameplaySession> GameplayManagers
         {
             get
             {
@@ -101,7 +104,7 @@ namespace Viper.Game.Screens
 
         private Button _addGM = new()
         {
-            Content = "Add Player",
+            Content = "Añadir Jugador",
             VerticalAlignment = VerticalAlignment.Top,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Left,
@@ -114,7 +117,7 @@ namespace Viper.Game.Screens
 
         private Button _removeGM = new()
         {
-            Content = "Remove Player",
+            Content = "Quitar Jugador",
             VerticalAlignment = VerticalAlignment.Top,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Height = 30,
@@ -137,7 +140,7 @@ namespace Viper.Game.Screens
 
         public void ChangeGameplayScaling(double newScale)
         {
-            SettingsManager.SaveGameplayScale(newScale);
+            SettingsHandler.SaveGameplayScale(newScale);
             _rowManagerVB.Margin = new Thickness(newScale, newScale, newScale, newScale);
             ScaleChanged?.Invoke(this, new GSScaleChangedEventArgs(newScale));
         }
@@ -149,7 +152,7 @@ namespace Viper.Game.Screens
         {
             if (!_isInitialized)
             {
-                double scale = SettingsManager.GetGameplayScale();
+                double scale = SettingsHandler.GetGameplayScale();
                 _rowManagerVB.Margin = new Thickness(scale, scale, scale, scale);
 
                 _isInitialized = true;
@@ -175,8 +178,8 @@ namespace Viper.Game.Screens
 
                 void ButtonApearAnimation()
                 {
-                    Animate.Position(_GMAddRemoveButtons, new TranslateTransform(0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, new TranslateTransform(0, 40));
-                    Animate.Opacity(_GMAddRemoveButtons, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, 0);
+                    _animate.Position(_GMAddRemoveButtons, new TranslateTransform(0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, new TranslateTransform(0, 40));
+                    _animate.Opacity(_GMAddRemoveButtons, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, 0);
                 }
 
                 if (_totalPlayfieldAmount == 0)
@@ -196,12 +199,12 @@ namespace Viper.Game.Screens
 
         private void Element_MouseLeave(object sender, MouseEventArgs e)
         {
-            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+            _animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
         }
 
         private void Element_MouseEnter(object sender, MouseEventArgs e)
         {
-            Animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+            _animate.Color((Button)sender, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
         }
 
         private void _addGM_Click(object sender, RoutedEventArgs e)
@@ -263,7 +266,7 @@ namespace Viper.Game.Screens
 
                 PlayfieldAmountChanged?.Invoke(this, new GSPlayfieldAmountChangedEventArgs(_totalPlayfieldAmount));
 
-                GameplayManager gm = new();
+                GameplaySession gm = new();
 
                 gm.Displayer.Margin = new Thickness(5, 5, 5, 5);
 
@@ -378,7 +381,7 @@ namespace Viper.Game.Screens
 
             _GMAddRemoveButtons.Children.Clear();
 
-            foreach (GameplayManager gm in _gameplayManagers)
+            foreach (GameplaySession gm in _gameplayManagers)
             {
                 gm.End();
             }

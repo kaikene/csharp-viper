@@ -12,7 +12,7 @@ namespace Viper.Game.Events
     public class GMPlayfieldSizeChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Returns the new size.
         /// </summary>
         public int Size { get; }
 

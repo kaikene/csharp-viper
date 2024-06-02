@@ -12,7 +12,7 @@ namespace Viper.Game.Events
     public class PlayerLivesChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Return the new amount of lives
         /// </summary>
         public int CurrentLives { get; }
 

@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Screens.GameplayScreen triggers the PlayfieldAmountChanged event.
+    /// Provides data for when Viper.Game.Elements.CustomComboBox triggers the ElementAmountChanged event.
     /// </summary>
-    public class GSPlayfieldAmountChangedEventArgs : EventArgs
+    public class CustomComboBoxElementAmountChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Returns the new amount of playfields
+        /// Returns the new amount of elements.
         /// </summary>
         public int Amount { get; }
 
-        public GSPlayfieldAmountChangedEventArgs(int amount)
+        public CustomComboBoxElementAmountChangedEventArgs(int amount)
         {
             Amount = amount;
         }

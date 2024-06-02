@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace Viper.Game.Animations
 {
-    internal class Animate
+    public class Animate
     {
         public enum ColorProperty
         {
@@ -18,7 +18,7 @@ namespace Viper.Game.Animations
             Fill
         }
 
-        public static void Color(FrameworkElement element, ColorProperty elementProperty, Color newColor, IEasingFunction ease, double time, double delay, Color? fromColor = null)
+        public void Color(FrameworkElement element, ColorProperty elementProperty, Color newColor, IEasingFunction ease, double time, double delay, Color? fromColor = null)
         {
             Color? currentColor = null;
 
@@ -42,12 +42,20 @@ namespace Viper.Game.Animations
                 {
                     currentColor = ((element as Control).BorderBrush as SolidColorBrush)?.Color;
                 }
+                else
+                {
+                    throw new Exception($"Selected element doesnt have this color property --> {selectedProperty}");
+                }
             }
             else if (element is Panel)
             {
                 if (selectedProperty == ColorProperty.Background)
                 {
                     currentColor = ((element as Panel)?.Background as SolidColorBrush)?.Color;
+                }
+                else
+                {
+                    throw new Exception($"Selected element doesnt have this color property --> {selectedProperty}");
                 }
             }
             else if (element is Shape)
@@ -60,6 +68,10 @@ namespace Viper.Game.Animations
                 {
                     currentColor = ((element as Shape)?.Stroke as SolidColorBrush)?.Color;
                 }
+                else
+                {
+                    throw new Exception($"Selected element doesnt have this color property --> {selectedProperty}");
+                }
             }
             else if (element is TextBlock) // We do a bit of hardcoding 🤏 :tf:
             {
@@ -70,6 +82,10 @@ namespace Viper.Game.Animations
                 else if (selectedProperty == ColorProperty.Foreground)
                 {
                     currentColor = ((element as TextBlock).Foreground as SolidColorBrush)?.Color;
+                }
+                else
+                {
+                    throw new Exception($"Selected element doesnt have this color property --> {selectedProperty}");
                 }
             }
 
@@ -170,18 +186,9 @@ namespace Viper.Game.Animations
             }
         }
 
-        public static void Size(FrameworkElement element, double newHeight, double newWidth, IEasingFunction ease, int time, int delay, double fromHeight = 0,  double fromWidth = 0)
+        public void Width(FrameworkElement element, double newWidth, IEasingFunction ease, int time, int delay, double fromHeight = 0,  double fromWidth = 0)
         {
-            double currentHeight, currentWidth;
-
-            if (fromHeight != 0)
-            {
-                currentHeight = fromHeight;
-            }
-            else
-            {
-                currentHeight = element.Height;
-            }
+            double currentWidth;
 
             if (fromWidth != 0)
             {
@@ -191,15 +198,6 @@ namespace Viper.Game.Animations
             {
                 currentWidth = element.Width;
             }
-
-            DoubleAnimation hAnim = new()
-            {
-                From = currentHeight,
-                To = newHeight,
-                Duration = TimeSpan.FromMilliseconds(time),
-                BeginTime = TimeSpan.FromMilliseconds(delay),
-                EasingFunction = ease
-            };
 
             DoubleAnimation wAnim = new()
             {
@@ -212,11 +210,7 @@ namespace Viper.Game.Animations
 
             Storyboard sb = new Storyboard();
 
-            sb.Children.Add(hAnim);
             sb.Children.Add(wAnim);
-
-            Storyboard.SetTarget(hAnim, element);
-            Storyboard.SetTargetProperty(hAnim, new PropertyPath(FrameworkElement.HeightProperty));
 
             Storyboard.SetTarget(wAnim, element);
             Storyboard.SetTargetProperty(wAnim, new PropertyPath(FrameworkElement.WidthProperty));
@@ -224,7 +218,39 @@ namespace Viper.Game.Animations
             sb.Begin();
         }
 
-        public static void Position(FrameworkElement element, TranslateTransform newPosition, IEasingFunction ease, int time, int delay, TranslateTransform fromPosition = null)
+        public void Height(FrameworkElement element, double newHeight, IEasingFunction ease, int time, int delay, double fromHeight = 0, double fromWidth = 0)
+        {
+            double currentHeight;
+
+            if (fromHeight != 0)
+            {
+                currentHeight = fromHeight;
+            }
+            else
+            {
+                currentHeight = element.Height;
+            }
+
+            DoubleAnimation hAnim = new()
+            {
+                From = currentHeight,
+                To = newHeight,
+                Duration = TimeSpan.FromMilliseconds(time),
+                BeginTime = TimeSpan.FromMilliseconds(delay),
+                EasingFunction = ease
+            };
+
+            Storyboard sb = new Storyboard();
+
+            sb.Children.Add(hAnim);
+
+            Storyboard.SetTarget(hAnim, element);
+            Storyboard.SetTargetProperty(hAnim, new PropertyPath(FrameworkElement.HeightProperty));
+
+            sb.Begin();
+        }
+
+        public void Position(FrameworkElement element, TranslateTransform newPosition, IEasingFunction ease, int time, int delay, TranslateTransform fromPosition = null)
         {
             TranslateTransform currentPosition;
 
@@ -268,7 +294,7 @@ namespace Viper.Game.Animations
             elementAnim.BeginAnimation(TranslateTransform.YProperty, yAnim);
         }
 
-        public static void Opacity(FrameworkElement element, double newOpacity, IEasingFunction ease, int time, int delay, double? fromOpacity = null)
+        public void Opacity(FrameworkElement element, double newOpacity, IEasingFunction ease, int time, int delay, double? fromOpacity = null)
         {
             double? currentOpacity;
 

@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Viper.Game.Elements.UI;
+using Viper.Game.Builders;
 
 namespace Viper.Game.Managers
 {
-    public class OverlayManager
+    public class OverlayLayer
     {
         private Grid _overlay = new()
         {
@@ -30,13 +30,23 @@ namespace Viper.Game.Managers
             }
         }
 
-        private SettingsOverlay _so = new();
+        private SettingsPanel _sp = new();
 
-        public SettingsOverlay SettingsOverlay
+        private Blackout _bo = new();
+
+        public SettingsPanel SettingsOverlay
         {
             get
             {
-                return _so;
+                return _sp;
+            }
+        }
+
+        public Blackout BlackoutOverlay
+        {
+            get
+            {
+                return _bo;
             }
         }
 
@@ -44,9 +54,11 @@ namespace Viper.Game.Managers
         {
             if (!_isInitialized)
             {
-                _overlay.Children.Add(_so.Displayer);
+                _overlay.Children.Add(_sp.Overlay);
 
-                _so.LoadSettingsElements();
+                _overlay.Children.Add(_bo.Overlay);
+
+                _sp.LoadSettingsElements();
 
                 _isInitialized = true;
             }

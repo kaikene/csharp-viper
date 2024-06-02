@@ -12,7 +12,7 @@ namespace Viper.Game.Events
     public class GSScaleChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Returns the new scale value.
         /// </summary>
         public double Scale { get; }
 

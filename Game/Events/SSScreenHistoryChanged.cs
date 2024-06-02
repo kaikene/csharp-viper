@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 namespace Viper.Game.Events
 {
     /// <summary>
-    /// Provides data for when Viper.Game.Managers.ScreenManager triggers the HistoryChanged event.
+    /// Provides data for when Viper.Game.Managers.ScreenSwitcher triggers the HistoryChanged event.
     /// </summary>
-    public class SMScreenHistoryChangedEventArgs : EventArgs
+    public class SSScreenHistoryChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Return the new tick rate value.
+        /// Return the amount of screens currently saved.
         /// </summary>
         public int ScreensSaved { get; }
 
-        public SMScreenHistoryChangedEventArgs(int amount)
+        public SSScreenHistoryChangedEventArgs(int amount)
         {
             ScreensSaved = amount;
         }

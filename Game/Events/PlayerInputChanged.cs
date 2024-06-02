@@ -13,6 +13,9 @@ namespace Viper.Game.Events
     /// </summary>
     public class PlayerInputChangedEventArgs : EventArgs
     {
+        /// <summary>
+        /// Use this to handle directions of the player.
+        /// </summary>
         public enum Input
         {
             Up, Down, Left, Right,

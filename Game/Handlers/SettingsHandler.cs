@@ -8,9 +8,9 @@ using IniParser;
 using IniParser.Model;
 using Viper.Game.Screens;
 
-namespace Viper.Game.Managers
+namespace Viper.Game.Services
 {
-    public static class SettingsManager
+    public static class SettingsHandler
     {
         private static string _appPath = AppDomain.CurrentDomain.BaseDirectory;
 

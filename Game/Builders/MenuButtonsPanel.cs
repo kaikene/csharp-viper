@@ -36,15 +36,18 @@ namespace Viper.Game.Builders
         /// </summary>
         public event EventHandler? ExitClicked;
 
+        public const int BUTTON_STACKPANEL_WIDTH = 250;
+
+        public const int BUTTON_BOTTOM_MARGIN = 12;
+
+        public const int BUTTON_ANIM_TIME = 200;
+
+        public const double TRANSLATETRANSFORM_FROM_POSITION = 120;
+
         public StackPanel NewMenuPanel()
         {
-            const int BUTTON_STACKPANEL_WIDTH = 250;
-
-            const int BUTTON_SEPARATION = 12;
-
-            TranslateTransform from = new TranslateTransform(100, 0);
+            TranslateTransform from = new TranslateTransform(TRANSLATETRANSFORM_FROM_POSITION, 0);
             TranslateTransform to = new TranslateTransform(0, 0);
-
 
             StackPanel buttonStackPanel = new()
             {
@@ -60,22 +63,22 @@ namespace Viper.Game.Builders
             CustomButton exit = new();
 
             StackPanel startButton = start.NewButton("Jugar");
-            startButton.Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION);
+            startButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             startButton.RenderTransform = from;
             startButton.Opacity = 0;
 
             StackPanel settingsButton = settings.NewButton("Ajustes");
-            settingsButton.Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION);
+            settingsButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             settingsButton.RenderTransform = from;
             settingsButton.Opacity = 0;
 
             StackPanel infoButton = info.NewButton("Info");
-            infoButton.Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION);
+            infoButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             infoButton.RenderTransform = from;
             infoButton.Opacity = 0;
 
             StackPanel exitButton = exit.NewButton("Salir del juego");
-            exitButton.Margin = new Thickness(0, 0, 0, BUTTON_SEPARATION);
+            exitButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             exitButton.RenderTransform = from;
             exitButton.Opacity = 0;
 
@@ -111,23 +114,23 @@ namespace Viper.Game.Builders
 
             async void ButtonApearAnimation()
             {
-                _animate.Position(startButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                _animate.Opacity(startButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                _animate.Position(startButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
+                _animate.Opacity(startButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
 
                 await Task.Delay(20);
 
-                _animate.Position(settingsButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                _animate.Opacity(settingsButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                _animate.Position(settingsButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
+                _animate.Opacity(settingsButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
 
                 await Task.Delay(20);
 
-                _animate.Position(infoButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                _animate.Opacity(infoButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                _animate.Position(infoButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
+                _animate.Opacity(infoButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
 
                 await Task.Delay(20);
 
-                _animate.Position(exitButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                _animate.Opacity(exitButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+                _animate.Position(exitButton, to, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
+                _animate.Opacity(exitButton, 1, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, BUTTON_ANIM_TIME, 0);
             }
 
             return buttonStackPanel;

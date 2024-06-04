@@ -88,12 +88,12 @@ namespace Viper.Game.Elements.UI
 
         bool _canOpen = false;
 
-        private bool _isSomethingSelected = false;
+        private List<string> _elementsText = new();
 
-        public StackPanel NewComboBox(string emptySelectionText)
+        private bool _isSomethingSelected = false, _isMouseOverSelector = false;
+
+        public StackPanel NewComboBox()
         {
-            _selectedElementText.Text = emptySelectionText;
-
             SetNothingToSelect();
 
             _selector.PreviewMouseLeftButtonUp += Selector_PreviewMouseLeftButtonUp;
@@ -107,6 +107,8 @@ namespace Viper.Game.Elements.UI
 
             void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
             {
+                _isMouseOverSelector = true;
+
                 if (!_canOpen)
                 {
                     _animate.Color(_selector, Animate.ColorProperty.Background, Color.FromArgb(255, 40, 40, 40), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
@@ -115,6 +117,8 @@ namespace Viper.Game.Elements.UI
 
             void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
             {
+                _isMouseOverSelector = false;
+
                 if (!_canOpen)
                 {
                     _animate.Color(_selector, Animate.ColorProperty.Background, Color.FromArgb(255, 20, 20, 20), new QuadraticEase() { EasingMode = EasingMode.EaseIn }, 200, 0);
@@ -138,14 +142,23 @@ namespace Viper.Game.Elements.UI
             if (_canOpen)
             {
                 _elementsSV.ScrollToTop();
-                _animate.Height(_elementsSV, 150, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 13 }, 1000, 0);
+                _animate.Height(_elementsSV, 100, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 13 }, 1000, 0);
                 _animate.Color(_selector, Animate.ColorProperty.Background, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
                 _animate.Color(_selectedElementText, Animate.ColorProperty.Foreground, Colors.Black, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
             }
             else
             {
                 _animate.Height(_elementsSV, 0, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                _animate.Color(_selector, Animate.ColorProperty.Background, Color.FromArgb(255, 40, 40, 40), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+
+                if (_isMouseOverSelector)
+                {
+                    _animate.Color(_selector, Animate.ColorProperty.Background, Color.FromArgb(255, 40, 40, 40), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+                }
+                else
+                {
+                    _animate.Color(_selector, Animate.ColorProperty.Background, Color.FromArgb(255, 20, 20, 20), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
+                }
+
                 _animate.Color(_selectedElementText, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 100, 0);
             }
         }
@@ -177,13 +190,15 @@ namespace Viper.Game.Elements.UI
                 TextWrapping = System.Windows.TextWrapping.WrapWithOverflow,
             };
 
+            _elementsText.Add(elementText.Text);
+
             elementBox.MouseEnter += OnMouseEnter;
             elementBox.MouseLeave += OnMouseLeave;
             elementBox.PreviewMouseLeftButtonUp += ElementBox_PreviewMouseLeftButtonUp;
 
             void ElementBox_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
             {
-                SetSelectionToShow(newElement);
+                SetSelectionToShow(currentIndex);
 
                 OpenCloseToggle();
 
@@ -235,9 +250,9 @@ namespace Viper.Game.Elements.UI
             SelectionChanged?.Invoke(this, new CustomComboBoxSelectionChangedEventArgs("", -1));
         }
 
-        private void SetSelectionToShow(string selectionText)
+        public void SetSelectionToShow(int selectionIndex)
         {
-            _selectedElementText.Text = selectionText;
+            _selectedElementText.Text = _elementsText[selectionIndex];
             _selectedElementText.Opacity = 1;
             _selectedElementText.FontStyle = FontStyles.Normal;
             _isSomethingSelected = true;

@@ -10,6 +10,7 @@ using System.Runtime.Intrinsics;
 using System.Windows.Media.Effects;
 using System.Diagnostics;
 using Viper.Game.Services;
+using Viper.Game.Events;
 
 namespace Viper.Game
 {
@@ -101,6 +102,7 @@ namespace Viper.Game
             // 10+ = Above everything.
             Panel.SetZIndex(_versionSP, 11);
 
+            _overlayManager.SettingsOverlay.StateChanged += OnStateChanged;
             _screenManager.MenuScreen.ButtonPanel.PlayClicked += MenuScreen_PlayClicked;
             _screenManager.MenuScreen.ButtonPanel.SettingsClicked += MenuScreen_SettingsClicked;
             _screenManager.MenuScreen.ButtonPanel.ExitClicked += MenuScreen_ExitGame;
@@ -119,6 +121,30 @@ namespace Viper.Game
             _screenManager.LoadScreens();
             _overlayManager.LoadOverlays();
             _screenManager.ShowScreen(ScreenSwitcher.Screens.Menu);
+        }
+
+        private void OnStateChanged(object? sender, SettingsPanelStateChangedEventArgs e)
+        {
+            if (e.State)
+            {
+                Application.Current.MainWindow.PreviewKeyDown -= OnBackKeyPress;
+
+                _canSetGlobalBackKeybind = false;
+
+                _overlayManager.BlackoutOverlay.ShowBlackout(6);
+
+                SetSettingsBackKeybind();
+            }
+            else
+            {
+                Application.Current.MainWindow.PreviewKeyDown -= OnSettingsBackKey;
+
+                _canSetGlobalBackKeybind = true;
+
+                _overlayManager.BlackoutOverlay.RemoveBlackout();
+
+                SetGlobalBackKeybindEvents();
+            }
         }
 
         private void MainWindow_Deactivated(object? sender, EventArgs e)
@@ -155,7 +181,7 @@ namespace Viper.Game
 
         private void MenuScreen_SettingsClicked(object? sender, EventArgs e)
         {
-            SettingsToggle();
+            _overlayManager.SettingsOverlay.SettingsToggle();
         }
 
         private void MenuScreen_PlayClicked(object? sender, EventArgs e)
@@ -175,7 +201,7 @@ namespace Viper.Game
 
                 if (e.Key == System.Windows.Input.Key.S)
                 {
-                    SettingsToggle();
+                    _overlayManager.SettingsOverlay.SettingsToggle();
                 }
 
                 if (e.Key == System.Windows.Input.Key.M)
@@ -197,7 +223,7 @@ namespace Viper.Game
         {
             if (e.Key == System.Windows.Input.Key.Escape)
             {
-                SettingsToggle();
+                _overlayManager.SettingsOverlay.SettingsToggle();
             }
         }
 
@@ -230,30 +256,6 @@ namespace Viper.Game
             Application.Current.MainWindow.PreviewKeyDown -= OnCtrlKeyPress;
             Application.Current.MainWindow.PreviewKeyDown -= OnBackKeyPress;
             Application.Current.MainWindow.PreviewKeyDown -= OnSettingsBackKey;
-        }
-
-        private void SettingsToggle()
-        {
-            _overlayManager.SettingsOverlay.SettingsShowHide();
-
-            if (_overlayManager.SettingsOverlay.IsShowingSettings)
-            {
-                Application.Current.MainWindow.PreviewKeyDown -= OnBackKeyPress;
-
-                _canSetGlobalBackKeybind = false;
-
-                _overlayManager.BlackoutOverlay.ShowBlackout(6);
-                SetSettingsBackKeybind();
-            }
-            else
-            {
-                Application.Current.MainWindow.PreviewKeyDown -= OnSettingsBackKey;
-
-                _canSetGlobalBackKeybind = true;
-
-                _overlayManager.BlackoutOverlay.RemoveBlackout();
-                SetGlobalBackKeybindEvents();
-            }
         }
 
         private void ExitProgramDialog()

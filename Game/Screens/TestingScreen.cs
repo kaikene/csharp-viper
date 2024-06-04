@@ -59,7 +59,8 @@ namespace Viper.Screens
             VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
             HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
-            Margin = new System.Windows.Thickness(380, 30, 30, 30),
+            Margin = new System.Windows.Thickness(360, 10, 10, 10),
+            ClipToBounds = true,
         };
 
         private ScrollViewer _testingSelectorSV = new()
@@ -140,7 +141,7 @@ namespace Viper.Screens
             Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
             Foreground = new SolidColorBrush(Colors.White),
             BorderThickness = new Thickness(2, 2, 2, 2),
-            Content = "UI Elements Test"
+            Content = "UI Elements"
         };
 
         private Button _menuPanelTest = new()
@@ -153,6 +154,18 @@ namespace Viper.Screens
             Foreground = new SolidColorBrush(Colors.White),
             BorderThickness = new Thickness(2, 2, 2, 2),
             Content = "MenuButtonPanel"
+        };
+
+        private Button _settingsPanelTest = new()
+        {
+            VerticalAlignment = System.Windows.VerticalAlignment.Top,
+            HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+            Margin = new System.Windows.Thickness(3, 3, 3, 3),
+            Height = 30,
+            Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+            Foreground = new SolidColorBrush(Colors.White),
+            BorderThickness = new Thickness(2, 2, 2, 2),
+            Content = "SettingsPanel"
         };
 
         private Button _gameplayManagerTest = new()
@@ -238,6 +251,7 @@ namespace Viper.Screens
                 _gameplayScreenTest.Click += _gameplayScreenTest_Click;
                 _customElementsTest.Click += OnUITestClicked;
                 _menuPanelTest.Click += OnMenuPanelClick;
+                _settingsPanelTest.Click += OnSettingsPanelClick;
 
                 _clear.MouseLeave += Element_MouseLeave;
                 _playerTest.MouseLeave += Element_MouseLeave;
@@ -258,6 +272,7 @@ namespace Viper.Screens
                 _testingSelector.Children.Add(_foodTest);
                 _testingSelector.Children.Add(_customElementsTest);
                 _testingSelector.Children.Add(_menuPanelTest);
+                _testingSelector.Children.Add(_settingsPanelTest);
                 _testingSelector.Children.Add(_gameplayManagerTest);
                 _testingSelector.Children.Add(_screenManagerTest);
                 _testingSelector.Children.Add(_gameplayScreenTest);
@@ -519,6 +534,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             addTickRate.Click += (s, e) =>
@@ -731,6 +747,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             Panel.SetZIndex(debugStats, 1);
@@ -905,6 +922,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             Button addElement = new()
@@ -916,7 +934,7 @@ namespace Viper.Screens
                 Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
                 Foreground = new SolidColorBrush(Colors.White),
                 BorderThickness = new Thickness(2, 2, 2, 2),
-                Content = "Add element to ComboBox"
+                Content = "CB Add element"
             };
 
             Button removeElement = new()
@@ -928,18 +946,19 @@ namespace Viper.Screens
                 Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
                 Foreground = new SolidColorBrush(Colors.White),
                 BorderThickness = new Thickness(2, 2, 2, 2),
-                Content = "Remove element from ComboBox"
+                Content = "CB Remove element"
             };
 
             CustomComboBox combo = new();
             CustomCheckBox check = new();
             CustomButton button = new();
             CustomSlider slider = new();
+            UnlimitedSelector selector = new();
 
             TextBlock testDebugComBoxSel = new() { Text = $"ComboBox selection: {combo.SelectedElementName} | Index: {combo.SelectedElementIndex}", Foreground = new SolidColorBrush(Colors.White), };
             TextBlock testDebugCheBoxSta = new() { Text = $"Is checked: {check.State}", Foreground = new SolidColorBrush(Colors.White), };
 
-            StackPanel cmb = combo.NewComboBox("This is a ComboBox with nothing selected");
+            StackPanel cmb = combo.NewComboBox();
             StackPanel cb = check.NewCheckBox("This is a checkBox");
             StackPanel bt = button.NewButton("This is a button");
 
@@ -951,6 +970,7 @@ namespace Viper.Screens
             testThing.Children.Add(cb);
             testThing.Children.Add(bt);
             testThing.Children.Add(slider.NewSlider());
+            testThing.Children.Add(selector.NewSelector("UnlimitedSelector"));
 
             addElement.Click += (s, e) =>
             {
@@ -1003,6 +1023,37 @@ namespace Viper.Screens
             _testingSpace.Children.Add(panel.NewMenuPanel());
         }
 
+        private void OnSettingsPanelClick(Object sender, RoutedEventArgs e)
+        {
+            _testingSpace.Children.Clear();
+            _testingAdditionalSelector.Children.Clear();
+
+            SettingsPanel panel = new();
+
+            Button toggle = new()
+            {
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                Margin = new System.Windows.Thickness(2, 2, 2, 2),
+                Height = 25,
+                Background = new SolidColorBrush(Color.FromArgb(255, 60, 60, 60)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new Thickness(2, 2, 2, 2),
+                Content = "Show/Hide"
+            };
+
+            toggle.Click += (s, e) =>
+            {
+                panel.SettingsToggle();
+            };
+
+            panel.LoadSettingsElements();
+
+            _testingSpace.Children.Add(panel.Overlay);
+
+            _testingAdditionalSelector.Children.Add(toggle);
+        }
+
         private void OnGameplayManagerClick(Object sender, RoutedEventArgs e)
         {
             _testingSpace.Children.Clear();
@@ -1023,6 +1074,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             TextBlock testDebugFA = new() { Text = $"Food amount: {gm.Food.Count}", Foreground = new SolidColorBrush(Colors.White), };
@@ -1229,6 +1281,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             TextBlock testDebugCS = new() { Text = $"Current Screen: None", Foreground = new SolidColorBrush(Colors.White), };
@@ -1372,6 +1425,7 @@ namespace Viper.Screens
                 VerticalAlignment = System.Windows.VerticalAlignment.Stretch,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 Width = 300,
+                IsHitTestVisible = false,
             };
 
             TextBlock testDebugPA = new() { Text = $"GameplayManagers amount: {gs.GameplayManagers.Count}", Foreground = new SolidColorBrush(Colors.White), };
@@ -1610,8 +1664,9 @@ namespace Viper.Screens
             _gameplayManagerTest.Click -= OnGameplayManagerClick;
             _screenManagerTest.Click -= OnScreenManagerClick;
             _gameplayScreenTest.Click -= _gameplayScreenTest_Click;
-            _customElementsTest.Click += OnUITestClicked;
-            _menuPanelTest.Click += OnMenuPanelClick;
+            _customElementsTest.Click -= OnUITestClicked;
+            _menuPanelTest.Click -= OnMenuPanelClick;
+            _settingsPanelTest.Click -= OnSettingsPanelClick;
 
             _clear.MouseLeave -= Element_MouseLeave;
             _playerTest.MouseLeave -= Element_MouseLeave;

@@ -81,7 +81,7 @@ namespace Viper.Game.Elements.UI
 
             _button.MouseLeave += Element_MouseLeave;
 
-            _button.PreviewMouseLeftButtonUp += Button_PreviewMouseLeftButtonUp;
+            _button.PreviewMouseLeftButtonDown += Button_PreviewMouseLeftButtonUp;
 
             return _button;
         }

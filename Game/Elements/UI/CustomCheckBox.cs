@@ -20,8 +20,6 @@ namespace Viper.Game.Elements.UI
 
         public EventHandler<CustomCheckBoxStateChangedEventArgs>? StateChanged;
 
-        private bool _state = false;
-
         private TextBlock _checkText = new()
         {
             Foreground = new SolidColorBrush(Colors.White),
@@ -30,13 +28,7 @@ namespace Viper.Game.Elements.UI
             Margin = new Thickness(5, 0, 0, 0),
         };
 
-        public bool State
-        {
-            get
-            {
-                return _state;
-            }
-        }
+        public bool State { get; private set; }
 
         private string _text = "";
 
@@ -47,7 +39,7 @@ namespace Viper.Game.Elements.UI
                 return _text;
             }
 
-            set
+            private set
             {
                 _text = value;
 
@@ -55,81 +47,93 @@ namespace Viper.Game.Elements.UI
             }
         }
 
+        private Rectangle _checkBox = new()
+        {
+            Height = 20,
+            Width = 20,
+            StrokeThickness = 4,
+            Stroke = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)),
+            Fill = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)),
+        };
+
+        private StackPanel _checkContainer = new()
+        {
+            VerticalAlignment = VerticalAlignment.Top,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Orientation = Orientation.Horizontal,
+            Height = 25,
+        };
+
         public StackPanel NewCheckBox(string text)
         {
-            Rectangle checkBox = new()
-            {
-                Height = 20,
-                Width = 20,
-                StrokeThickness = 4,
-                Stroke = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)),
-                Fill = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)),
-            };
-
-            StackPanel checkContainer = new()
-            {
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Orientation = Orientation.Horizontal,
-                Height = 25,
-            };
-
             _checkText.Text = text;
 
-            checkContainer.Children.Add(checkBox);
-            checkContainer.Children.Add(_checkText);
+            _checkContainer.Children.Add(_checkBox);
+            _checkContainer.Children.Add(_checkText);
 
-            checkContainer.MouseEnter += OnMouseEnter;
+            _checkContainer.MouseEnter += OnMouseEnter;
+            _checkContainer.MouseLeave += OnMouseLeave;
 
-            checkContainer.MouseLeave += OnMouseLeave;
+            _checkContainer.MouseLeftButtonUp += CheckBox_MouseLeftButtonUp;
+            _checkContainer.MouseLeftButtonDown += CheckBox_MouseLeftButtonDown;
 
-            checkContainer.MouseLeftButtonUp += CheckBox_MouseLeftButtonUp;
+            CheckToggle(false);
 
-            checkContainer.MouseLeftButtonDown += CheckBox_MouseLeftButtonDown;
+            return _checkContainer;
+        }
 
-            void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!State)
             {
-                if (!_state)
-                {
-                    _animate.Color(checkBox, Animate.ColorProperty.Fill, Color.FromArgb(120, 255, 255, 255), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                }
+                _animate.Color(_checkBox, Animate.ColorProperty.Fill, Color.FromArgb(120, 255, 255, 255), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+            }
+        }
+
+        private void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!State)
+            {
+                _animate.Color(_checkBox, Animate.ColorProperty.Fill, Color.FromArgb(50, 255, 255, 255), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
+            }
+        }
+
+        private void CheckBox_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            CheckToggle();
+        }
+
+        private void CheckBox_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _animate.Height(_checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
+            _animate.Width(_checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
+        }
+
+        public void CheckToggle(bool? forceState = null)
+        {
+            if (forceState != null)
+            {
+                State = !(bool)forceState;
             }
 
-            void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+            _animate.Height(_checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
+            _animate.Width(_checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
+
+            State = !State;
+            StateChanged?.Invoke(this, new CustomCheckBoxStateChangedEventArgs(State));
+
+            if (State)
             {
-                if (!_state)
-                {
-                    _animate.Color(checkBox, Animate.ColorProperty.Fill, Color.FromArgb(50, 255, 255, 255), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
-                }
+                _animate.Color(_checkBox, Animate.ColorProperty.Fill, Color.FromArgb(255, 255, 255, 255), new SineEase(), 200, 0);
+                _animate.Color(_checkBox, Animate.ColorProperty.Stroke, Color.FromArgb(120, 0, 0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(255, 255, 255, 255));
+                _animate.Color(_checkText, Animate.ColorProperty.Foreground, Color.FromArgb(255, 255, 255, 255), new SineEase(), 200, 0);
             }
-
-            void CheckBox_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            else
             {
-                _animate.Height(checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
-                _animate.Width(checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
-
-                _state = !_state;
-                StateChanged?.Invoke(this, new CustomCheckBoxStateChangedEventArgs(_state));
-
-                if (_state)
-                {
-                    _animate.Color(checkBox, Animate.ColorProperty.Fill, Color.FromArgb(255, 255, 255, 255), new SineEase(), 200, 0);
-                    _animate.Color(checkBox, Animate.ColorProperty.Stroke, Color.FromArgb(120, 0, 0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(255, 255, 255, 255));
-                }
-                else
-                {
-                    _animate.Color(checkBox, Animate.ColorProperty.Fill, Color.FromArgb(50, 255, 255, 255), new SineEase(), 200, 0);
-                    _animate.Color(checkBox, Animate.ColorProperty.Stroke, Color.FromArgb(120, 0, 0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(0, 0, 0, 0));
-                }
+                _animate.Color(_checkBox, Animate.ColorProperty.Fill, Color.FromArgb(50, 255, 255, 255), new SineEase(), 200, 0);
+                _animate.Color(_checkBox, Animate.ColorProperty.Stroke, Color.FromArgb(120, 0, 0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(0, 0, 0, 0));
+                _animate.Color(_checkText, Animate.ColorProperty.Foreground, Color.FromArgb(120, 255, 255, 255), new SineEase(), 200, 0);
             }
-
-            void CheckBox_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-            {
-                _animate.Height(checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
-                _animate.Width(checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
-            }
-
-            return checkContainer;
         }
     }
 }

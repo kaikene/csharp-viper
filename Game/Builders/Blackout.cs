@@ -14,6 +14,16 @@ namespace Viper.Game.Builders
 {
     public class Blackout()
     {
+        /// <summary>
+        /// Animation appear duration.
+        /// </summary>
+        public const int APPEAR_TIME = 150;
+
+        /// <summary>
+        /// Animation disappear duration.
+        /// </summary>
+        public const int DISAPPEAR_TIME = 200;
+
         private Animate _animate = new();
 
         private Grid _blackout = new()
@@ -35,6 +45,10 @@ namespace Viper.Game.Builders
 
         private List<int> _blackouts = new List<int>();
 
+        /// <summary>
+        /// Shows the blackout, you can set a Z index to select how much should it cover.
+        /// </summary>
+        /// <param name="zIndex"></param>
         public void ShowBlackout(int zIndex)
         {
             _blackouts.Add(zIndex);
@@ -43,9 +57,12 @@ namespace Viper.Game.Builders
 
             Panel.SetZIndex(_blackout, zIndex);
 
-            _animate.Opacity(_blackout, 1, new ExponentialEase() { EasingMode = EasingMode.EaseOut }, 150, 0);
+            _animate.Opacity(_blackout, 1, new ExponentialEase() { EasingMode = EasingMode.EaseOut }, APPEAR_TIME, 0);
         }
 
+        /// <summary>
+        /// Removes the blackout.
+        /// </summary>
         public void RemoveBlackout()
         {
             _blackouts.RemoveAt(_blackouts.Count - 1);
@@ -53,7 +70,7 @@ namespace Viper.Game.Builders
             if (_blackouts.Count == 0)
             {
                 _blackout.IsHitTestVisible = false;
-                _animate.Opacity(_blackout, 0, new ExponentialEase() { EasingMode = EasingMode.EaseOut }, 150, 0);
+                _animate.Opacity(_blackout, 0, new ExponentialEase() { EasingMode = EasingMode.EaseOut }, DISAPPEAR_TIME, 0);
             }
             else
             {

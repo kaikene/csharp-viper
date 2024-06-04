@@ -208,8 +208,12 @@ namespace Viper.Game.Elements.Gameplay
 
         public const byte DEFAULT_STROKE_BLUE = 0;
 
+        public const int OUT_OF_BOUDS_X = -40;
+
+        public const int OUT_OF_BOUDS_Y = -40;
+
         // Tick rate.
-        private int _tickRate = 50;
+        private int _tickRate = 50; // TODO: Replace with value from settings or default.
 
         /// <summary>
         /// Gets the current tickrate being used at the moment.
@@ -316,21 +320,15 @@ namespace Viper.Game.Elements.Gameplay
             }
         }
 
-        private bool _automatic = false;
-
-        public bool IsAutomatic
-        {
-            get
-            {
-                return _automatic;
-            }
-        }
+        public bool IsAutomatic { get; private set; } = false;
 
         private bool _loopAutoDirections = false;
 
         // Why a panel?: Player needs to know the size and move arround on where it is, putting this into something that its not a panel causes weird things
         // so i will be restricting this so the player can only be added to a panel.
-        private Panel _parent; 
+        private Panel _parent;
+
+        public UIElement Control { get; private set; }
 
         /// <summary>
         /// Adds a player to the specififed panel.
@@ -358,9 +356,9 @@ namespace Viper.Game.Elements.Gameplay
 
                 if (autoPresetDirections != null)
                 {
-                    _automatic = true;
+                    IsAutomatic = true;
                     _loopAutoDirections = loopAutoDirections;
-                    AutomatizationChanged?.Invoke(this, new PlayerIsAutomaticEventArgs(_automatic));
+                    AutomatizationChanged?.Invoke(this, new PlayerIsAutomaticEventArgs(IsAutomatic));
                     Application.Current.MainWindow.PreviewKeyDown -= ChangeDirection;
                     _directionBuffer = autoPresetDirections;
 
@@ -454,7 +452,7 @@ namespace Viper.Game.Elements.Gameplay
             {
                 for (int i = 0; i < _playerBody.Count; i++)
                 {
-                    if (!_automatic)
+                    if (!IsAutomatic)
                     {
                         // Direction buffer updater, moves directions "forward" so the List gets cleaned until just 1 direction is saved
                         if (_directionBuffer.Count > 1)
@@ -643,7 +641,7 @@ namespace Viper.Game.Elements.Gameplay
                 HorizontalAlignment = HorizontalAlignment.Left,
                 Height = SIZE,
                 Width = SIZE,
-                RenderTransform = new TranslateTransform(-30, -30), // Spawn out of bounds.
+                RenderTransform = new TranslateTransform(OUT_OF_BOUDS_X, OUT_OF_BOUDS_Y), // Spawn out of bounds.
             };
 
             Panel.SetZIndex(playerBodyPart, 1);
@@ -721,7 +719,7 @@ namespace Viper.Game.Elements.Gameplay
 
                 if (doRemoval) // All remaining values, events and lists will be reset and the player will be removed from the panel.
                 {
-                    _automatic = false;
+                   IsAutomatic = false;
 
                     foreach (Rectangle playerBody in _playerBody)
                     {

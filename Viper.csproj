@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ColorPickerWPF" Version="1.0.9" />
     <PackageReference Include="ini-parser" Version="2.5.2" />
   </ItemGroup>
 

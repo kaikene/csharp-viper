@@ -952,23 +952,29 @@ namespace Viper.Screens
             CustomComboBox combo = new();
             CustomCheckBox check = new();
             CustomButton button = new();
+            CustomButton button2 = new();
             CustomSlider slider = new();
             UnlimitedSelector selector = new();
 
             TextBlock testDebugComBoxSel = new() { Text = $"ComboBox selection: {combo.SelectedElementName} | Index: {combo.SelectedElementIndex}", Foreground = new SolidColorBrush(Colors.White), };
             TextBlock testDebugCheBoxSta = new() { Text = $"Is checked: {check.State}", Foreground = new SolidColorBrush(Colors.White), };
 
+            Rectangle rect = new() { Fill = new SolidColorBrush(Colors.White), Height = 20, Width = 20 };
+
             StackPanel cmb = combo.NewComboBox();
             StackPanel cb = check.NewCheckBox("This is a checkBox");
-            StackPanel bt = button.NewButton("This is a button");
+            StackPanel bt = button.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "This is a button" });
+            StackPanel bt2 = button2.NewButton(rect);
 
             cb.Margin = new Thickness(0, 5, 0, 5);
             cmb.Margin = new Thickness(0, 5, 0, 5);
             bt.Margin = new Thickness(0, 5, 0, 5);
+            bt2.Margin = new Thickness(0, 5, 0, 5);
 
             testThing.Children.Add(cmb);
             testThing.Children.Add(cb);
             testThing.Children.Add(bt);
+            testThing.Children.Add(bt2);
             testThing.Children.Add(slider.NewSlider());
             testThing.Children.Add(selector.NewSelector("UnlimitedSelector"));
 
@@ -1000,7 +1006,13 @@ namespace Viper.Screens
             {
                 counter++;
 
-                button.ButtonText = $"Button clicked {counter} times!";
+                button.ButtonContent = new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = $"Button clicked {counter} times!" };
+            };
+
+            button2.Clicked += (s, e) =>
+            {
+                Random rnd = new();
+                rect.Fill = new SolidColorBrush(Color.FromRgb((byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255)));
             };
 
             debugStats.Children.Add(testDebugCheBoxSta);

@@ -62,22 +62,22 @@ namespace Viper.Game.Builders
             CustomButton info = new();
             CustomButton exit = new();
 
-            StackPanel startButton = start.NewButton("Jugar");
+            StackPanel startButton = start.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Jugar" });
             startButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             startButton.RenderTransform = from;
             startButton.Opacity = 0;
 
-            StackPanel settingsButton = settings.NewButton("Ajustes");
+            StackPanel settingsButton = settings.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Ajustes" });
             settingsButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             settingsButton.RenderTransform = from;
             settingsButton.Opacity = 0;
 
-            StackPanel infoButton = info.NewButton("Info");
+            StackPanel infoButton = info.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Info" });
             infoButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             infoButton.RenderTransform = from;
             infoButton.Opacity = 0;
 
-            StackPanel exitButton = exit.NewButton("Salir del juego");
+            StackPanel exitButton = exit.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Salir del juego" });
             exitButton.Margin = new Thickness(0, 0, 0, BUTTON_BOTTOM_MARGIN);
             exitButton.RenderTransform = from;
             exitButton.Opacity = 0;

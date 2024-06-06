@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,10 +48,12 @@ namespace Viper.Game.Elements.UI
             }
         }
 
-        private Rectangle _checkBox = new()
+        private bool _isClicked = false;
+
+        private Ellipse _checkBox = new()
         {
-            Height = 20,
-            Width = 20,
+            Height = 17,
+            Width = 17,
             StrokeThickness = 4,
             Stroke = new SolidColorBrush(Color.FromArgb(120, 0, 0, 0)),
             Fill = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)),
@@ -92,6 +95,11 @@ namespace Viper.Game.Elements.UI
 
         private void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            if (_isClicked)
+            {
+                OriginalSizeAnimation();
+            }
+
             if (!State)
             {
                 _animate.Color(_checkBox, Animate.ColorProperty.Fill, Color.FromArgb(50, 255, 255, 255), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0);
@@ -100,13 +108,14 @@ namespace Viper.Game.Elements.UI
 
         private void CheckBox_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            _isClicked = false;
             CheckToggle();
         }
 
         private void CheckBox_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            _animate.Height(_checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
-            _animate.Width(_checkBox, 15, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
+            _isClicked = true;
+            ShrinkSizeAnimation();
         }
 
         public void CheckToggle(bool? forceState = null)
@@ -116,8 +125,7 @@ namespace Viper.Game.Elements.UI
                 State = !(bool)forceState;
             }
 
-            _animate.Height(_checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
-            _animate.Width(_checkBox, 20, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
+            OriginalSizeAnimation();
 
             State = !State;
             StateChanged?.Invoke(this, new CustomCheckBoxStateChangedEventArgs(State));
@@ -134,6 +142,18 @@ namespace Viper.Game.Elements.UI
                 _animate.Color(_checkBox, Animate.ColorProperty.Stroke, Color.FromArgb(120, 0, 0, 0), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(0, 0, 0, 0));
                 _animate.Color(_checkText, Animate.ColorProperty.Foreground, Color.FromArgb(120, 255, 255, 255), new SineEase(), 200, 0);
             }
+        }
+
+        private void OriginalSizeAnimation()
+        {
+            _animate.Height(_checkBox, 17, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
+            _animate.Width(_checkBox, 17, new ElasticEase() { EasingMode = EasingMode.EaseOut, Springiness = 2 }, 1000, 0);
+        }
+
+        private void ShrinkSizeAnimation()
+        {
+            _animate.Height(_checkBox, 14, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
+            _animate.Width(_checkBox, 14, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 1000, 0);
         }
     }
 }

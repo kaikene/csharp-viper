@@ -221,7 +221,8 @@ namespace Viper.Game.Builders
 
             Grid us = unlimitedSelector.NewSelector("Jugador");
 
-            StackPanel colorOption = _optionMaker.NewOption("Colores");
+            StackPanel bodyColorOption = _optionMaker.NewOption("Color de cuerpo");
+            StackPanel strokeColorOption = _optionMaker.NewOption("Color de borde");
             StackPanel playfieldOption = _optionMaker.NewOption("Campo de juego");
             StackPanel tickrateOption = _optionMaker.NewOption("Tickrate");
             StackPanel raiseSpeedOption = _optionMaker.NewOption("Aceleracion");
@@ -229,9 +230,23 @@ namespace Viper.Game.Builders
             StackPanel colOption = _optionMaker.NewOption("Colisiones");
             StackPanel dirBufferOption = _optionMaker.NewOption("Buffer de direcciones");
 
-            TextBlock colorDesc = new()
+            TextBlock bodyColorDesc = new()
             {
                 Text = "Cambia el color del cuerpo de la vibora",
+                VerticalAlignment = VERTICAL_ALIGNMENT,
+                HorizontalAlignment = HORIZONTAL_ALIGNMENT,
+                Background = BACKGROUND_BRUSH,
+                Foreground = FOREGROUND_BRUSH,
+                FontSize = FONT_SIZE,
+                FontWeight = FONT_WEIGHT,
+                FontFamily = FONT_FAMILY,
+                TextWrapping = TEXT_WRAPPING,
+                Margin = MARGIN
+            };
+
+            TextBlock strokeColorDesc = new()
+            {
+                Text = "Cambia el color del borde de la vibora",
                 VerticalAlignment = VERTICAL_ALIGNMENT,
                 HorizontalAlignment = HORIZONTAL_ALIGNMENT,
                 Background = BACKGROUND_BRUSH,
@@ -331,6 +346,7 @@ namespace Viper.Game.Builders
             CustomButton cb1 = new();
             CustomButton cb2 = new();
             CustomButton cb3 = new();
+            CustomButton cb4 = new();
 
             CustomSlider slider1 = new();
             CustomSlider slider2 = new();
@@ -340,10 +356,10 @@ namespace Viper.Game.Builders
             CustomCheckBox check3 = new();
             CustomCheckBox check4 = new();
 
-            StackPanel colorCCB = ccb1.NewComboBox();
-            StackPanel colorButton = cb1.NewButton("Seleccionar Color");
-            StackPanel inputButton = cb2.NewButton("Asignar controles");
-            StackPanel pfCustomizationButton = cb3.NewButton("Cambiar fondo");
+            StackPanel bodyColorButton = cb1.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Seleccionar Color" });
+            StackPanel inputButton = cb2.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Asignar controles" });
+            StackPanel pfCustomizationButton = cb3.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Cambiar fondo" });
+            StackPanel strokeColorButton = cb4.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Seleccionar Color" });
 
             Slider tickrateSlider = slider1.NewSlider();
             Slider pfSizeSlider = slider2.NewSlider();
@@ -354,15 +370,14 @@ namespace Viper.Game.Builders
             StackPanel bufferCheck = check4.NewCheckBox("Activar buffer");
 
             us.Margin = new Thickness(7, 0, 7, 0);
-            colorButton.Margin = new Thickness(0, 7, 0, 0);
+            bodyColorButton.Margin = new Thickness(0, 7, 0, 0);
+            strokeColorButton.Margin = new Thickness(0, 7, 0, 0);
 
-            ccb1.AddElement("Cuerpo");
-            ccb1.AddElement("Borde");
-            ccb1.SetSelectionToShow(0);
+            bodyColorOption.Children.Add(bodyColorDesc);
+            bodyColorOption.Children.Add(bodyColorButton);
 
-            colorOption.Children.Add(colorDesc);
-            colorOption.Children.Add(colorCCB);
-            colorOption.Children.Add(colorButton);
+            strokeColorOption.Children.Add(strokeColorDesc);
+            strokeColorOption.Children.Add(strokeColorButton);
 
             tickrateOption.Children.Add(tickrateDesc);
             tickrateOption.Children.Add(tickrateSlider);
@@ -385,7 +400,8 @@ namespace Viper.Game.Builders
             playfieldOption.Children.Add(pfCustomizationButton);
 
             section.Children.Add(us);
-            section.Children.Add(colorOption);
+            section.Children.Add(bodyColorOption);
+            section.Children.Add(strokeColorOption);
             section.Children.Add(tickrateOption);
             section.Children.Add(raiseSpeedOption);
             section.Children.Add(inputOption);
@@ -465,7 +481,7 @@ namespace Viper.Game.Builders
 
             CustomButton cb1 = new();
 
-            StackPanel bgButton = cb1.NewButton("Seleccionar imagen o color de fondo");
+            StackPanel bgButton = cb1.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Seleccionar imagen o color de fondo" });
 
             CustomSlider slider1 = new();
             CustomSlider slider2 = new();
@@ -496,7 +512,9 @@ namespace Viper.Game.Builders
         {
             StackPanel section = _sectionMaker.NewMainSection("Sonido");
 
-            StackPanel volumeOption = _optionMaker.NewOption("Volumen");
+            StackPanel musicVolumeOption = _optionMaker.NewOption("Volumen de musica");
+
+            StackPanel sfxVolumeOption = _optionMaker.NewOption("Volumen de efectos");
 
             StackPanel bgMusicOption = _optionMaker.NewOption("Musica de fondo");
 
@@ -559,7 +577,7 @@ namespace Viper.Game.Builders
 
             CustomButton cb1 = new();
 
-            StackPanel bgMusicButton = cb1.NewButton("Seleccionar cancion");
+            StackPanel bgMusicButton = cb1.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Seleccionar cancion" });
 
             CustomSlider slider1 = new();
             CustomSlider slider2 = new();
@@ -567,16 +585,18 @@ namespace Viper.Game.Builders
             Slider bgSlider = slider1.NewSlider();
             Slider sfxSlider = slider2.NewSlider();
 
-            volumeOption.Children.Add(volumeBGDesc);
-            volumeOption.Children.Add(bgSlider);
-            volumeOption.Children.Add(volumeSFXDesc);
-            volumeOption.Children.Add(sfxSlider);
+            musicVolumeOption.Children.Add(volumeBGDesc);
+            musicVolumeOption.Children.Add(bgSlider);
+
+            sfxVolumeOption.Children.Add(volumeSFXDesc);
+            sfxVolumeOption.Children.Add(sfxSlider);
 
             bgMusicOption.Children.Add(bgMusicDesc);
             bgMusicOption.Children.Add(bgMusicButton);
             bgMusicOption.Children.Add(bgMusicPathDesc);
 
-            section.Children.Add(volumeOption);
+            section.Children.Add(musicVolumeOption);
+            section.Children.Add(sfxVolumeOption);
             section.Children.Add(bgMusicOption);
 
             _sections.Add(section);
@@ -653,9 +673,9 @@ namespace Viper.Game.Builders
             CustomButton cb2 = new();
             CustomButton cb3 = new();
 
-            StackPanel catButton1 = cb1.NewButton("life :3");
-            StackPanel catButton2 = cb2.NewButton("bath!!! >:3");
-            StackPanel rotateButton = cb3.NewButton("Do the thing");
+            StackPanel catButton1 = cb1.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "life :3" });
+            StackPanel catButton2 = cb2.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "bath!!! >:3" });
+            StackPanel rotateButton = cb3.NewButton(new TextBlock() { Foreground = new SolidColorBrush(Colors.White), Text = "Do the thing" });
 
             catButton2.Margin = new Thickness(0, 7, 0, 0);
 

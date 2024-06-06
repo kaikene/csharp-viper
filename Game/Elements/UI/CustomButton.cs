@@ -9,7 +9,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Windows;
 using Viper.Game.Animations;
-using static System.Net.Mime.MediaTypeNames;
+using System.Reflection.Metadata;
 
 namespace Viper.Game.Elements.UI
 {
@@ -19,46 +19,45 @@ namespace Viper.Game.Elements.UI
 
         public EventHandler? Clicked;
 
-        private string _text = "";
-
         private StackPanel _button = new()
         {
             VerticalAlignment = VerticalAlignment.Top,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            Height = 27,
             Background = new SolidColorBrush(Color.FromArgb(255, 40, 40, 40)),
         };
 
-        private TextBlock _buttonText = new()
-        {
-            Foreground = new SolidColorBrush(Colors.White),
-            VerticalAlignment = System.Windows.VerticalAlignment.Center,
-            HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-            Margin = new Thickness(0, 5, 0, 0),
-        };
+        private FrameworkElement _buttonContent = new();
 
-        public string ButtonText
+        public FrameworkElement ButtonContent
         {
             get
             {
-                return _text;
+                return _buttonContent;
             }
 
             set
             {
-                _text = value;
+                _buttonContent = value;
 
-                _buttonText.Text = value;
+                _button.Children.Clear();
+
+                value.VerticalAlignment = VerticalAlignment.Center;
+                value.HorizontalAlignment = HorizontalAlignment.Center;
+
+                value.Margin = new Thickness(0, 6, 0, 6);
+
+                _button.Children.Add(_buttonContent);
             }
         }
 
-        public StackPanel NewButton(string text)
+        public StackPanel NewButton(FrameworkElement content)
         {
-            _text = text;
+            _button.Children.Add(content);
 
-            _buttonText.Text = text;
+            content.VerticalAlignment = VerticalAlignment.Center;
+            content.HorizontalAlignment = HorizontalAlignment.Center;
 
-            _button.Children.Add(_buttonText);
+            content.Margin = new Thickness(0, 6, 0, 6);
 
             void Element_MouseLeave(object sender, MouseEventArgs e)
             {
@@ -73,7 +72,6 @@ namespace Viper.Game.Elements.UI
             void Button_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
             {
                 _animate.Color(_button, Animate.ColorProperty.Background, Color.FromArgb(255, 50, 50, 50), new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Color.FromArgb(255, 200, 200, 200));
-                _animate.Color(_buttonText, Animate.ColorProperty.Foreground, Colors.White, new QuadraticEase() { EasingMode = EasingMode.EaseOut }, 200, 0, Colors.Black);
                 Clicked?.Invoke(this, new EventArgs());
             }
 

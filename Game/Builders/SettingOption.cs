@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
+using Viper.Game.Animations;
+using System.Windows.Media.Animation;
 
 namespace Viper.Game.Builders
 {
@@ -39,13 +41,15 @@ namespace Viper.Game.Builders
 
             Rectangle revert = new()
             {
-                Height = 9,
-                Width = 9,
-                Fill = new SolidColorBrush(Color.FromArgb(255, 143, 255, 51)),
+                Height = 15,
+                Width = 15,
+                Fill = new SolidColorBrush(Color.FromArgb(100, 102, 161, 255)),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 ToolTip = "Revertir",
-                Margin = new Thickness(0, 2, 4, 0),
+                Stroke = new SolidColorBrush(Color.FromArgb(100, 102, 161, 255)),
+                StrokeThickness = 2,
+                Margin = new Thickness(0, 1, 4, 0),
             };
 
             TextBlock name = new()
@@ -67,6 +71,23 @@ namespace Viper.Game.Builders
             entireText.Children.Add(titlePart);
 
             miniSection.Children.Add(entireText);
+
+            revert.MouseEnter += Revert_MouseEnter;
+            revert.MouseLeave += Revert_MouseLeave;
+
+            void Revert_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+            {
+                Animate a = new();
+
+                a.Color(revert, Animate.ColorProperty.Stroke, Colors.White, new SineEase(), 200, 0);
+            }
+
+            void Revert_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+            {
+                Animate a = new();
+
+                a.Color(revert, Animate.ColorProperty.Stroke, Color.FromArgb(120, 102, 161, 255), new SineEase(), 200, 0);
+            }
 
             return miniSection;
         }

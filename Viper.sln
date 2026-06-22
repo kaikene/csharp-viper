@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
+<<<<<<< HEAD
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viper.Desktop", "Viper.Desktop\Viper.Desktop.csproj", "{16E51188-108F-4FF6-9550-769E7E74C1F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viper.Tests", "Viper.Tests\Viper.Tests.csproj", "{6E2A1EFA-9AD5-4939-994E-3C39A750AAE5}"
@@ -11,6 +12,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viper.Tests", "Viper.Tests\
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viper.Game", "Viper.Game\Viper.Game.csproj", "{0A0C3827-FA19-4326-A3BE-6646241A608C}"
+=======
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Viper", "Viper.csproj", "{D4B8DB22-F8CC-4ABB-8BE1-BD21FE74053B}"
+>>>>>>> old-csharp-viper/master
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +22,7 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+<<<<<<< HEAD
 		{16E51188-108F-4FF6-9550-769E7E74C1F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{16E51188-108F-4FF6-9550-769E7E74C1F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16E51188-108F-4FF6-9550-769E7E74C1F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,11 +35,21 @@ Global
 		{0A0C3827-FA19-4326-A3BE-6646241A608C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A0C3827-FA19-4326-A3BE-6646241A608C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A0C3827-FA19-4326-A3BE-6646241A608C}.Release|Any CPU.Build.0 = Release|Any CPU
+=======
+		{D4B8DB22-F8CC-4ABB-8BE1-BD21FE74053B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B8DB22-F8CC-4ABB-8BE1-BD21FE74053B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B8DB22-F8CC-4ABB-8BE1-BD21FE74053B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B8DB22-F8CC-4ABB-8BE1-BD21FE74053B}.Release|Any CPU.Build.0 = Release|Any CPU
+>>>>>>> old-csharp-viper/master
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
+<<<<<<< HEAD
 		SolutionGuid = {34F0154A-CAD7-4101-85B7-17BCE6F2061E}
+=======
+		SolutionGuid = {B323A4C3-E178-40BC-BA48-E9DD4C1CF9DD}
+>>>>>>> old-csharp-viper/master
 	EndGlobalSection
 EndGlobal

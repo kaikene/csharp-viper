@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS9124: El parámetro se captura en el estado del tipo envolvente y su valor también se usa para inicializar un campo, propiedad o evento.
+dotnet_diagnostic.CS9124.severity = none

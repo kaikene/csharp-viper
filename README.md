@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🐍Viper
 **Because snake is a boring name.**
 ### What is this?
@@ -8,3 +9,8 @@ The **Viper.Desktop** project should have been the "main game", but it doesn't d
 
 ### This code is awful
 All my code is awful, i am still learning C# currently, and i don't know if i will ever work for a company or something like that, currently my scope is just to do silly personal projects.
+=======
+My second attempt at remaking my WPF snake game in a nicer way, this project failed because i messed up a lot of things and even lost some progress.
+
+Current plan is to start completetly from scrath but keep things in control and do constant backups.
+>>>>>>> old-csharp-viper/master

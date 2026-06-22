@@ -360,4 +360,11 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+<<<<<<< HEAD
 FodyWeavers.xsd
+=======
+FodyWeavers.xsd
+
+# User files
+/BuildData.cs
+>>>>>>> old-csharp-viper/master

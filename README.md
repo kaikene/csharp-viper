@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🐍Viper
 **Because snake is a boring name.**
 ### What is this?
@@ -13,4 +12,3 @@ All my code is awful, i am still learning C# currently, and i don't know if i wi
 My second attempt at remaking my WPF snake game in a nicer way, this project failed because i messed up a lot of things and even lost some progress.
 
 Current plan is to start completetly from scrath but keep things in control and do constant backups.
->>>>>>> old-csharp-viper/master
